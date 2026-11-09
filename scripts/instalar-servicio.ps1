@@ -45,11 +45,10 @@ Register-ScheduledTask -TaskName 'SistemaCronogramasSST' -Action $actionWeb -Tri
 
 # 4. Registrar el Vigilante de Auto-Actualización (revisa GitHub en segundo plano cada 5 minutos)
 $actionUpdate = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"`"$scriptUpdate`"`"" -WorkingDirectory $Raiz
-$triggerUpdate1 = New-ScheduledTaskTrigger -AtStartup
-$triggerUpdate2 = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 5) -RepetitionDuration ([TimeSpan]::MaxValue)
+$triggerUpdate = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 5)
 $settingsUpdate = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew
 
-Register-ScheduledTask -TaskName 'SistemaCronogramasAutoUpdate' -Action $actionUpdate -Trigger @($triggerUpdate1, $triggerUpdate2) -Settings $settingsUpdate -Description 'Vigilante de Actualizaciones GitHub SST/SIHO' -User 'NT AUTHORITY\SYSTEM' -RunLevel Highest
+Register-ScheduledTask -TaskName 'SistemaCronogramasAutoUpdate' -Action $actionUpdate -Trigger $triggerUpdate -Settings $settingsUpdate -Description 'Vigilante de Actualizaciones GitHub SST/SIHO' -User 'NT AUTHORITY\SYSTEM' -RunLevel Highest
 
 # 5. Iniciar la tarea como servicio inmediatamente
 Start-ScheduledTask -TaskName 'SistemaCronogramasSST' -ErrorAction SilentlyContinue
