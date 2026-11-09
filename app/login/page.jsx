@@ -12,6 +12,9 @@ export default function LoginPage() {
         <div className="h-1.5 bg-marca" aria-hidden="true" />
         <div className="px-7 pb-8 pt-7">
           <div className="mb-6 text-center">
+            <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-tinta text-marca shadow-md ring-2 ring-marca/40">
+              <span className="text-xl font-black tracking-wider">CVC</span>
+            </div>
             <h2 className="text-lg font-bold text-slate-900">Iniciar sesión</h2>
             <p className="text-sm text-slate-500">Ingrese con el usuario y la contraseña que le asignó el administrador.</p>
           </div>

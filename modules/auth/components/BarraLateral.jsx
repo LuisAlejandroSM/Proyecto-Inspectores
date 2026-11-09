@@ -90,7 +90,16 @@ function Contenido({ usuario, colapsada, onNavegar, botonColapsar }) {
   return (
     <div className="flex h-full flex-col">
       <div className={`flex h-16 items-center border-b border-slate-100 ${colapsada ? "justify-center px-2" : "justify-between px-4"}`}>
-        {!colapsada && <span className="text-sm font-bold leading-tight text-slate-900">Sistema de<br />Cronogramas</span>}
+        {!colapsada && (
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-tinta text-xs font-black tracking-wider text-marca shadow-sm ring-1 ring-marca/40">
+              CVC
+            </span>
+            <span className="text-sm font-bold leading-tight text-slate-900">
+              Sistema de<br />Cronogramas
+            </span>
+          </div>
+        )}
         {botonColapsar}
       </div>
 
@@ -197,7 +206,12 @@ export default function BarraLateral({ usuario, colapsadaInicial = false }) {
           >
             <Icono nombre="menu" className="h-6 w-6" />
           </button>
-          <span className="text-sm font-bold text-slate-900">Sistema de Cronogramas</span>
+          <div className="flex items-center gap-2">
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-tinta text-[11px] font-black tracking-wider text-marca shadow-sm ring-1 ring-marca/40">
+              CVC
+            </span>
+            <span className="text-sm font-bold text-slate-900">Sistema de Cronogramas</span>
+          </div>
         </div>
         {usuario.esAdmin && (
           <Link
