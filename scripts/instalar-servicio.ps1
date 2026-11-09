@@ -53,6 +53,9 @@ Register-ScheduledTask -TaskName 'SistemaCronogramasAutoUpdate' -Action $actionU
 # 5. Iniciar la tarea como servicio inmediatamente
 Start-ScheduledTask -TaskName 'SistemaCronogramasSST' -ErrorAction SilentlyContinue
 
+# 6. Abrir puertos 80 y 3000 en el Firewall de Windows para la red local
+New-NetFirewallRule -DisplayName "Sistema SST (Puertos 80 y 3000)" -Direction Inbound -LocalPort 80,3000 -Protocol TCP -Action Allow -ErrorAction SilentlyContinue | Out-Null
+
 Start-Sleep -Seconds 3
 
 Write-Host ""
