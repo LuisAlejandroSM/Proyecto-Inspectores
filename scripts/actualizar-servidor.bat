@@ -9,7 +9,7 @@ echo.
 cd /d "%~dp0\.."
 
 echo [1/6] Descargando ultimos cambios de GitHub...
-git pull
+git pull origin main
 if errorlevel 1 (
     echo.
     echo [ERROR] Falló 'git pull'. Verifique la conexión a Internet o credenciales.
@@ -36,18 +36,19 @@ call bun run build
 if errorlevel 1 (
     echo.
     echo [ERROR] Error durante la compilación.
+    echo.
     pause
     exit /b 1
 )
 
 echo.
 echo [6/6] Reiniciando servidor automáticamente con los nuevos cambios...
-powershell -Command "$t = Get-ScheduledTask -TaskName 'SistemaCronogramasSST' -ErrorAction SilentlyContinue; if ($t) { Stop-ScheduledTask -TaskName 'SistemaCronogramasSST' -ErrorAction SilentlyContinue; Start-Sleep -Seconds 2; Start-ScheduledTask -TaskName 'SistemaCronogramasSST'; Write-Host '[OK] Tarea del servidor reiniciada exitosamente.' } else { Get-Process -Name 'bun' -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match 'start' } | Stop-Process -Force -ErrorAction SilentlyContinue; Start-Process -FilePath 'bun' -ArgumentList 'run start' -WorkingDirectory '%~dp0..' -WindowStyle Minimized; Write-Host '[OK] Servidor reiniciado en segundo plano.' }"
+powershell -ExecutionPolicy Bypass -Command "Start-Process 'wscript.exe' -ArgumentList '\"%~dp0iniciar-segundo-plano.vbs\"' -WorkingDirectory '%~dp0..'"
 
 echo.
 echo =====================================================================
 echo    ¡Actualización completada con éxito!
-echo    El servidor ya está corriendo con la nueva versión.
+echo    El servidor ya está corriendo con la nueva versión en segundo plano.
 echo    Puedes recargar la página en el navegador.
 echo =====================================================================
 echo.
