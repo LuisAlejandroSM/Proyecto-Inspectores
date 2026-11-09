@@ -8,7 +8,7 @@ echo.
 
 cd /d "%~dp0\.."
 
-echo [1/5] Descargando ultimos cambios de GitHub...
+echo [1/6] Descargando ultimos cambios de GitHub...
 git pull
 if errorlevel 1 (
     echo.
@@ -19,19 +19,19 @@ if errorlevel 1 (
 )
 
 echo.
-echo [2/5] Verificando dependencias de software...
+echo [2/6] Verificando dependencias de software...
 call bun install
 
 echo.
-echo [3/5] Verificando migraciones de base de datos...
+echo [3/6] Verificando migraciones de base de datos...
 call bun run db:migrate 2>nul
 
 echo.
-echo [4/5] Sincronizando catálogo de formularios en base de datos...
+echo [4/6] Sincronizando catálogo de formularios en base de datos...
 call bun run db:cargar-formularios
 
 echo.
-echo [5/5] Recompilando la aplicación para producción...
+echo [5/6] Recompilando la aplicación para producción...
 call bun run build
 if errorlevel 1 (
     echo.
@@ -41,11 +41,14 @@ if errorlevel 1 (
 )
 
 echo.
+echo [6/6] Reiniciando servidor automáticamente con los nuevos cambios...
+powershell -Command "$t = Get-ScheduledTask -TaskName 'SistemaCronogramasSST' -ErrorAction SilentlyContinue; if ($t) { Stop-ScheduledTask -TaskName 'SistemaCronogramasSST' -ErrorAction SilentlyContinue; Start-Sleep -Seconds 2; Start-ScheduledTask -TaskName 'SistemaCronogramasSST'; Write-Host '[OK] Tarea del servidor reiniciada exitosamente.' } else { Get-Process -Name 'bun' -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match 'start' } | Stop-Process -Force -ErrorAction SilentlyContinue; Start-Process -FilePath 'bun' -ArgumentList 'run start' -WorkingDirectory '%~dp0..' -WindowStyle Minimized; Write-Host '[OK] Servidor reiniciado en segundo plano.' }"
+
+echo.
 echo =====================================================================
 echo    ¡Actualización completada con éxito!
-echo    Para aplicar los cambios en el servidor en vivo:
-echo    - Si corre por tarea de Windows: reinicie la tarea o la máquina.
-echo    - Si corre por consola: cierre la ventana y ejecute iniciar-produccion.bat
+echo    El servidor ya está corriendo con la nueva versión.
+echo    Puedes recargar la página en el navegador.
 echo =====================================================================
 echo.
 pause
