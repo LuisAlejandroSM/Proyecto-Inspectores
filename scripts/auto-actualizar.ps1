@@ -10,7 +10,7 @@
 
 $ErrorActionPreference = "Continue"
 
-$Raiz = Resolve-Path (Join-Path $PSScriptRoot "..")
+$Raiz = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location $Raiz
 
 # 1. Comprobar conectividad y buscar cambios en GitHub
@@ -66,20 +66,11 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
-# 6. Reiniciar el servidor en producción
+# 6. Reiniciar el servidor en producción de forma invisible
 Write-Host "[$Timestamp] Reiniciando servicio web en Windows..."
-$tareaExiste = Get-ScheduledTask -TaskName "SistemaCronogramasSST" -ErrorAction SilentlyContinue
-if ($tareaExiste) {
-    Stop-ScheduledTask -TaskName "SistemaCronogramasSST" -ErrorAction SilentlyContinue
-    Start-Sleep -Seconds 2
-    Start-ScheduledTask -TaskName "SistemaCronogramasSST"
-    Write-Host "[$Timestamp] [EXITO] Tarea 'SistemaCronogramasSST' reiniciada con la nueva versión."
-} else {
-    # Si corre en modo proceso directo, reiniciar bun
-    Get-Process -Name "bun" -ErrorAction SilentlyContinue | Where-Object { $_.CommandLine -match "start" } | Stop-Process -Force -ErrorAction SilentlyContinue
-    Start-Process -FilePath "bun" -ArgumentList "run start" -WorkingDirectory $Raiz -WindowStyle Minimized
-    Write-Host "[$Timestamp] [EXITO] Proceso web reiniciado con la nueva versión."
-}
+$vbsPath = [string](Join-Path $Raiz "scripts\iniciar-segundo-plano.vbs")
+Start-Process "wscript.exe" -ArgumentList "`"$vbsPath`"" -WorkingDirectory $Raiz
+Write-Host "[$Timestamp] [EXITO] Servidor reiniciado en segundo plano con la nueva versión."
 
 Write-Host "[$Timestamp] ¡Actualización automática completada exitosamente!"
 exit 0
