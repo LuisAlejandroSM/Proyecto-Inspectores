@@ -53,7 +53,7 @@ bun run dev
 ```
 Accede en `http://localhost:3000`.
 
-### 5. Compilación y Servidor de Producción
+### 5. Compilación y Servidor de Producción (Puerto 80)
 ```bash
 bun run build
 bun run start
@@ -64,6 +64,7 @@ bun run start
 ## 🔄 Scripts de Utilidad (Windows)
 
 En la carpeta `scripts/` se encuentran los asistentes listos para el servidor:
+* **`configurar-servicio-24-7.bat`**: Configura el sistema como servicio invisible 24/7 en el puerto 80 que arranca solo al encender la máquina.
 * **`actualizar-servidor.bat`**: Actualiza el código desde GitHub, sincroniza formularios y recompila la aplicación con un solo clic.
-* **`configurar-auto-actualizador.bat`**: Programa la tarea del vigilante en segundo plano para actualizar el servidor automáticamente cada vez que se suban cambios a GitHub.
-* **`iniciar-produccion.bat`**: Inicia el servidor de producción optimizado.
+* **`ver-estado.bat`**: Diagnóstico en tiempo real del estado del servidor, memoria RAM, puertos y últimos registros de actividad.
+* **`detener-servidor.bat`**: Detiene los procesos en segundo plano y libera los puertos 80 y 3000.
