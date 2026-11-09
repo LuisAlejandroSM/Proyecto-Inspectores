@@ -3,11 +3,11 @@
 )
 
 $ErrorActionPreference = "Continue"
-$Raiz = Resolve-Path (Join-Path $PSScriptRoot "..")
-$scriptUpdate = Join-Path $Raiz "scripts\auto-actualizar.ps1"
-$vbsPath = Join-Path $Raiz "scripts\iniciar-segundo-plano.vbs"
+$Raiz = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$scriptUpdate = [string](Join-Path $Raiz "scripts\auto-actualizar.ps1")
+$vbsPath = [string](Join-Path $Raiz "scripts\iniciar-segundo-plano.vbs")
 $startupFolder = [Environment]::GetFolderPath('Startup')
-$shortcutPath = Join-Path $startupFolder "SistemaSST.lnk"
+$shortcutPath = [string](Join-Path $startupFolder "SistemaSST.lnk")
 
 if ($Accion -eq "desactivar") {
     Unregister-ScheduledTask -TaskName 'SistemaCronogramasSST' -Confirm:$false -ErrorAction SilentlyContinue
@@ -36,18 +36,18 @@ $wsh = New-Object -ComObject WScript.Shell
 $sc = $wsh.CreateShortcut($shortcutPath)
 $sc.TargetPath = "wscript.exe"
 $sc.Arguments = "`"$vbsPath`""
-$sc.WorkingDirectory = $Raiz
+$sc.WorkingDirectory = [string]$Raiz
 $sc.Save()
 
 # 4. Registrar la tarea de inicio automático al iniciar sesión
-$actionWeb = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument "`"$vbsPath`"" -WorkingDirectory $Raiz
+$actionWeb = New-ScheduledTaskAction -Execute 'wscript.exe' -Argument "`"$vbsPath`"" -WorkingDirectory ([string]$Raiz)
 $triggerWeb = New-ScheduledTaskTrigger -AtLogOn
 $settingsWeb = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
 
 Register-ScheduledTask -TaskName 'SistemaCronogramasSST' -Action $actionWeb -Trigger $triggerWeb -Settings $settingsWeb -Description 'Servidor Web 24/7 Sistema SST/SIHO' -RunLevel Highest
 
 # 5. Registrar el Vigilante de Auto-Actualización (revisa GitHub en segundo plano cada 5 minutos)
-$actionUpdate = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"`"$scriptUpdate`"`"" -WorkingDirectory $Raiz
+$actionUpdate = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"`"$scriptUpdate`"`"" -WorkingDirectory ([string]$Raiz)
 $triggerUpdate = New-ScheduledTaskTrigger -Once -At (Get-Date) -RepetitionInterval (New-TimeSpan -Minutes 5)
 $settingsUpdate = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -MultipleInstances IgnoreNew
 
@@ -57,7 +57,7 @@ Register-ScheduledTask -TaskName 'SistemaCronogramasAutoUpdate' -Action $actionU
 New-NetFirewallRule -DisplayName "Sistema SST (Puertos 80 y 3000)" -Direction Inbound -LocalPort 80,3000 -Protocol TCP -Action Allow -ErrorAction SilentlyContinue | Out-Null
 
 # 7. Iniciar el servidor invisible de una vez en este momento
-Start-Process "wscript.exe" -ArgumentList "`"$vbsPath`"" -WorkingDirectory $Raiz
+Start-Process "wscript.exe" -ArgumentList "`"$vbsPath`"" -WorkingDirectory ([string]$Raiz)
 
 Start-Sleep -Seconds 3
 
