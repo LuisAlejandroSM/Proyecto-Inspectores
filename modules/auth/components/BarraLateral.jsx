@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { etiquetaNivelUsuario } from "@/db/roles";
 import { cerrarSesion } from "../actions";
 import { COOKIE_BARRA } from "../preferencias";
 
@@ -22,6 +23,12 @@ const ICONOS = {
   ),
   notificaciones: (
     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+  ),
+  configuracion: (
+    <g>
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+      <circle cx="12" cy="12" r="3" />
+    </g>
   ),
   "mi-cronograma": (
     <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2m-6 9 2 2 4-4" />
@@ -64,6 +71,7 @@ function enlacesDe(usuario) {
           contador: usuario.notificacionesPendientes,
           alerta: true,
         },
+        { href: "/configuracion", etiqueta: "Configuración", icono: "configuracion" },
       ]
     : [
         { href: "/mi-cronograma", etiqueta: "Mi cronograma", icono: "mi-cronograma" },
@@ -88,13 +96,18 @@ function iniciales(nombre) {
 function Contenido({ usuario, colapsada, onNavegar, botonColapsar }) {
   const ruta = usePathname();
   return (
-    <div className="flex h-full flex-col">
-      <div className={`flex h-16 items-center border-b border-slate-100 ${colapsada ? "justify-center px-2" : "justify-between px-4"}`}>
-        {!colapsada && <span className="text-sm font-bold leading-tight text-slate-900">Sistema de<br />Cronogramas</span>}
+    <div className="flex h-full flex-col bg-[#0f1420] text-slate-300">
+      <div className={`flex h-16 items-center border-b border-[#1c2438] ${colapsada ? "justify-center px-2" : "justify-between px-4"}`}>
+        {!colapsada && (
+          <div className="min-w-0 pr-2">
+            <span className="block text-[11px] font-bold tracking-wider text-[#f5b800] uppercase">CEVECONCA</span>
+            <span className="block text-xs font-semibold leading-tight text-white tracking-tight truncate">Inspecciones Preventivas</span>
+          </div>
+        )}
         {botonColapsar}
       </div>
 
-      <nav aria-label="Principal" className="flex-1 space-y-1 p-2">
+      <nav aria-label="Principal" className="flex-1 space-y-1.5 p-3">
         {enlacesDe(usuario).map((e) => {
           const activo = esActivo(e.href, ruta);
           return (
@@ -104,22 +117,26 @@ function Contenido({ usuario, colapsada, onNavegar, botonColapsar }) {
               onClick={onNavegar}
               title={colapsada ? e.etiqueta : undefined}
               aria-current={activo ? "page" : undefined}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
                 colapsada ? "justify-center" : ""
-              } ${activo ? "bg-marca-suave text-tinta ring-1 ring-marca/40" : "text-slate-500 hover:bg-slate-50 hover:text-slate-900"}`}
+              } ${
+                activo
+                  ? "bg-[#f5b800]/15 text-[#f5b800] ring-1 ring-[#f5b800]/30 shadow-sm"
+                  : "text-slate-400 hover:bg-white/[0.05] hover:text-white"
+              }`}
             >
               <span className="relative">
                 <Icono nombre={e.icono} />
                 {colapsada && e.contador > 0 && (
-                  <span className={`absolute -right-1.5 -top-1.5 h-2.5 w-2.5 rounded-full ring-2 ring-white ${e.alerta ? "bg-red-600 animate-pulse" : "bg-red-500"}`} />
+                  <span className={`absolute -right-1.5 -top-1.5 h-2.5 w-2.5 rounded-full ring-2 ring-[#0f1420] ${e.alerta ? "bg-red-500 animate-pulse" : "bg-[#f5b800]"}`} />
                 )}
               </span>
               {!colapsada && <span className="flex-1">{e.etiqueta}</span>}
               {!colapsada && e.contador > 0 && (
                 <span
                   aria-label={`${e.contador} pendiente(s)`}
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-bold text-white ${
-                    e.alerta ? "bg-red-600 animate-pulse" : "bg-tinta"
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-black ${
+                    e.alerta ? "bg-red-500 text-white animate-pulse" : "bg-[#f5b800] text-[#0f1420]"
                   }`}
                 >
                   {e.contador}
@@ -130,29 +147,29 @@ function Contenido({ usuario, colapsada, onNavegar, botonColapsar }) {
         })}
       </nav>
 
-      <div className="border-t border-slate-100 p-2">
-        <div className={`flex items-center gap-3 px-2 py-2 ${colapsada ? "justify-center" : ""}`} title={colapsada ? usuario.nombre : undefined}>
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-marca-suave text-xs font-bold text-tinta ring-1 ring-marca">
+      <div className="border-t border-[#1c2438] p-3 space-y-2">
+        <div className={`flex items-center gap-3 rounded-xl bg-white/[0.03] border border-white/[0.06] p-2.5 ${colapsada ? "justify-center p-2" : ""}`} title={colapsada ? usuario.nombre : undefined}>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#f5b800] text-xs font-black text-[#0f1420] shadow-sm">
             {iniciales(usuario.nombre)}
           </span>
           {!colapsada && (
-            <span className="min-w-0">
-              <span className="block truncate text-sm font-semibold text-slate-900">{usuario.nombre}</span>
-              <span className="block truncate text-xs text-slate-500">
-                {usuario.esAdmin ? "Administrador" : usuario.rol}
+            <div className="min-w-0 flex-1">
+              <span className="block truncate text-xs font-bold text-white">{usuario.nombre}</span>
+              <span className="block truncate text-[11px] font-semibold text-[#f5b800]">
+                {etiquetaNivelUsuario(usuario)}
               </span>
-            </span>
+            </div>
           )}
         </div>
         <form action={cerrarSesion}>
           <button
             type="submit"
             title={colapsada ? "Cerrar sesión" : undefined}
-            className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 ${
+            className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs font-semibold text-slate-400 transition hover:bg-rose-500/10 hover:text-rose-400 ${
               colapsada ? "justify-center" : ""
             }`}
           >
-            <Icono nombre="salir" />
+            <Icono nombre="salir" className="h-4 w-4 shrink-0" />
             {!colapsada && <span>Cerrar sesión</span>}
           </button>
         </form>
@@ -186,28 +203,31 @@ export default function BarraLateral({ usuario, colapsadaInicial = false }) {
   return (
     <>
       {/* Celular: barra superior con botón de menú y campana de notificaciones */}
-      <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4 md:hidden">
+      <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-[#1c2438] bg-[#0f1420] px-4 md:hidden">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => setAbiertaMovil(true)}
             aria-label="Abrir menú"
             aria-expanded={abiertaMovil}
-            className="rounded-lg p-1.5 text-slate-700 hover:bg-slate-100"
+            className="rounded-lg p-1.5 text-slate-300 hover:bg-white/[0.08]"
           >
             <Icono nombre="menu" className="h-6 w-6" />
           </button>
-          <span className="text-sm font-bold text-slate-900">Sistema de Cronogramas</span>
+          <div className="flex flex-col min-w-0">
+            <span className="text-[10px] font-bold tracking-wider text-[#f5b800] uppercase">CEVECONCA</span>
+            <span className="text-xs font-semibold text-white tracking-tight truncate">Inspecciones Preventivas</span>
+          </div>
         </div>
         {usuario.esAdmin && (
           <Link
             href="/notificaciones"
-            className="relative rounded-lg p-2 text-slate-700 hover:bg-slate-100"
+            className="relative rounded-lg p-2 text-slate-300 hover:bg-white/[0.08]"
             aria-label="Notificaciones"
           >
             <Icono nombre="notificaciones" className="h-5 w-5" />
             {usuario.notificacionesPendientes > 0 && (
-              <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white ring-2 ring-white animate-pulse">
+              <span className="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white ring-2 ring-[#0f1420] animate-pulse">
                 {usuario.notificacionesPendientes}
               </span>
             )}
@@ -222,9 +242,9 @@ export default function BarraLateral({ usuario, colapsadaInicial = false }) {
             type="button"
             aria-label="Cerrar menú"
             onClick={() => setAbiertaMovil(false)}
-            className="absolute inset-0 bg-slate-900/50"
+            className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
           />
-          <aside className="relative h-full w-64 bg-white shadow-xl">
+          <aside className="relative h-full w-64 bg-[#0f1420] shadow-2xl">
             <Contenido
               usuario={usuario}
               colapsada={false}
@@ -234,7 +254,7 @@ export default function BarraLateral({ usuario, colapsadaInicial = false }) {
                   type="button"
                   onClick={() => setAbiertaMovil(false)}
                   aria-label="Cerrar menú"
-                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-900"
+                  className="rounded-lg p-1.5 text-slate-400 hover:bg-white/[0.08] hover:text-white"
                 >
                   <Icono nombre="cerrar" />
                 </button>
@@ -246,7 +266,7 @@ export default function BarraLateral({ usuario, colapsadaInicial = false }) {
 
       {/* Escritorio: barra fija, expandida o colapsada */}
       <aside
-        className={`sticky top-0 hidden h-screen shrink-0 border-r border-slate-200 bg-white transition-[width] duration-200 md:block ${
+        className={`sticky top-0 hidden h-screen shrink-0 border-r border-[#1c2438] bg-[#0f1420] shadow-sm transition-[width] duration-200 md:block ${
           colapsada ? "w-16" : "w-60"
         }`}
       >
@@ -260,7 +280,7 @@ export default function BarraLateral({ usuario, colapsadaInicial = false }) {
               aria-label={colapsada ? "Expandir menú" : "Colapsar menú"}
               aria-expanded={!colapsada}
               title={colapsada ? "Expandir menú" : "Colapsar menú"}
-              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-900"
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-white/[0.08] hover:text-white"
             >
               <Icono nombre={colapsada ? "expandir" : "colapsar"} />
             </button>

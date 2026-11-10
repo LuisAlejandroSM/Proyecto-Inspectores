@@ -24,6 +24,7 @@ export async function obtenerUsuarioActual() {
       rol: usuarios.rol,
       cargo: usuarios.cargo,
       esAdmin: usuarios.esAdmin,
+      esSuperAdmin: usuarios.esSuperAdmin,
       debeCambiarClave: usuarios.debeCambiarClave,
       activo: usuarios.activo,
       claveHash: usuarios.claveHash,
@@ -45,10 +46,17 @@ export async function requerirUsuario() {
   return usuario;
 }
 
-/** Página o acción solo para administradores. */
+/** Página o acción para administradores y supervisores SIHO. */
 export async function requerirAdmin() {
   const usuario = await requerirUsuario();
   if (!usuario.esAdmin) redirect("/mi-cronograma");
+  return usuario;
+}
+
+/** Página o acción exclusiva para el Administrador del Sistema (Superadmin). */
+export async function requerirSuperAdmin() {
+  const usuario = await requerirAdmin();
+  if (!usuario.esSuperAdmin) redirect("/dashboard");
   return usuario;
 }
 
@@ -56,10 +64,13 @@ export async function requerirAdmin() {
  * Variante para Server Actions que devuelven un resultado en vez de redirigir.
  * @returns {Promise<{ usuario: object } | { error: string }>}
  */
-export async function autorizarAccion({ soloAdmin = false } = {}) {
+export async function autorizarAccion({ soloAdmin = false, soloSuperAdmin = false } = {}) {
   const usuario = await obtenerUsuarioActual();
   if (!usuario || usuario.debeCambiarClave) {
     return { error: "Su sesión expiró. Vuelva a iniciar sesión." };
+  }
+  if (soloSuperAdmin && !usuario.esSuperAdmin) {
+    return { error: "Acción reservada exclusivamente para el Administrador del Sistema." };
   }
   if (soloAdmin && !usuario.esAdmin) {
     return { error: "No tiene permiso para realizar esta acción." };

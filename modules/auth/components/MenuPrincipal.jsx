@@ -37,6 +37,7 @@ export default async function MenuPrincipal() {
         nombre: usuario.nombre,
         rol: usuario.rol,
         esAdmin: usuario.esAdmin,
+        esSuperAdmin: usuario.esSuperAdmin,
         pendientes,
         notificacionesPendientes,
       }}

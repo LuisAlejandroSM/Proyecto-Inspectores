@@ -4,8 +4,8 @@ import { cookies } from "next/headers";
 import { DURACION_SESION_SEG, firmarSesion, NOMBRE_COOKIE, verificarSesion } from "./token";
 
 /** Crea (o renueva) la cookie de sesión. */
-export async function crearSesion({ id, esAdmin, debeCambiarClave }) {
-  const token = await firmarSesion({ id, esAdmin, debeCambiarClave });
+export async function crearSesion({ id, esAdmin, esSuperAdmin, debeCambiarClave }) {
+  const token = await firmarSesion({ id, esAdmin, esSuperAdmin, debeCambiarClave });
   const almacen = await cookies();
   almacen.set(NOMBRE_COOKIE, token, {
     httpOnly: true,

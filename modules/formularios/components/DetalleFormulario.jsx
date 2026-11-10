@@ -125,7 +125,7 @@ export default async function DetalleFormulario({ params, seccion }) {
           </span>
           <span className="text-slate-700">{SECCIONES[seccion] ?? SECCIONES.editar}</span>
         </nav>
-        <h2 className="flex flex-wrap items-center gap-2 text-2xl font-semibold tracking-tight text-slate-900">
+        <h1 className="flex flex-wrap items-center gap-2 text-2xl font-bold tracking-tight text-slate-900">
           {formulario.titulo}
           {formulario.rol && (
             <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200">{formulario.rol}</span>
@@ -136,7 +136,7 @@ export default async function DetalleFormulario({ params, seccion }) {
           {!formulario.activo && (
             <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-slate-500 ring-1 ring-slate-200">Archivado</span>
           )}
-        </h2>
+        </h1>
       </div>
       {contenido}
     </div>

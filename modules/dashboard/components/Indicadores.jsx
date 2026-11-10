@@ -31,17 +31,21 @@ export function EstadoCumplimiento({ valor }) {
 /** Variación frente al mes anterior. `subirEsBueno` decide el color (null = neutro). */
 function Variacion({ diferencia, unidad = "", referencia, subirEsBueno = true }) {
   if (diferencia === null || diferencia === undefined) {
-    return <span className="text-xs text-[var(--viz-muted)]">Sin dato de {referencia}</span>;
+    return <span className="text-xs text-slate-400">Sin dato de {referencia}</span>;
   }
-  const signo = diferencia > 0 ? "▲" : diferencia < 0 ? "▼" : "■";
+  const signo = diferencia > 0 ? "↑" : diferencia < 0 ? "↓" : "–";
   const bueno = subirEsBueno === null || diferencia === 0 ? null : (diferencia > 0) === subirEsBueno;
-  const color =
-    bueno === null ? "text-[var(--viz-text-secondary)]" : bueno ? "text-[var(--viz-good-text)]" : "text-[var(--viz-critical)]";
+  const clasesPildora =
+    bueno === null
+      ? "bg-slate-100 text-slate-600 border-slate-200"
+      : bueno
+      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+      : "bg-rose-50 text-rose-700 border-rose-200";
   const valor = Math.abs(diferencia);
   return (
-    <span className={`text-xs font-medium ${color}`}>
+    <span className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-bold ${clasesPildora}`}>
       {signo} {formatoNumero(valor)}
-      {unidad} <span className="font-normal text-[var(--viz-muted)]">vs. {referencia}</span>
+      {unidad} <span className="font-normal opacity-75">vs. {referencia}</span>
     </span>
   );
 }
@@ -49,19 +53,19 @@ function Variacion({ diferencia, unidad = "", referencia, subirEsBueno = true })
 /** Cifra principal del dashboard (una sola por vista). */
 export function CifraPrincipal({ titulo, valor, detalle, diferenciaPuntos, referencia }) {
   return (
-    <div className="viz-root flex h-full flex-col justify-between rounded-lg border border-black/10 bg-[var(--viz-surface)] p-5 shadow-sm">
+    <div className="viz-root flex h-full flex-col justify-between rounded-2xl border border-slate-200/90 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
       <div>
-        <p className="text-sm font-medium text-[var(--viz-text-secondary)]">{titulo}</p>
-        <p className="mt-2 text-6xl font-semibold tracking-tight text-[var(--viz-text-primary)]">
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-500">{titulo}</p>
+        <p className="mt-2 text-5xl font-black tracking-tight text-slate-900">
           {formatoPorcentaje(valor)}
         </p>
-        <div className="mt-2">
+        <div className="mt-2.5">
           <EstadoCumplimiento valor={valor} />
         </div>
       </div>
-      <div className="mt-4 space-y-1">
+      <div className="mt-4 space-y-1 border-t border-slate-100 pt-3">
         {referencia && <Variacion diferencia={diferenciaPuntos} unidad=" pts" referencia={referencia} />}
-        <p className="text-xs text-[var(--viz-muted)]">{detalle}</p>
+        <p className="text-xs text-slate-500">{detalle}</p>
       </div>
     </div>
   );
@@ -74,17 +78,17 @@ export function CifraPrincipal({ titulo, valor, detalle, diferenciaPuntos, refer
 export function Indicador({ etiqueta, valor, nota, diferencia, referencia, subirEsBueno, grande = false }) {
   return (
     <div
-      className={`viz-root rounded-lg border border-black/10 bg-[var(--viz-surface)] shadow-sm ${
-        grande ? "flex h-full flex-col justify-between p-4 sm:p-5" : "p-4"
+      className={`viz-root rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-shadow ${
+        grande ? "flex h-full flex-col justify-between p-5 sm:p-6" : "p-5"
       }`}
     >
-      <p className={`font-medium text-[var(--viz-text-secondary)] ${grande ? "text-sm" : "text-xs"}`}>{etiqueta}</p>
-      <p className={`font-semibold tracking-tight text-[var(--viz-text-primary)] ${grande ? "mt-3 text-4xl sm:text-5xl" : "mt-1 text-2xl"}`}>{valor}</p>
-      <div className={`min-h-[1rem] ${grande ? "mt-3" : "mt-1"}`}>
+      <p className={`font-bold text-slate-500 uppercase tracking-wider ${grande ? "text-xs" : "text-[11px]"}`}>{etiqueta}</p>
+      <p className={`font-black tracking-tight text-slate-900 ${grande ? "mt-3 text-4xl sm:text-5xl" : "mt-1.5 text-3xl"}`}>{valor}</p>
+      <div className={`min-h-[1.25rem] ${grande ? "mt-3" : "mt-2"}`}>
         {diferencia !== undefined ? (
           <Variacion diferencia={diferencia} referencia={referencia} subirEsBueno={subirEsBueno} />
         ) : (
-          <span className="text-xs text-[var(--viz-muted)]">{nota}</span>
+          <span className="text-xs text-slate-400">{nota}</span>
         )}
       </div>
     </div>

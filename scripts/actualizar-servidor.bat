@@ -20,19 +20,39 @@ if errorlevel 1 (
 
 echo.
 echo [2/6] Verificando dependencias de software...
-call bun install
+where bun >nul 2>nul
+if %errorlevel% equ 0 (
+    call bun install
+) else (
+    call npm install
+)
 
 echo.
 echo [3/6] Verificando migraciones de base de datos...
-call bun run db:migrate 2>nul
+where bun >nul 2>nul
+if %errorlevel% equ 0 (
+    call bun run db:migrar-superadmin
+) else (
+    call npm run db:migrar-superadmin
+)
 
 echo.
 echo [4/6] Sincronizando catálogo de formularios en base de datos...
-call bun run db:cargar-formularios
+where bun >nul 2>nul
+if %errorlevel% equ 0 (
+    call bun run db:cargar-formularios
+) else (
+    call npm run db:cargar-formularios
+)
 
 echo.
 echo [5/6] Recompilando la aplicación para producción...
-call bun run build
+where bun >nul 2>nul
+if %errorlevel% equ 0 (
+    call bun run build
+) else (
+    call npm run build
+)
 if errorlevel 1 (
     echo.
     echo [ERROR] Error durante la compilación.

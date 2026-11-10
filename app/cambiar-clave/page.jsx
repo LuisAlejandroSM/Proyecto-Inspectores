@@ -1,7 +1,7 @@
 import FormularioCambioClave from "@/modules/auth/components/FormularioCambioClave";
 
 export const metadata = {
-  title: "Cambiar contraseña · Sistema Cronogramas",
+  title: "Cambiar contraseña · Sistema de Inspecciones Preventivas",
 };
 
 export default function CambiarClavePage() {

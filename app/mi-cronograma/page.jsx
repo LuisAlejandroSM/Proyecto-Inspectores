@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import MiCronograma from "@/modules/cronogramas/components/MiCronograma";
 
 export const metadata = {
-  title: "Mi cronograma · Sistema Cronogramas",
+  title: "Mi cronograma · Sistema de Inspecciones Preventivas",
 };
 
 // Filtros por URL: ?mes=Enero..Diciembre&anio=2026

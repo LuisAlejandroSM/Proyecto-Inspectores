@@ -78,7 +78,7 @@ export default function ListaNotificaciones({ notificacionesIniciales = [], esta
   return (
     <div className="space-y-4">
       {/* Barra de control superior */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
         {/* Pestañas de filtro */}
         <div className="flex flex-wrap items-center gap-1.5" role="tablist">
           <button
@@ -86,16 +86,16 @@ export default function ListaNotificaciones({ notificacionesIniciales = [], esta
             role="tab"
             aria-selected={filtro === "no-leidas"}
             onClick={() => setFiltro("no-leidas")}
-            className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
               filtro === "no-leidas"
-                ? "bg-marca text-white shadow-sm"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                ? "bg-[#0f1420] text-white shadow-sm ring-1 ring-white/10"
+                : "bg-slate-100/90 text-slate-600 hover:bg-slate-200/80"
             }`}
           >
             <span>No leídas</span>
             {estadisticasIniciales.noLeidas > 0 && (
               <span className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                filtro === "no-leidas" ? "bg-white text-marca" : "bg-red-600 text-white"
+                filtro === "no-leidas" ? "bg-red-500 text-white" : "bg-red-600 text-white"
               }`}>
                 {estadisticasIniciales.noLeidas}
               </span>
@@ -107,15 +107,15 @@ export default function ListaNotificaciones({ notificacionesIniciales = [], esta
             role="tab"
             aria-selected={filtro === "no-ejecutadas"}
             onClick={() => setFiltro("no-ejecutadas")}
-            className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
               filtro === "no-ejecutadas"
-                ? "bg-red-700 text-white shadow-sm"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                ? "bg-rose-700 text-white shadow-sm"
+                : "bg-slate-100/90 text-slate-600 hover:bg-slate-200/80"
             }`}
           >
             <span>No ejecutadas (N)</span>
             {estadisticasIniciales.noEjecutadas > 0 && (
-              <span className="rounded-full bg-red-100 px-1.5 py-0.2 text-[10px] font-bold text-red-800">
+              <span className="rounded-full bg-rose-100 px-1.5 py-0.2 text-[10px] font-bold text-rose-800">
                 {estadisticasIniciales.noEjecutadas}
               </span>
             )}
@@ -126,10 +126,10 @@ export default function ListaNotificaciones({ notificacionesIniciales = [], esta
             role="tab"
             aria-selected={filtro === "vencidas"}
             onClick={() => setFiltro("vencidas")}
-            className={`inline-flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-xs font-bold transition ${
               filtro === "vencidas"
                 ? "bg-amber-600 text-white shadow-sm"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                : "bg-slate-100/90 text-slate-600 hover:bg-slate-200/80"
             }`}
           >
             <span>Vencidas</span>
@@ -145,10 +145,10 @@ export default function ListaNotificaciones({ notificacionesIniciales = [], esta
             role="tab"
             aria-selected={filtro === "todas"}
             onClick={() => setFiltro("todas")}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+            className={`rounded-xl px-3.5 py-2 text-xs font-bold transition ${
               filtro === "todas"
-                ? "bg-slate-800 text-white shadow-sm"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                ? "bg-[#0f1420] text-white shadow-sm ring-1 ring-white/10"
+                : "bg-slate-100/90 text-slate-600 hover:bg-slate-200/80"
             }`}
           >
             Todas ({estadisticasIniciales.total ?? 0})
@@ -161,10 +161,10 @@ export default function ListaNotificaciones({ notificacionesIniciales = [], esta
             type="button"
             onClick={handleVerificarVencidas}
             disabled={isPending}
-            className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition disabled:opacity-50"
             title="Escanear inspecciones planificadas en días pasados que no fueron ejecutadas"
           >
-            🔍 Escanear vencidas
+            Escanear vencidas
           </button>
 
           {estadisticasIniciales.noLeidas > 0 && (
@@ -172,9 +172,9 @@ export default function ListaNotificaciones({ notificacionesIniciales = [], esta
               type="button"
               onClick={handleMarcarTodasLeidas}
               disabled={isPending}
-              className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-slate-800 disabled:opacity-50"
+              className="rounded-xl bg-[#0f1420] px-3.5 py-2 text-xs font-bold text-white shadow-sm ring-1 ring-white/10 hover:bg-[#1a2337] active:scale-[0.98] transition disabled:opacity-50"
             >
-              ✓ Marcar todas como leídas
+              Marcar todas como leídas
             </button>
           )}
         </div>
@@ -224,24 +224,24 @@ export default function ListaNotificaciones({ notificacionesIniciales = [], esta
             return (
               <article
                 key={n.id}
-                className={`relative flex flex-col justify-between gap-4 rounded-xl border p-4 transition md:flex-row md:items-start ${
+                className={`relative flex flex-col justify-between gap-4 rounded-2xl border p-5 transition md:flex-row md:items-start ${
                   n.leida
-                    ? "border-slate-200 bg-slate-50/70 text-slate-700"
+                    ? "border-slate-200/90 bg-white/70 text-slate-700 shadow-2xs"
                     : esNoEjecutada
-                    ? "border-red-300 bg-red-50/30 text-slate-900 shadow-sm ring-1 ring-red-400/20"
-                    : "border-amber-300 bg-amber-50/30 text-slate-900 shadow-sm ring-1 ring-amber-400/20"
+                    ? "border-rose-200 bg-rose-50/30 text-slate-900 shadow-sm ring-1 ring-rose-400/20"
+                    : "border-amber-200 bg-amber-50/30 text-slate-900 shadow-sm ring-1 ring-amber-400/20"
                 }`}
               >
                 <div className="flex items-start gap-3.5">
                   {/* Ícono de tipo */}
                   <span
-                    className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-sm font-bold ${
+                    className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-bold ${
                       esNoEjecutada
-                        ? "bg-red-100 text-red-700"
-                        : "bg-amber-100 text-amber-700"
+                        ? "bg-rose-100 text-rose-700 border border-rose-200/60"
+                        : "bg-amber-100 text-amber-800 border border-amber-200/60"
                     }`}
                   >
-                    {esNoEjecutada ? "⚠️ N" : "⏳"}
+                    {esNoEjecutada ? "N" : "EXP"}
                   </span>
 
                   <div className="space-y-1.5">
@@ -270,8 +270,8 @@ export default function ListaNotificaciones({ notificacionesIniciales = [], esta
 
                     {/* Observación / Justificación registrada */}
                     {datos.observacion && (
-                      <div className="mt-2 rounded-lg border border-red-200/80 bg-white p-2.5 text-xs text-slate-800">
-                        <span className="font-semibold text-red-800">💬 Motivo del inspector:</span>{" "}
+                      <div className="mt-2 rounded-xl border border-rose-200/80 bg-white p-3 text-xs text-slate-800 shadow-2xs">
+                        <span className="font-bold text-rose-800">Motivo del inspector:</span>{" "}
                         <span className="italic">&quot;{datos.observacion}&quot;</span>
                       </div>
                     )}

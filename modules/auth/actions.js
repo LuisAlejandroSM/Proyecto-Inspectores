@@ -36,6 +36,7 @@ export async function iniciarSesion(_estadoPrevio, formData) {
       activo: usuarios.activo,
       claveHash: usuarios.claveHash,
       esAdmin: usuarios.esAdmin,
+      esSuperAdmin: usuarios.esSuperAdmin,
       debeCambiarClave: usuarios.debeCambiarClave,
       intentosFallidos: usuarios.intentosFallidos,
       bloqueadoHasta: usuarios.bloqueadoHasta,

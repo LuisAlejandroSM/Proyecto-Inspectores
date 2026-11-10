@@ -117,13 +117,13 @@ export default function GeneradorCronograma({
   };
 
   return (
-    <section className="rounded border border-blue-200 bg-white shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-blue-100 bg-blue-50/60 px-4 py-3">
+    <section className="rounded-2xl border border-slate-200/90 bg-white shadow-sm overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-5 py-3.5">
         <div>
-          <h2 className="text-sm font-bold text-blue-900">
+          <h2 className="text-sm font-bold text-slate-900 tracking-tight">
             Generar cronograma · {usuarioNombre} · {mes} {anio}
           </h2>
-          <p className="text-xs text-blue-800/80">
+          <p className="text-xs text-slate-500">
             {tienePlan
               ? "Este inspector ya tiene planificación este mes. Puede regenerarla o ajustarla en la matriz."
               : "Elija los formatos que le corresponden y el día de la semana en que hará cada uno."}
@@ -133,7 +133,7 @@ export default function GeneradorCronograma({
           {mensaje.texto && (
             <span
               aria-live="polite"
-              className={`text-xs font-medium ${mensaje.tipo === "error" ? "text-red-600" : "text-emerald-700"}`}
+              className={`text-xs font-semibold ${mensaje.tipo === "error" ? "text-rose-600" : "text-emerald-700"}`}
             >
               {mensaje.texto}
             </span>
@@ -142,7 +142,7 @@ export default function GeneradorCronograma({
             type="button"
             onClick={() => setAbierto((v) => !v)}
             aria-expanded={abierto}
-            className="rounded border border-blue-300 bg-white px-3 py-1.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-50"
+            className="rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
           >
             {abierto ? "Ocultar" : tienePlan ? "Regenerar plan" : "Generar plan"}
           </button>
@@ -259,15 +259,15 @@ export default function GeneradorCronograma({
             </table>
           </div>
 
-          <div className="flex items-center justify-end gap-3">
-            <span className="text-xs text-slate-500">
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <span className="text-xs text-slate-500 font-medium">
               {vistaPrevia.formatos} formato(s) · {vistaPrevia.total} inspección(es) en el mes
             </span>
             <button
               type="button"
               onClick={handleGenerar}
               disabled={isPending}
-              className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-[#0f1420] px-4 py-2 text-xs font-bold text-white shadow-sm ring-1 ring-white/10 hover:bg-[#1a2337] active:scale-[0.98] transition disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isPending ? "Generando…" : tienePlan ? "Regenerar cronograma" : "Generar cronograma"}
             </button>

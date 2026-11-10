@@ -4,7 +4,7 @@ import Cargando from "@/modules/formularios/components/Cargando";
 import MisFormularios from "@/modules/formularios/components/MisFormularios";
 
 export const metadata = {
-  title: "Mis formularios · Sistema Cronogramas",
+  title: "Mis formularios · Sistema de Inspecciones Preventivas",
 };
 
 export default function MisFormulariosPage() {
@@ -12,8 +12,8 @@ export default function MisFormulariosPage() {
     <div className="space-y-4">
       <div className="mx-auto max-w-2xl space-y-3">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">Mis formularios</h2>
-          <p className="text-sm text-slate-600">Formularios que le asignó el administrador. Tóquelo para llenarlo.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Mis Formularios</h1>
+          <p className="mt-1 text-sm text-slate-500">Formularios asignados para completar en campo</p>
         </div>
         <BarraEstadoOffline />
       </div>

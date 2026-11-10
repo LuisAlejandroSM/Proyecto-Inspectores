@@ -18,7 +18,7 @@ export const MESES = [
   "Diciembre",
 ];
 
-export const ANIOS = [2025, 2026, 2027];
+export const ANIOS = Array.from({ length: 2099 - 2026 + 1 }, (_, i) => 2026 + i);
 
 export const DIAS = Array.from({ length: 31 }, (_, i) => i + 1);
 
@@ -109,7 +109,7 @@ export function normalizarFiltros(searchParams, fechaReferencia) {
     ? anioNum
     : ANIOS.includes(anioActual)
       ? anioActual
-      : ANIOS[ANIOS.length - 1];
+      : ANIOS[0];
 
   const usuarioParam = leer("usuario");
   const usuarioId = /^[0-9a-f-]{36}$/i.test(String(usuarioParam ?? "")) ? usuarioParam : null;

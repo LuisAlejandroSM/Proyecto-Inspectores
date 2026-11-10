@@ -3,7 +3,7 @@ import Cargando from "@/modules/formularios/components/Cargando";
 import FormularioAsignado from "@/modules/formularios/components/FormularioAsignado";
 
 export const metadata = {
-  title: "Llenar formulario · Sistema Cronogramas",
+  title: "Llenar formulario · Sistema de Inspecciones Preventivas",
 };
 
 export default function FormularioAsignadoPage({ params }) {

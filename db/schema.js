@@ -27,6 +27,7 @@ export const usuarios = pgTable("usuarios", {
   // Acceso al sistema. claveHash null = el usuario aún no puede iniciar sesión.
   claveHash: varchar("clave_hash", { length: 255 }),
   esAdmin: boolean("es_admin").notNull().default(false),
+  esSuperAdmin: boolean("es_superadmin").notNull().default(false),
   debeCambiarClave: boolean("debe_cambiar_clave").notNull().default(true),
   intentosFallidos: integer("intentos_fallidos").notNull().default(0),
   bloqueadoHasta: timestamp("bloqueado_hasta", { withTimezone: true }),

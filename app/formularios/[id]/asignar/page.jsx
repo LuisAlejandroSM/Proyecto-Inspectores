@@ -3,7 +3,7 @@ import Cargando from "@/modules/formularios/components/Cargando";
 import DetalleFormulario from "@/modules/formularios/components/DetalleFormulario";
 
 export const metadata = {
-  title: "Asignar formulario · Sistema Cronogramas",
+  title: "Asignar formulario · Sistema de Inspecciones Preventivas",
 };
 
 // `params` se pasa como promesa y se resuelve dentro del Suspense (Cache Components).

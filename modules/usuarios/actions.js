@@ -3,7 +3,7 @@
 import { and, eq, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
-import { ROL_ADMINISTRACION, ROLES_OPERATIVOS } from "@/db/roles";
+import { ROL_ADMINISTRACION, ROL_SUPERVISOR_SIHO, ROLES_OPERATIVOS } from "@/db/roles";
 import { usuarios } from "@/db/schema";
 import { generarClaveTemporal, hashearClave } from "@/modules/auth/clave";
 import { autorizarAccion } from "@/modules/auth/dal";
@@ -11,8 +11,8 @@ import { autorizarAccion } from "@/modules/auth/dal";
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CORREO_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USUARIO_RE = /^[a-zA-Z0-9._-]+$/;
-// Roles que se pueden asignar desde la pantalla de gestión.
-const ROLES_ASIGNABLES = [...ROLES_OPERATIVOS, ROL_ADMINISTRACION];
+// Roles que se pueden asignar desde las pantallas de gestión.
+const ROLES_ASIGNABLES = [...ROLES_OPERATIVOS, ROL_ADMINISTRACION, ROL_SUPERVISOR_SIHO];
 
 function texto(valor, maximo) {
   const limpio = String(valor ?? "").replace(/\s+/g, " ").trim();
@@ -22,6 +22,7 @@ function texto(valor, maximo) {
 function revalidar() {
   revalidatePath("/");
   revalidatePath("/inspectores");
+  revalidatePath("/configuracion");
   revalidatePath("/dashboard");
 }
 
@@ -49,6 +50,15 @@ export async function crearInspector(entrada) {
   const correo = entrada?.correo ? texto(entrada?.correo, 150).toLowerCase() : null;
   const cargo = texto(entrada?.cargo, 100) || null;
 
+  // Un Supervisor SIHO solo puede crear inspectores operativos
+  const esRolAdmin = rol === ROL_ADMINISTRACION || rol === ROL_SUPERVISOR_SIHO;
+  if (esRolAdmin && !auth.usuario.esSuperAdmin) {
+    return {
+      success: false,
+      error: "Solo el Administrador del Sistema puede registrar Supervisores SIHO o Administradores.",
+    };
+  }
+
   if (nombre.length < 3) {
     return { success: false, error: "Escriba el nombre completo (mínimo 3 caracteres)." };
   }
@@ -65,6 +75,7 @@ export async function crearInspector(entrada) {
 
   const claveTemporal = generarClaveTemporal();
   try {
+    const esAdmin = esRolAdmin;
     const [creado] = await db
       .insert(usuarios)
       .values({
@@ -74,7 +85,8 @@ export async function crearInspector(entrada) {
         correo: correo || null,
         cargo,
         activo: true,
-        esAdmin: rol === ROL_ADMINISTRACION,
+        esAdmin,
+        esSuperAdmin: false,
         claveHash: await hashearClave(claveTemporal),
         debeCambiarClave: true,
       })
@@ -92,12 +104,12 @@ export async function crearInspector(entrada) {
 }
 
 /**
- * Activa o desactiva un usuario. Desactivar corta su acceso y lo oculta de los cronogramas
- * sin borrar su historial. No se puede desactivar a uno mismo ni al último administrador.
+ * Activa o desactiva un usuario. Solo el Administrador del Sistema puede hacerlo.
+ * Desactivar corta su acceso y lo oculta de los cronogramas sin borrar su historial.
  * @param {{ id: string, activo: boolean }} entrada
  */
 export async function cambiarEstadoInspector(entrada) {
-  const auth = await autorizarAccion({ soloAdmin: true });
+  const auth = await autorizarAccion({ soloSuperAdmin: true });
   if (auth.error) return { success: false, error: auth.error };
 
   const id = String(entrada?.id ?? "");
@@ -108,8 +120,14 @@ export async function cambiarEstadoInspector(entrada) {
   }
 
   try {
-    const [objetivo] = await db.select({ esAdmin: usuarios.esAdmin }).from(usuarios).where(eq(usuarios.id, id));
+    const [objetivo] = await db
+      .select({ esAdmin: usuarios.esAdmin, esSuperAdmin: usuarios.esSuperAdmin })
+      .from(usuarios)
+      .where(eq(usuarios.id, id));
     if (!objetivo) return { success: false, error: "El usuario no existe." };
+    if (!activo && objetivo.esSuperAdmin) {
+      return { success: false, error: "No se puede desactivar la cuenta del Administrador del Sistema." };
+    }
     if (!activo && objetivo.esAdmin && (await otrosAdminsActivos(id)) === 0) {
       return { success: false, error: "No se puede desactivar al único administrador." };
     }
@@ -162,28 +180,35 @@ export async function restablecerClave(entrada) {
 }
 
 /**
- * Da o quita permiso de administrador. No se lo puede quitar uno mismo ni dejar el sistema sin admins.
+ * Da o quita permiso de supervisor/administrador. Solo el Administrador del Sistema puede hacerlo.
+ * No se lo puede quitar uno mismo ni dejar el sistema sin administradores.
  * @param {{ id: string, esAdmin: boolean }} entrada
  */
 export async function cambiarAdministrador(entrada) {
-  const auth = await autorizarAccion({ soloAdmin: true });
+  const auth = await autorizarAccion({ soloSuperAdmin: true });
   if (auth.error) return { success: false, error: auth.error };
 
   const id = String(entrada?.id ?? "");
   const esAdmin = entrada?.esAdmin === true;
   if (!UUID_RE.test(id)) return { success: false, error: "Usuario inválido." };
   if (!esAdmin && id === auth.usuario.id) {
-    return { success: false, error: "No puede quitarse a sí mismo el permiso de administrador." };
+    return { success: false, error: "No puede quitarse a sí mismo los permisos de administración." };
   }
 
   try {
-    const [objetivo] = await db.select({ rol: usuarios.rol }).from(usuarios).where(eq(usuarios.id, id));
+    const [objetivo] = await db
+      .select({ rol: usuarios.rol, esSuperAdmin: usuarios.esSuperAdmin })
+      .from(usuarios)
+      .where(eq(usuarios.id, id));
     if (!objetivo) return { success: false, error: "El usuario no existe." };
+    if (objetivo.esSuperAdmin) {
+      return { success: false, error: "No se pueden alterar los permisos del Administrador del Sistema." };
+    }
     if (!esAdmin && objetivo.rol === ROL_ADMINISTRACION) {
       return { success: false, error: "Un usuario con rol Administración siempre es administrador." };
     }
     if (!esAdmin && (await otrosAdminsActivos(id)) === 0) {
-      return { success: false, error: "Debe quedar al menos un administrador." };
+      return { success: false, error: "Debe quedar al menos un administrador en el sistema." };
     }
 
     await db.update(usuarios).set({ esAdmin }).where(eq(usuarios.id, id));

@@ -14,13 +14,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Sistema Cronogramas",
-  description: "Control operativo de cronogramas mensuales de inspección",
+  title: "Sistema de Inspecciones Preventivas",
+  description: "Control operativo de inspecciones preventivas",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "SST Ceveconca",
+    title: "Inspecciones Preventivas",
   },
   icons: {
     icon: "/icono-pwa.svg",
@@ -36,11 +36,11 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${geistSans.className} h-full antialiased`}
     >
       {/* Celular: columna (barra superior + contenido). Escritorio: barra lateral + contenido en fila;
           sin sesión, la barra superior ocupa una fila completa gracias al wrap. */}
-      <body className="flex min-h-full flex-col bg-background md:flex-row md:flex-wrap">
+      <body className={`${geistSans.className} flex min-h-full flex-col bg-background font-sans md:flex-row md:flex-wrap`}>
         {/* La navegación depende del usuario (lee la sesión): va dentro de Suspense. */}
         <Suspense fallback={null}>
           <MenuPrincipal />

@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import ListadoInspectores from "@/modules/usuarios/components/ListadoInspectores";
 
 export const metadata = {
-  title: "Inspectores · Sistema Cronogramas",
+  title: "Inspectores · Sistema de Inspecciones Preventivas",
 };
 
 function Cargando() {
@@ -18,10 +18,9 @@ export default function InspectoresPage({ searchParams }) {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Inspectores</h2>
-        <p className="text-sm text-slate-600">
-          Registre a los inspectores SST, paramédicos y rescatistas, entrégueles su acceso y genere su cronograma
-          mensual. También puede dar permiso de administrador a otros usuarios.
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Inspectores Operativos</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Personal en campo asignado a la ejecución de cronogramas e inspecciones preventivas
         </p>
       </div>
       <Suspense fallback={<Cargando />}>

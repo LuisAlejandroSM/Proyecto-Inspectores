@@ -3,16 +3,16 @@ import Cargando from "@/modules/formularios/components/Cargando";
 import ListaFormularios from "@/modules/formularios/components/ListaFormularios";
 
 export const metadata = {
-  title: "Formularios · Sistema Cronogramas",
+  title: "Formularios · Sistema de Inspecciones Preventivas",
 };
 
 export default function FormulariosPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Formularios</h2>
-        <p className="text-sm text-slate-600">
-          Cree formularios con preguntas y fotos, y asígnelos a los inspectores para que los llenen desde el celular.
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Formularios de Inspección</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Diseño y asignación de formatos de inspección digital con listas de verificación, fotos y firmas
         </p>
       </div>
       <Suspense fallback={<Cargando />}>

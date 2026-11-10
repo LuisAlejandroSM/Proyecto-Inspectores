@@ -11,6 +11,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "node db/seed.js",
     "db:crear-admin": "node db/crear-admin.js",
+    "db:migrar-superadmin": "node scripts/migrar-superadmin.js",
     "db:cargar-formularios": "node scripts/cargar-formularios.js"
   },
   "dependencies": {

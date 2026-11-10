@@ -4,8 +4,8 @@
    del sistema (antes dejaba el fondo negro con tarjetas claras). */
 :root {
   color-scheme: light;
-  --background: #f4f4f2;
-  --foreground: #1d1d1b;
+  --background: #f8fafc;
+  --foreground: #0f172a;
 }
 
 @theme inline {
@@ -15,21 +15,17 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* Identidad Ceveconca: amarillo y negro, con blanco para dar contraste.
-   - marca: amarillo de acento (barras, bordes destacados, ítem activo del menú).
-   - La escala "blue" que usan los componentes se reinterpreta con la marca:
-     50–500 = tonos de amarillo (fondos suaves, bordes, foco),
-     600 = negro (botones principales y selecciones, siempre con texto blanco),
-     700–900 = dorado oscuro legible sobre blanco (enlaces y textos de acento).
-   - La escala "slate" pasa a grises neutros, que combinan mejor con el amarillo. */
+/* Identidad Ceveconca moderna: amarillo oro y carbón profundo, con blanco para dar contraste.
+   - marca: amarillo de acento (#f5b800) para acentos, insignias e indicadores activos.
+   - carbón profundo: (#10141e) para navegación enterprise y contraste ejecutivo. */
 @theme {
-  /* Estilo minimalista: sombras casi imperceptibles (las tarjetas se separan por el fondo). */
-  --shadow-sm: 0 1px 2px 0 rgb(29 29 27 / 0.04);
-  --shadow-md: 0 4px 12px -4px rgb(29 29 27 / 0.1);
+  --shadow-sm: 0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
+  --shadow-md: 0 4px 14px -3px rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 10px 25px -5px rgb(15 23 42 / 0.08);
 
   --color-marca: #f5b800;
   --color-marca-suave: #fff6d6;
-  --color-tinta: #1d1d1b;
+  --color-tinta: #0f172a;
 
   --color-blue-50: #fffaeb;
   --color-blue-100: #fff1c2;
@@ -54,10 +50,24 @@
   --color-slate-900: #1d1d1b;
 }
 
+html,
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), "Geist", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.011em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-geist-sans), "Geist", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  letter-spacing: -0.025em;
 }
 
 /* Tokens de color para las gráficas del dashboard (paleta validada con el validador de dataviz).

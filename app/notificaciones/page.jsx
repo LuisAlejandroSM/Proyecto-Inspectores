@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import PanelNotificaciones from "@/modules/notificaciones/components/PanelNotificaciones";
 
 export const metadata = {
-  title: "Notificaciones de Inspecciones · Sistema Cronogramas",
+  title: "Notificaciones de Inspecciones · Sistema de Inspecciones Preventivas",
 };
 
 function Cargando() {
@@ -22,15 +22,26 @@ export default function NotificacionesPage() {
     <div className="space-y-6">
       <header className="space-y-1">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-marca text-xl text-white shadow-sm">
-            🔔
-          </span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f5b800] text-[#0f1420] shadow-sm">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-5 w-5"
+              aria-hidden="true"
+            >
+              <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+            </svg>
+          </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">
-              Notificaciones y Alertas de Inspecciones
+            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              Notificaciones y Alertas
             </h1>
-            <p className="text-xs text-slate-500">
-              Control de inspecciones no ejecutadas (N), justificaciones de inspectores y formatos vencidos
+            <p className="mt-1 text-sm text-slate-500">
+              Control de inspecciones no ejecutadas (N), justificaciones de inspectores y formatos pendientes
             </p>
           </div>
         </div>

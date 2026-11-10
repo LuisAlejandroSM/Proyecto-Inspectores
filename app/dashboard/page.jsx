@@ -3,7 +3,7 @@ import DashboardMetricas from "@/modules/dashboard/components/DashboardMetricas"
 import AlertaDashboardNotificaciones from "@/modules/notificaciones/components/AlertaDashboardNotificaciones";
 
 export const metadata = {
-  title: "Dashboard · Sistema Cronogramas",
+  title: "Dashboard · Sistema de Inspecciones Preventivas",
 };
 
 // Filtros por URL: ?mes=Enero..Diciembre&anio=2026&rol=todos|inspector-siho|paramedicos|rescatistas
@@ -28,7 +28,10 @@ export default function DashboardPage({ searchParams }) {
       <Suspense fallback={null}>
         <AlertaDashboardNotificaciones />
       </Suspense>
-      <h2 className="text-xl font-bold text-slate-900">Dashboard</h2>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Dashboard de Métricas</h1>
+        <p className="mt-1 text-sm text-slate-500">Indicadores clave de inspecciones preventivas y efectividad operativa mensual</p>
+      </div>
       <Suspense fallback={<Cargando />}>
         <DashboardMetricas searchParams={searchParams} />
       </Suspense>

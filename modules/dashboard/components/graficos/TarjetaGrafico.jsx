@@ -20,18 +20,18 @@ export default function TarjetaGrafico({ titulo, subtitulo, leyenda = [], tabla,
   const [verTabla, setVerTabla] = useState(false);
 
   return (
-    <figure className={`viz-root flex flex-col rounded-lg border border-black/10 bg-[var(--viz-surface)] p-4 shadow-sm ${className}`}>
-      <figcaption className="mb-3 flex flex-wrap items-start justify-between gap-2">
+    <figure className={`viz-root flex flex-col rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm hover:shadow-md transition-shadow ${className}`}>
+      <figcaption className="mb-3.5 flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-[var(--viz-text-primary)]">{titulo}</h3>
-          {subtitulo && <p className="text-xs text-[var(--viz-text-secondary)]">{subtitulo}</p>}
+          <h3 className="text-sm font-bold text-slate-900">{titulo}</h3>
+          {subtitulo && <p className="text-xs text-slate-500 mt-0.5">{subtitulo}</p>}
         </div>
         {!vacio && (
           <button
             type="button"
             onClick={() => setVerTabla((v) => !v)}
             aria-pressed={verTabla}
-            className="rounded border border-black/10 px-2 py-1 text-[11px] font-medium text-[var(--viz-text-secondary)] hover:bg-black/[.04]"
+            className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
           >
             {verTabla ? "Ver gráfica" : "Ver tabla"}
           </button>

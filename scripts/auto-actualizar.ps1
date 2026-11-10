@@ -45,28 +45,36 @@ if ($LASTEXITCODE -ne 0) {
     exit 1
 }
 
+$gestor = if (Get-Command bun -ErrorAction SilentlyContinue) { "bun" } else { "npm" }
+
 # 3. Comprobar si package.json cambió
 $archivosCambiados = git diff --name-only $localCommit $remoteCommit
 if ($archivosCambiados -match "package.json") {
-    Write-Host "[$Timestamp] Detectados cambios en package.json. Ejecutando bun install..."
-    bun install
+    Write-Host "[$Timestamp] Detectados cambios en package.json. Ejecutando $gestor install..."
+    & $gestor install
 }
 
-# 4. Si cambiaron formularios o esquemas, sincronizar en la base de datos
+# 4. Si cambiaron esquemas o migraciones, ejecutarlas
+if ($archivosCambiados -match "schema\.js" -or $archivosCambiados -match "migrar-superadmin\.js") {
+    Write-Host "[$Timestamp] Aplicando migraciones de base de datos..."
+    node scripts/migrar-superadmin.js
+}
+
+# 5. Si cambiaron formularios o esquemas, sincronizar en la base de datos
 if ($archivosCambiados -match "formularios-migrados\.json" -or $archivosCambiados -match "cargar-formularios\.js") {
     Write-Host "[$Timestamp] Sincronizando catálogo de formularios en la base de datos..."
-    bun run scripts/cargar-formularios.js
+    node scripts/cargar-formularios.js
 }
 
-# 5. Recompilar Next.js para producción
-Write-Host "[$Timestamp] Recompilando aplicación con bun run build..."
-bun run build
+# 6. Recompilar Next.js para producción
+Write-Host "[$Timestamp] Recompilando aplicación ($gestor run build)..."
+& $gestor run build
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[ERROR] Falló la compilación de producción."
     exit 1
 }
 
-# 6. Reiniciar el servidor en producción de forma invisible
+# 7. Reiniciar el servidor en producción de forma invisible
 Write-Host "[$Timestamp] Reiniciando servicio web en Windows..."
 $vbsPath = [string](Join-Path $Raiz "scripts\iniciar-segundo-plano.vbs")
 Start-Process "wscript.exe" -ArgumentList "`"$vbsPath`"" -WorkingDirectory $Raiz

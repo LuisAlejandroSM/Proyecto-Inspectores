@@ -3,7 +3,7 @@ import Cargando from "@/modules/formularios/components/Cargando";
 import RespuestaAdmin from "@/modules/formularios/components/RespuestaAdmin";
 
 export const metadata = {
-  title: "Respuesta · Sistema Cronogramas",
+  title: "Respuesta · Sistema de Inspecciones Preventivas",
 };
 
 export default function RespuestaPage({ params }) {

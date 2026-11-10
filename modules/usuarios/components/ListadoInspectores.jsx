@@ -50,5 +50,5 @@ export default async function ListadoInspectores({ searchParams }) {
     );
   }
 
-  return <GestionInspectores inspectores={resultado.usuarios} rolInicial={rolInicial} usuarioActualId={admin.id} />;
+  return <GestionInspectores inspectores={resultado.usuarios} rolInicial={rolInicial} usuarioActual={admin} />;
 }

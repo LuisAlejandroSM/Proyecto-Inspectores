@@ -15,7 +15,7 @@ export default async function NuevoFormulario() {
         <Link href="/formularios" className="text-sm font-semibold text-blue-700 hover:underline">
           ← Formularios
         </Link>
-        <h2 className="mt-1 text-xl font-bold text-slate-900">Nuevo formulario</h2>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">Nuevo Formulario</h1>
       </div>
       <EditorFormulario formulario={null} formatos={formatos} />
     </div>

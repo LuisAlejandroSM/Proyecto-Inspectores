@@ -98,9 +98,9 @@ export default async function MiCronograma({ searchParams }) {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-xl font-bold text-slate-900">Hola, {usuario.nombre}</h2>
-        <p className="text-sm text-slate-600">
-          {usuario.rol} · su cronograma de {mes} {anio}
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Hola, {usuario.nombre}</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          {usuario.rol} · Cronograma de inspecciones preventivas de {mes} {anio}
         </p>
       </div>
 

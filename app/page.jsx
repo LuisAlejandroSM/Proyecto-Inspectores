@@ -21,8 +21,14 @@ export default function Page({ searchParams }) {
   // searchParams se pasa como promesa y se resuelve dentro del Suspense,
   // así el layout forma parte del shell estático prerenderizado.
   return (
-    <Suspense fallback={<CargandoCronograma />}>
-      <CronogramaMensual searchParams={searchParams} />
-    </Suspense>
+    <div className="space-y-4">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Cronogramas de Inspección</h1>
+        <p className="mt-1 text-sm text-slate-500">Planificación mensual de inspecciones operativas por rol (formato CVC-SST-FT-11)</p>
+      </div>
+      <Suspense fallback={<CargandoCronograma />}>
+        <CronogramaMensual searchParams={searchParams} />
+      </Suspense>
+    </div>
   );
 }

@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { ROL_ADMINISTRACION, ROLES_OPERATIVOS } from "@/db/roles";
-import { cambiarAdministrador, cambiarEstadoInspector, crearInspector, restablecerClave } from "../actions";
+import { ROLES_OPERATIVOS } from "@/db/roles";
+import { cambiarEstadoInspector, crearInspector, restablecerClave } from "../actions";
 
 // Pestaña del cronograma que corresponde a cada rol operativo.
 const VISTA_POR_ROL = {
@@ -12,23 +12,32 @@ const VISTA_POR_ROL = {
   Paramédico: "paramedicos",
   Rescatista: "rescatistas",
 };
-const ROLES_FORM = [...ROLES_OPERATIVOS, ROL_ADMINISTRACION];
+const ROLES_FORM = [...ROLES_OPERATIVOS];
 
 const FORM_VACIO = { nombre: "", usuario: "", cargo: "" };
 
 const CLASE_CAMPO =
-  "mt-1 w-full rounded border border-slate-300 bg-white px-2 py-1.5 text-sm font-normal normal-case tracking-normal text-slate-800";
-const CLASE_ETIQUETA = "block text-xs font-medium text-slate-500";
+  "mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-sm font-medium text-slate-800 shadow-2xs focus:bg-white focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition outline-none";
+const CLASE_ETIQUETA = "block text-xs font-bold uppercase tracking-wider text-slate-500";
+
+function iniciales(nombre) {
+  return (nombre || "")
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0].toUpperCase())
+    .join("");
+}
 
 function Etiqueta({ children, tono }) {
   const tonos = {
     azul: "bg-blue-50 text-blue-700 border-blue-200",
     ambar: "bg-amber-50 text-amber-800 border-amber-200",
-    rojo: "bg-red-50 text-red-700 border-red-200",
-    gris: "bg-slate-100 text-slate-500 border-slate-200",
+    rojo: "bg-rose-50 text-rose-700 border-rose-200",
+    gris: "bg-slate-100 text-slate-600 border-slate-200",
   };
   return (
-    <span className={`ml-2 inline-block rounded-full border px-2 py-0.5 text-[11px] font-medium ${tonos[tono]}`}>
+    <span className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-bold ${tonos[tono] || tonos.gris}`}>
       {children}
     </span>
   );
@@ -87,8 +96,10 @@ function ClaveTemporal({ datos, onCerrar }) {
   );
 }
 
-export default function GestionInspectores({ inspectores, rolInicial, usuarioActualId }) {
+export default function GestionInspectores({ inspectores, rolInicial, usuarioActual, usuarioActualId }) {
   const router = useRouter();
+  const actualId = usuarioActual?.id || usuarioActualId;
+  const esSuperAdmin = usuarioActual?.esSuperAdmin === true;
   const [isPending, startTransition] = useTransition();
   const [lista, setLista] = useState(inspectores);
   const [formAbierto, setFormAbierto] = useState(false);
@@ -198,20 +209,6 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
     });
   };
 
-  const handleAdmin = (u) => {
-    const dar = !u.esAdmin;
-    if (!window.confirm(dar ? `¿Dar permiso de administrador a ${u.nombre}?` : `¿Quitar el permiso de administrador a ${u.nombre}?`)) return;
-
-    // Actualización optimista inmediata
-    setLista((prev) => prev.map((item) => (item.id === u.id ? { ...item, esAdmin: dar } : item)));
-
-    ejecutar(
-      () => cambiarAdministrador({ id: u.id, esAdmin: dar }),
-      () => `${u.nombre}: ${dar ? "ahora es administrador" : "ya no es administrador"}.`,
-      () => {}
-    );
-  };
-
   const visibles = lista.filter((i) => verInactivos || i.activo);
 
   return (
@@ -228,9 +225,9 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
           <button
             type="button"
             onClick={abrirFormulario}
-            className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+            className="rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-slate-800 active:scale-[0.98]"
           >
-            + Registrar usuario
+            + Registrar inspector
           </button>
         )}
       </div>
@@ -238,12 +235,11 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
       {claveMostrada && <ClaveTemporal datos={claveMostrada} onCerrar={() => setClaveMostrada(null)} />}
 
       {formAbierto && (
-        <form onSubmit={handleCrear} className="rounded border border-blue-200 bg-white shadow-sm">
-          <div className="border-b border-blue-100 bg-blue-50/60 px-4 py-3">
-            <h2 className="text-sm font-bold text-blue-900">Registrar usuario</h2>
-            <p className="text-xs text-blue-800/80">
-              Se generará una contraseña temporal para entregarle. Con el rol <strong>Administración</strong> se crea un
-              administrador que no ejecuta inspecciones.
+        <form onSubmit={handleCrear} className="overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm">
+          <div className="border-b border-amber-100 bg-amber-50/50 px-5 py-3.5">
+            <h2 className="text-sm font-bold tracking-tight text-slate-900">Registrar inspector operativo</h2>
+            <p className="text-xs text-slate-600 mt-0.5">
+              Se generará una contraseña temporal para entregarle. Podrá asignarle formularios y generar su cronograma.
             </p>
           </div>
 
@@ -297,9 +293,9 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
             </label>
           </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-3 border-t border-slate-100 px-4 py-3">
+          <div className="flex flex-wrap items-center justify-end gap-2.5 border-t border-slate-100 bg-slate-50/40 px-5 py-3">
             {errorForm && (
-              <span aria-live="polite" className="mr-auto text-xs font-medium text-red-600">
+              <span aria-live="polite" className="mr-auto text-xs font-semibold text-rose-600">
                 {errorForm}
               </span>
             )}
@@ -307,77 +303,92 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
               type="button"
               onClick={() => setFormAbierto(false)}
               disabled={isPending}
-              className="rounded border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 disabled:opacity-50"
+              className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition disabled:opacity-50"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isPending}
-              className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-50"
+              className="rounded-xl bg-[#0f1420] px-4 py-2 text-xs font-bold text-white shadow-sm ring-1 ring-white/10 hover:bg-[#1a2337] active:scale-[0.98] transition disabled:opacity-50"
             >
-              {isPending ? "Guardando…" : "Guardar"}
+              {isPending ? "Guardando…" : "Guardar inspector"}
             </button>
           </div>
         </form>
       )}
 
-      <section className="overflow-x-auto rounded border border-slate-200 bg-white shadow-sm">
-        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-          <h2 className="text-base font-bold text-slate-800">
-            Usuarios registrados{" "}
-            <span className="font-normal text-slate-500">({inspectores.filter((i) => i.activo).length} activos)</span>
+      <section className="overflow-x-auto rounded-2xl border border-slate-200/90 bg-white shadow-sm">
+        <div className="flex items-center justify-between border-b border-slate-200/80 bg-slate-50/60 px-5 py-3.5">
+          <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+            Inspectores operativos registrados{" "}
+            <span className="font-semibold text-slate-500">({inspectores.filter((i) => i.activo).length} activos)</span>
           </h2>
-          <label className="inline-flex cursor-pointer items-center gap-1.5 text-xs text-slate-600">
+          <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-medium text-slate-600 hover:text-slate-900 transition">
             <input
               type="checkbox"
               checked={verInactivos}
               onChange={(e) => setVerInactivos(e.target.checked)}
-              className="h-3.5 w-3.5 accent-blue-600"
+              className="h-4 w-4 rounded border-slate-300 text-[#0f1420] focus:ring-[#f5b800]"
             />
             Mostrar desactivados
           </label>
         </div>
 
         {visibles.length === 0 ? (
-          <p className="p-6 text-center text-sm text-slate-500">
-            Aún no hay usuarios. Pulse <strong>Registrar usuario</strong> para agregar el primero.
+          <p className="p-8 text-center text-sm text-slate-500">
+            Aún no hay inspectores registrados. Pulse <strong>+ Registrar inspector</strong> para agregar el primero.
           </p>
         ) : (
           <table className="w-full min-w-[900px] text-left text-sm">
-            <thead className="text-xs text-slate-500">
+            <thead className="border-b border-slate-200/80 bg-slate-50/70 text-xs font-bold text-slate-600">
               <tr>
-                <th className="px-4 py-2">Nombre</th>
-                <th className="px-4 py-2">Rol</th>
-                <th className="px-4 py-2">Cargo</th>
-                <th className="px-4 py-2">Usuario</th>
-                <th className="px-4 py-2">Último acceso</th>
-                <th className="px-4 py-2 text-right">Acciones</th>
+                <th className="px-5 py-3">Inspector</th>
+                <th className="px-4 py-3">Rol</th>
+                <th className="px-4 py-3">Cargo</th>
+                <th className="px-4 py-3">Usuario</th>
+                <th className="px-4 py-3">Último acceso</th>
+                <th className="px-5 py-3 text-right">Acciones</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {visibles.map((u) => {
-                const yo = u.id === usuarioActualId;
+                const yo = u.id === actualId;
                 const enlace = urlCronograma(u);
                 return (
-                  <tr key={u.id} className={`border-t border-slate-100 ${u.activo ? "" : "bg-slate-50 text-slate-400"}`}>
-                    <td className="px-4 py-2 font-medium">
-                      {u.nombre}
-                      {yo && <Etiqueta tono="gris">Usted</Etiqueta>}
-                      {u.esAdmin && <Etiqueta tono="azul">Admin</Etiqueta>}
-                      {!u.activo && <Etiqueta tono="gris">Desactivado</Etiqueta>}
-                      {u.activo && !u.tieneAcceso && <Etiqueta tono="ambar">Sin contraseña</Etiqueta>}
-                      {u.activo && u.tieneAcceso && u.debeCambiarClave && <Etiqueta tono="ambar">Clave temporal</Etiqueta>}
-                      {u.bloqueado && <Etiqueta tono="rojo">Bloqueado</Etiqueta>}
+                  <tr key={u.id} className={`hover:bg-slate-50/70 transition ${u.activo ? "" : "bg-slate-50/80 text-slate-400"}`}>
+                    <td className="px-5 py-3 font-medium">
+                      <div className="flex items-center gap-3">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-xs font-black text-slate-700 border border-slate-200 shadow-2xs">
+                          {iniciales(u.nombre)}
+                        </span>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-semibold text-slate-900">{u.nombre}</span>
+                            {yo && <Etiqueta tono="gris">Usted</Etiqueta>}
+                            {!u.activo && <Etiqueta tono="gris">Desactivado</Etiqueta>}
+                            {u.activo && !u.tieneAcceso && <Etiqueta tono="ambar">Sin contraseña</Etiqueta>}
+                            {u.activo && u.tieneAcceso && u.debeCambiarClave && <Etiqueta tono="ambar">Clave temporal</Etiqueta>}
+                            {u.bloqueado && <Etiqueta tono="rojo">Bloqueado</Etiqueta>}
+                          </div>
+                        </div>
+                      </div>
                     </td>
-                    <td className="px-4 py-2">{u.rol}</td>
-                    <td className="px-4 py-2 text-slate-600">{u.cargo || "—"}</td>
-                    <td className="px-4 py-2 text-slate-600">{u.alias || u.correo || "—"}</td>
-                    <td className="px-4 py-2 text-xs text-slate-500">{u.ultimoAcceso ?? "Nunca"}</td>
-                    <td className="whitespace-nowrap px-4 py-2 text-right text-xs">
-                      <div className="inline-flex flex-wrap justify-end gap-x-3 gap-y-1">
+                    <td className="px-4 py-3">
+                      <span className="inline-block rounded-lg bg-slate-100/80 border border-slate-200/70 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                        {u.rol}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-slate-600">{u.cargo || "—"}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-600">{u.alias || u.correo || "—"}</td>
+                    <td className="px-4 py-3 text-xs text-slate-500">{u.ultimoAcceso ?? "Nunca"}</td>
+                    <td className="whitespace-nowrap px-5 py-3 text-right text-xs">
+                      <div className="inline-flex flex-wrap justify-end gap-x-2 gap-y-1">
                         {u.activo && enlace && (
-                          <Link href={enlace} className="font-semibold text-blue-700 hover:underline">
+                          <Link
+                            href={enlace}
+                            className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 font-bold text-slate-800 shadow-2xs hover:bg-slate-50 hover:border-slate-300 transition"
+                          >
                             Cronograma
                           </Link>
                         )}
@@ -386,27 +397,21 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
                             type="button"
                             onClick={() => handleRestablecer(u)}
                             disabled={isPending}
-                            className="font-semibold text-slate-700 hover:underline disabled:opacity-50"
+                            className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition disabled:opacity-50"
                           >
-                            {u.tieneAcceso ? "Restablecer contraseña" : "Dar acceso"}
+                            {u.tieneAcceso ? "Restablecer clave" : "Dar acceso"}
                           </button>
                         )}
-                        {u.activo && !yo && u.rol !== ROL_ADMINISTRACION && (
-                          <button
-                            type="button"
-                            onClick={() => handleAdmin(u)}
-                            disabled={isPending}
-                            className="font-semibold text-slate-700 hover:underline disabled:opacity-50"
-                          >
-                            {u.esAdmin ? "Quitar admin" : "Hacer admin"}
-                          </button>
-                        )}
-                        {!yo && (
+                        {esSuperAdmin && !yo && (
                           <button
                             type="button"
                             onClick={() => handleEstado(u)}
                             disabled={isPending}
-                            className={`font-semibold hover:underline disabled:opacity-50 ${u.activo ? "text-red-600" : "text-emerald-700"}`}
+                            className={`rounded-lg px-2.5 py-1 font-semibold transition disabled:opacity-50 ${
+                              u.activo
+                                ? "text-rose-600 hover:bg-rose-50 border border-rose-200/60"
+                                : "text-emerald-700 hover:bg-emerald-50 border border-emerald-200/60"
+                            }`}
                           >
                             {u.activo ? "Desactivar" : "Reactivar"}
                           </button>

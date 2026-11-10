@@ -335,11 +335,50 @@ function FormularioInterno({ asignacionId, formulario, fotosIniciales }) {
     );
   }
 
+  const camposPregunta = formulario.campos.filter((c) => c.tipo !== "seccion");
+  const totalPreguntas = camposPregunta.length;
+  const preguntasRespondidas = camposPregunta.filter((c) => {
+    if (TIPOS_CON_ARCHIVO.includes(c.tipo)) {
+      return fotos.some((f) => f.campoId === c.id);
+    }
+    if (c.tipo === "tabla_verificacion") {
+      const resp = valores[c.id];
+      return resp && typeof resp === "object" && Object.keys(resp).length >= (c.filas?.length ?? 0);
+    }
+    return !estaVacio(valores[c.id]);
+  }).length;
+  const porcentaje = totalPreguntas > 0 ? Math.round((preguntasRespondidas / totalPreguntas) * 100) : 0;
+
   return (
-    <div className="mx-auto max-w-3xl space-y-3 pb-24">
+    <div className="mx-auto max-w-3xl space-y-4 pb-24">
+      {/* Cabecera Flowdit moderna con progreso de auditoría */}
+      <div className="sticky top-14 z-20 -mx-4 -mt-2 border-b border-slate-200/90 bg-white/95 px-5 py-3.5 shadow-sm backdrop-blur-md sm:mx-0 sm:mt-0 sm:rounded-2xl sm:border">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <span className="inline-block rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-800 border border-amber-200">
+              Inspección Preventiva
+            </span>
+            <h2 className="mt-0.5 truncate text-base font-extrabold text-slate-900 sm:text-lg">
+              {formulario.titulo}
+            </h2>
+          </div>
+          <div className="flex flex-col items-end">
+            <span className="text-xs font-bold text-slate-700">
+              {preguntasRespondidas} / {totalPreguntas} respondidas ({porcentaje}%)
+            </span>
+            <div className="mt-1.5 h-2 w-32 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200 sm:w-44">
+              <div
+                className="h-full bg-emerald-500 transition-all duration-300"
+                style={{ width: `${porcentaje}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
       {borradorRestaurado && (
-        <p className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-2 text-xs text-blue-900">
-          Se recuperaron las respuestas que había escrito en este dispositivo.
+        <p className="rounded-xl border border-amber-200 bg-amber-50/70 px-4 py-2.5 text-xs font-semibold text-amber-900 shadow-sm">
+          Se recuperó el borrador guardado en este dispositivo.
         </p>
       )}
 
@@ -409,22 +448,31 @@ function FormularioInterno({ asignacionId, formulario, fotosIniciales }) {
       )}
       </div>
 
-      {/* Barra de envío fija abajo (cómoda en el celular) */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:sticky md:rounded-xl md:border">
+      {/* Barra de envío fija abajo estilo Flowdit */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200/90 bg-white/95 px-4 py-3.5 shadow-2xl backdrop-blur-md md:sticky md:rounded-2xl md:border md:shadow-md">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
-          <span
-            aria-live="polite"
-            className={`text-xs font-medium ${mensaje.tipo === "error" ? "text-red-600" : mensaje.tipo === "ok" ? "text-emerald-700" : "text-slate-500"}`}
-          >
-            {mensaje.texto || "Sus respuestas se guardan en este dispositivo hasta enviarlas."}
-          </span>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="flex h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500 animate-pulse" />
+            <span
+              aria-live="polite"
+              className={`truncate text-xs font-semibold ${
+                mensaje.tipo === "error"
+                  ? "text-rose-600"
+                  : mensaje.tipo === "ok"
+                  ? "text-emerald-700"
+                  : "text-slate-500"
+              }`}
+            >
+              {mensaje.texto || "Borrador seguro guardado localmente"}
+            </span>
+          </div>
           <button
             type="button"
             onClick={enviar}
             disabled={isPending}
-            className="shrink-0 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-50"
+            className="shrink-0 rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50 active:scale-[0.98]"
           >
-            {isPending ? "Enviando…" : "Enviar formulario"}
+            {isPending ? "Enviando…" : "Enviar inspección →"}
           </button>
         </div>
       </div>

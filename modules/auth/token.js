@@ -15,9 +15,13 @@ function clave() {
   return new TextEncoder().encode(secreto);
 }
 
-/** @param {{ id: string, esAdmin: boolean, debeCambiarClave: boolean }} datos */
+/** @param {{ id: string, esAdmin: boolean, esSuperAdmin?: boolean, debeCambiarClave: boolean }} datos */
 export async function firmarSesion(datos) {
-  return new SignJWT({ esAdmin: Boolean(datos.esAdmin), debeCambiarClave: Boolean(datos.debeCambiarClave) })
+  return new SignJWT({
+    esAdmin: Boolean(datos.esAdmin),
+    esSuperAdmin: Boolean(datos.esSuperAdmin),
+    debeCambiarClave: Boolean(datos.debeCambiarClave),
+  })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(String(datos.id))
     .setIssuedAt()
@@ -25,7 +29,7 @@ export async function firmarSesion(datos) {
     .sign(clave());
 }
 
-/** @returns {Promise<{ id: string, esAdmin: boolean, debeCambiarClave: boolean } | null>} */
+/** @returns {Promise<{ id: string, esAdmin: boolean, esSuperAdmin: boolean, debeCambiarClave: boolean } | null>} */
 export async function verificarSesion(token) {
   if (!token) return null;
   try {
@@ -34,6 +38,7 @@ export async function verificarSesion(token) {
     return {
       id: payload.sub,
       esAdmin: payload.esAdmin === true,
+      esSuperAdmin: payload.esSuperAdmin === true,
       debeCambiarClave: payload.debeCambiarClave === true,
     };
   } catch {
