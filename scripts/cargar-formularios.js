@@ -1,6 +1,10 @@
 import fs from "fs";
 import path from "path";
 import { Pool } from "pg";
+import dotenv from "dotenv";
+
+dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
 
 const connectionString =
   process.env.DATABASE_URL || "postgresql://postgres:1234@localhost:5432/cronogramas";
