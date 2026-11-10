@@ -13,7 +13,7 @@ if ($Accion -eq "desactivar") {
     Unregister-ScheduledTask -TaskName 'SistemaCronogramasSST' -Confirm:$false -ErrorAction SilentlyContinue
     Unregister-ScheduledTask -TaskName 'SistemaCronogramasAutoUpdate' -Confirm:$false -ErrorAction SilentlyContinue
     Remove-Item $shortcutPath -Force -ErrorAction SilentlyContinue
-    Get-NetTCPConnection -LocalPort 80,3000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
+    Get-NetTCPConnection -LocalPort 80,8030,3000 -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }
     Stop-Process -Name "bun", "node" -Force -ErrorAction SilentlyContinue
     taskkill /F /IM bun.exe /IM node.exe 2>$null
     Write-Host "[OK] Servicios automáticos desactivados y detenidos."
@@ -22,8 +22,8 @@ if ($Accion -eq "desactivar") {
 
 Write-Host "Configurando el Sistema como SERVICIO INVISIBLE (sin terminales abiertas)..."
 
-# 1. Detener procesos existentes que ocupen los puertos 80 o 3000
-Get-NetTCPConnection -LocalPort 80,3000 -ErrorAction SilentlyContinue | ForEach-Object { 
+# 1. Detener procesos existentes que ocupen los puertos 80, 8030 o 3000
+Get-NetTCPConnection -LocalPort 80,8030,3000 -ErrorAction SilentlyContinue | ForEach-Object { 
     Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue 
 }
 Stop-Process -Name "bun", "node" -Force -ErrorAction SilentlyContinue
@@ -58,8 +58,8 @@ $settingsUpdate = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontSto
 
 Register-ScheduledTask -TaskName 'SistemaCronogramasAutoUpdate' -Action $actionUpdate -Trigger $triggerUpdate -Settings $settingsUpdate -Description 'Vigilante de Actualizaciones GitHub SST/SIHO' -RunLevel Highest
 
-# 6. Abrir puertos 80 y 3000 en el Firewall de Windows para la red local
-New-NetFirewallRule -DisplayName "Sistema SST (Puertos 80 y 3000)" -Direction Inbound -LocalPort 80,3000 -Protocol TCP -Action Allow -ErrorAction SilentlyContinue | Out-Null
+# 6. Abrir puertos 80, 8030 y 3000 en el Firewall de Windows para la red local
+New-NetFirewallRule -DisplayName "Sistema SST (Puertos 80, 8030 y 3000)" -Direction Inbound -LocalPort 80,8030,3000 -Protocol TCP -Action Allow -ErrorAction SilentlyContinue | Out-Null
 
 # 7. Iniciar el servidor invisible de una vez en este momento
 Start-Process "wscript.exe" -ArgumentList "`"$vbsPath`"" -WorkingDirectory ([string]$Raiz)
