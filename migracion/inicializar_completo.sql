@@ -152,7 +152,7 @@ CREATE INDEX IF NOT EXISTS "notificacion_creado_en" ON "notificaciones" USING bt
 -- ====================================================================
 -- 1. Usuario Administrador Inicial
 -- ====================================================================
-INSERT INTO public.usuarios ("id", "nombre", "correo", "rol", "activo", "creado_en", "alias", "cargo", "clave_hash", "es_admin", "debe_cambiar_clave", "intentos_fallidos", "bloqueado_hasta", "ultimo_acceso") VALUES ('fc302815-3960-40c9-83d1-36242f8edace', 'Administrador', 'admin@cronogramas.local', 'Administración', true, '2026-11-02 10:19:17.796576-04', NULL, NULL, 'scrypt$rDqAMDBoGALG9DkEf+2PkA==$MqBus+b7khhdliytCu3SDqxVtnVlSTxtjalop8Dk0zxBmSMvKHHMUWCpPOJJINrO4cCvcI8OG/wC/2GLe6hnjQ==', true, false, '0', NULL, NULL) ON CONFLICT DO NOTHING;
+INSERT INTO public.usuarios ("id", "nombre", "correo", "rol", "activo", "creado_en", "alias", "cargo", "clave_hash", "es_admin", "debe_cambiar_clave", "intentos_fallidos", "bloqueado_hasta", "ultimo_acceso") VALUES ('fc302815-3960-40c9-83d1-36242f8edace', 'Administrador', 'admin@cronogramas.local', 'Administración', true, '2026-11-02 10:19:17.796576-04', 'admin', NULL, 'scrypt$Ra/Wpk+tp5ViCCC4e7cebw==$8mnD+9dAOww3HBQxyHAzFp61/lWy8Doehj7Xxe4DDlTvKHNOXnhqDBEze6Nl6SIN8iT4l24puZhHPnZPEVEdBQ==', true, false, '0', NULL, NULL) ON CONFLICT (id) DO UPDATE SET clave_hash = EXCLUDED.clave_hash, alias = EXCLUDED.alias, activo = true, intentos_fallidos = 0, bloqueado_hasta = NULL;
 
 -- ====================================================================
 -- 2. Plantillas / Catálogo de 34 Formatos
