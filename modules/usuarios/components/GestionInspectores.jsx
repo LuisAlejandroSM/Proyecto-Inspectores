@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { ROLES_OPERATIVOS } from "@/db/roles";
+import { ROL_ADMINISTRACION, ROL_SUPERVISOR_SIHO, ROLES_OPERATIVOS } from "@/db/roles";
 import { cambiarEstadoInspector, crearInspector, restablecerClave } from "../actions";
 
 // Pestaña del cronograma que corresponde a cada rol operativo.
@@ -12,7 +12,7 @@ const VISTA_POR_ROL = {
   Paramédico: "paramedicos",
   Rescatista: "rescatistas",
 };
-const ROLES_FORM = [...ROLES_OPERATIVOS];
+const ROLES_FORM = [...ROLES_OPERATIVOS, ROL_ADMINISTRACION, ROL_SUPERVISOR_SIHO];
 
 const FORM_VACIO = { nombre: "", usuario: "", cargo: "" };
 
@@ -100,6 +100,7 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
   const router = useRouter();
   const actualId = usuarioActual?.id || usuarioActualId;
   const esSuperAdmin = usuarioActual?.esSuperAdmin === true;
+  const puedeAdministrar = usuarioActual?.esAdmin === true || esSuperAdmin;
   const [isPending, startTransition] = useTransition();
   const [lista, setLista] = useState(inspectores);
   const [formAbierto, setFormAbierto] = useState(false);
@@ -402,7 +403,7 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
                             {u.tieneAcceso ? "Restablecer clave" : "Dar acceso"}
                           </button>
                         )}
-                        {esSuperAdmin && !yo && (
+                        {puedeAdministrar && !yo && (
                           <button
                             type="button"
                             onClick={() => handleEstado(u)}

@@ -118,11 +118,15 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
   const [claveMostrada, setClaveMostrada] = useState(null);
 
   const esSuperAdmin = usuarioActual?.esSuperAdmin === true;
+  const esAdmin = usuarioActual?.esAdmin === true;
+  const puedeAdministrar = esAdmin || esSuperAdmin;
 
   // Roles que este usuario tiene permiso de crear
-  const rolesPermitidosCrear = esSuperAdmin
-    ? [ROL_SUPERVISOR_SIHO, ...ROLES_OPERATIVOS]
-    : [...ROLES_OPERATIVOS];
+  const rolesPermitidosCrear = [
+    ROL_ADMINISTRACION,
+    ROL_SUPERVISOR_SIHO,
+    ...ROLES_OPERATIVOS,
+  ];
 
   const [rolSeleccionado, setRolSeleccionado] = useState(
     rolesPermitidosCrear[0]
@@ -216,11 +220,11 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
   };
 
   const handleAdmin = (u) => {
-    if (!esSuperAdmin) return;
+    if (!puedeAdministrar) return;
     const dar = !u.esAdmin;
     const accion = dar
-      ? `¿Asignar rol de Supervisor SIHO a ${u.nombre}? Tendrá acceso a ver cronogramas, formularios y reportes.`
-      : `¿Quitar permisos de Supervisor SIHO a ${u.nombre}? Pasará a ser un usuario sin privilegios de supervisión.`;
+      ? `¿Asignar permisos de Administrador a ${u.nombre}? Tendrá acceso a ver cronogramas, formularios, reportes y gestionar usuarios.`
+      : `¿Quitar permisos de Administrador a ${u.nombre}? Pasará a ser un usuario sin privilegios administrativos.`;
 
     if (!window.confirm(accion)) return;
 
@@ -233,14 +237,14 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
       () => cambiarAdministrador({ id: u.id, esAdmin: dar }),
       () =>
         `${u.nombre}: ${
-          dar ? "asignado como Supervisor SIHO" : "permisos revocados"
+          dar ? "asignado como Administrador" : "permisos de administrador revocados"
         }.`,
       () => {}
     );
   };
 
   const handleEstado = (u) => {
-    if (!esSuperAdmin) return;
+    if (!puedeAdministrar) return;
     const nuevoActivo = !u.activo;
     const accion = nuevoActivo
       ? `¿Reactivar la cuenta de ${u.nombre}? Podrá volver a acceder al sistema.`
@@ -311,7 +315,7 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
           <p className="mt-1 text-2xl font-black text-slate-900 tabular-nums">{lista.length}</p>
         </div>
         <div className="rounded-2xl border border-purple-200/80 bg-purple-50/40 p-4 shadow-sm">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700">Supervisores SIHO</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700">Administradores y Supervisores</span>
           <p className="mt-1 text-2xl font-black text-purple-900 tabular-nums">
             {lista.filter((u) => u.esAdmin || u.esSuperAdmin).length}
           </p>
@@ -363,9 +367,7 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
               Registrar nuevo usuario en el sistema
             </h3>
             <p className="text-xs text-slate-600 mt-0.5">
-              {esSuperAdmin
-                ? "Como Administrador del Sistema puede crear Supervisores SIHO o Inspectores Operativos."
-                : "Como Supervisor SIHO puede registrar Inspectores Operativos."}
+              Como administrador puede registrar Administradores, Supervisores SIHO o Inspectores Operativos.
             </p>
           </div>
 
@@ -391,11 +393,17 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
                 onChange={(e) => setRolSeleccionado(e.target.value)}
                 className={CLASE_CAMPO}
               >
-                {rolesPermitidosCrear.map((r) => (
-                  <option key={r} value={r}>
-                    {r}
-                  </option>
-                ))}
+                <optgroup label="Nivel Administrativo">
+                  <option value={ROL_ADMINISTRACION}>Administrador (Acceso total)</option>
+                  <option value={ROL_SUPERVISOR_SIHO}>Supervisor SIHO (Supervisión y control)</option>
+                </optgroup>
+                <optgroup label="Inspectores Operativos (En campo)">
+                  {ROLES_OPERATIVOS.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </optgroup>
               </select>
             </label>
 
@@ -454,7 +462,7 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
         <div className="flex flex-wrap gap-2">
           {[
             { id: "todos", etiqueta: "Todos los usuarios" },
-            { id: "supervisores", etiqueta: "Supervisores SIHO / Admins" },
+            { id: "supervisores", etiqueta: "Administradores / Supervisores" },
             { id: "inspectores", etiqueta: "Inspectores Operativos" },
             { id: "inactivos", etiqueta: "Inactivos" },
           ].map((f) => (
@@ -546,6 +554,8 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
                         <Etiqueta tono="enterprise">
                           Administrador del Sistema
                         </Etiqueta>
+                      ) : u.rol === ROL_ADMINISTRACION ? (
+                        <Etiqueta tono="enterprise">Administrador</Etiqueta>
                       ) : esAdmin ? (
                         <Etiqueta tono="azul">Supervisor SIHO</Etiqueta>
                       ) : (
@@ -567,7 +577,7 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
 
                     <td className="whitespace-nowrap px-5 py-3 text-right text-xs">
                       <div className="inline-flex flex-wrap justify-end gap-x-2 gap-y-1">
-                        {/* Restablecer contraseña: tanto Superadmin como Supervisor SIHO */}
+                        {/* Restablecer contraseña: cualquier administrador */}
                         {u.activo && !yo && (u.alias || u.correo) && (
                           <button
                             type="button"
@@ -579,20 +589,20 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
                           </button>
                         )}
 
-                        {/* Promover/Quitar Supervisor SIHO: Solo Administrador del Sistema */}
-                        {esSuperAdmin && !yo && !esSuper && (
+                        {/* Promover/Quitar Administrador: cualquier administrador */}
+                        {puedeAdministrar && !yo && !esSuper && (
                           <button
                             type="button"
                             onClick={() => handleAdmin(u)}
                             disabled={isPending}
                             className="rounded-lg border border-slate-200 bg-white px-2.5 py-1 font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition disabled:opacity-50"
                           >
-                            {u.esAdmin ? "Quitar Supervisor" : "Hacer Supervisor"}
+                            {u.esAdmin ? "Quitar Administrador" : "Hacer Administrador"}
                           </button>
                         )}
 
-                        {/* Desactivar/Reactivar cuenta: Solo Administrador del Sistema */}
-                        {esSuperAdmin && !yo && !esSuper && (
+                        {/* Desactivar/Reactivar cuenta: cualquier administrador */}
+                        {puedeAdministrar && !yo && !esSuper && (
                           <button
                             type="button"
                             onClick={() => handleEstado(u)}

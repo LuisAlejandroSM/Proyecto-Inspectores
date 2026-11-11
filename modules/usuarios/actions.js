@@ -50,14 +50,9 @@ export async function crearInspector(entrada) {
   const correo = entrada?.correo ? texto(entrada?.correo, 150).toLowerCase() : null;
   const cargo = texto(entrada?.cargo, 100) || null;
 
-  // Un Supervisor SIHO solo puede crear inspectores operativos
+  // Solo administradores pueden registrar usuarios (garantizado por autorizarAccion con soloAdmin: true).
+  // Un administrador puede crear otros Administradores, Supervisores SIHO o Inspectores Operativos.
   const esRolAdmin = rol === ROL_ADMINISTRACION || rol === ROL_SUPERVISOR_SIHO;
-  if (esRolAdmin && !auth.usuario.esSuperAdmin) {
-    return {
-      success: false,
-      error: "Solo el Administrador del Sistema puede registrar Supervisores SIHO o Administradores.",
-    };
-  }
 
   if (nombre.length < 3) {
     return { success: false, error: "Escriba el nombre completo (mínimo 3 caracteres)." };
@@ -104,12 +99,12 @@ export async function crearInspector(entrada) {
 }
 
 /**
- * Activa o desactiva un usuario. Solo el Administrador del Sistema puede hacerlo.
+ * Activa o desactiva un usuario. Solo un Administrador puede hacerlo.
  * Desactivar corta su acceso y lo oculta de los cronogramas sin borrar su historial.
  * @param {{ id: string, activo: boolean }} entrada
  */
 export async function cambiarEstadoInspector(entrada) {
-  const auth = await autorizarAccion({ soloSuperAdmin: true });
+  const auth = await autorizarAccion({ soloAdmin: true });
   if (auth.error) return { success: false, error: auth.error };
 
   const id = String(entrada?.id ?? "");
@@ -180,12 +175,12 @@ export async function restablecerClave(entrada) {
 }
 
 /**
- * Da o quita permiso de supervisor/administrador. Solo el Administrador del Sistema puede hacerlo.
+ * Da o quita permiso de administrador/supervisor. Solo un Administrador puede hacerlo.
  * No se lo puede quitar uno mismo ni dejar el sistema sin administradores.
  * @param {{ id: string, esAdmin: boolean }} entrada
  */
 export async function cambiarAdministrador(entrada) {
-  const auth = await autorizarAccion({ soloSuperAdmin: true });
+  const auth = await autorizarAccion({ soloAdmin: true });
   if (auth.error) return { success: false, error: auth.error };
 
   const id = String(entrada?.id ?? "");
