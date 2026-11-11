@@ -21,6 +21,7 @@ export async function proxy(request) {
   }
 
   if (sesion.debeCambiarClave) {
+    if (ruta.startsWith("/api/")) return NextResponse.next();
     return ruta === "/cambiar-clave" ? NextResponse.next() : ir("/cambiar-clave");
   }
 

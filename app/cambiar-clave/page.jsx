@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { obtenerUsuarioActual } from "@/modules/auth/dal";
-import { crearSesion } from "@/modules/auth/session";
 import FormularioCambioClave from "@/modules/auth/components/FormularioCambioClave";
 
 export const metadata = {
@@ -14,10 +13,9 @@ export default async function CambiarClavePage() {
   }
 
   // Si en la base de datos el usuario ya actualizó su clave,
-  // aseguramos que su sesión esté al día y lo redirigimos a su vista inicial.
+  // renovamos su sesión a través del Route Handler y lo redirigimos a su vista inicial.
   if (!usuario.debeCambiarClave) {
-    await crearSesion(usuario);
-    redirect(usuario.esAdmin ? "/dashboard" : "/mi-cronograma");
+    redirect("/api/auth/sincronizar");
   }
 
   return (
