@@ -8,7 +8,7 @@ export const NOMBRE_COOKIE = "sesion";
 export const DURACION_SESION_SEG = 8 * 60 * 60; // 8 horas (una jornada)
 
 function clave() {
-  const secreto = process.env.SESSION_SECRET || process.env.SESION_SECRET || "ceveconca_sst_secreto_seguro_produccion_2026";
+  const secreto = process.env.SESSION_SECRET || process.env.SESION_SECRET || "cvconca_sst_secreto_seguro_produccion_2026";
   if (!secreto || secreto.length < 32) {
     throw new Error("SESSION_SECRET no está definida en .env.local (mínimo 32 caracteres).");
   }

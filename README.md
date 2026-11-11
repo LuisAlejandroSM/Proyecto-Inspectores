@@ -1,4 +1,4 @@
-# Sistema de Cronogramas e Inspecciones SST/SIHO - Ceveconca
+# Sistema de Cronogramas e Inspecciones SST/SIHO - Cvconca
 
 Plataforma integral para la gestión, seguimiento y ejecución de cronogramas e inspecciones técnicas en seguridad, salud en el trabajo y ambiente (SST/SIHO).
 

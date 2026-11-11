@@ -1,5 +1,5 @@
 -- ====================================================================
--- Esquema de Tablas y Datos Iniciales para Sistema SST/SIHO (Ceveconca)
+-- Esquema de Tablas y Datos Iniciales para Sistema SST/SIHO (Cvconca)
 -- Compatible con pgAdmin 4 (Query Tool) y PostgreSQL 16/17/18
 -- ====================================================================
 

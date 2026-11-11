@@ -100,7 +100,7 @@ function Contenido({ usuario, colapsada, onNavegar, botonColapsar }) {
       <div className={`flex h-16 items-center border-b border-[#1c2438] ${colapsada ? "justify-center px-2" : "justify-between px-4"}`}>
         {!colapsada && (
           <div className="min-w-0 pr-2">
-            <span className="block text-[11px] font-bold tracking-wider text-[#f5b800] uppercase">CEVECONCA</span>
+            <span className="block text-[11px] font-bold tracking-wider text-[#f5b800] uppercase">CVCONCA</span>
             <span className="block text-xs font-semibold leading-tight text-white tracking-tight truncate">Inspecciones Preventivas</span>
           </div>
         )}
@@ -215,7 +215,7 @@ export default function BarraLateral({ usuario, colapsadaInicial = false }) {
             <Icono nombre="menu" className="h-6 w-6" />
           </button>
           <div className="flex flex-col min-w-0">
-            <span className="text-[10px] font-bold tracking-wider text-[#f5b800] uppercase">CEVECONCA</span>
+            <span className="text-[10px] font-bold tracking-wider text-[#f5b800] uppercase">CVCONCA</span>
             <span className="text-xs font-semibold text-white tracking-tight truncate">Inspecciones Preventivas</span>
           </div>
         </div>

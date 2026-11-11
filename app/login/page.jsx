@@ -12,7 +12,7 @@ export default function LoginPage() {
         <div className="h-1.5 bg-[#f5b800]" aria-hidden="true" />
         <div className="px-7 pb-8 pt-7">
           <div className="mb-6 text-center">
-            <span className="block text-[11px] font-bold uppercase tracking-wider text-[#876200]">CEVECONCA</span>
+            <span className="block text-[11px] font-bold uppercase tracking-wider text-[#876200]">CVCONCA</span>
             <h1 className="mt-1 text-xl font-bold tracking-tight text-slate-900">Inspecciones Preventivas</h1>
             <p className="mt-1.5 text-xs text-slate-500">Ingrese con su usuario y contraseña asignada.</p>
           </div>

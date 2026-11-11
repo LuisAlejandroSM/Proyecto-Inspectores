@@ -3,7 +3,7 @@ chcp 65001 >nul
 title Sistema de Cronogramas SST/SIHO - Servidor de Producción
 
 echo =====================================================================
-echo        SISTEMA DE CRONOGRAMAS SST/SIHO - CEVECONCA
+echo        SISTEMA DE CRONOGRAMAS SST/SIHO - CVCONCA
 echo                  Iniciando en Windows...
 echo =====================================================================
 echo.
@@ -12,7 +12,7 @@ cd /d "%~dp0\.."
 
 :: Cargar variables por defecto si no existen en el entorno
 if "%DATABASE_URL%"=="" set "DATABASE_URL=postgresql://postgres:1234@localhost:5432/cronogramas"
-if "%SESSION_SECRET%"=="" set "SESSION_SECRET=ceveconca-sst-sistema-cronogramas-secreto-2026-produccion"
+if "%SESSION_SECRET%"=="" set "SESSION_SECRET=cvconca-sst-sistema-cronogramas-secreto-2026-produccion"
 if "%TZ%"=="" set "TZ=America/Caracas"
 if "%ARCHIVOS_DIR%"=="" set "ARCHIVOS_DIR=C:\sistema-cronogramas\archivos"
 if "%COOKIE_INSEGURA%"=="" set "COOKIE_INSEGURA=1"

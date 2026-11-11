@@ -1,7 +1,7 @@
 {
   "name": "Sistema de Cronogramas SST",
-  "short_name": "SST Ceveconca",
-  "description": "Sistema de gestión de cronogramas e inspecciones SST/SIHO para Ceveconca con soporte fuera de línea",
+  "short_name": "SST Cvconca",
+  "description": "Sistema de gestión de cronogramas e inspecciones SST/SIHO para Cvconca con soporte fuera de línea",
   "start_url": "/mis-formularios",
   "display": "standalone",
   "orientation": "portrait-primary",
