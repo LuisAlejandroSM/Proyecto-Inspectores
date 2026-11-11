@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 import { NOMBRE_COOKIE, verificarSesion } from "./modules/auth/token";
 
 const RUTAS_PUBLICAS = ["/login"];
-const RUTAS_ADMIN = ["/", "/dashboard", "/inspectores", "/formularios"];
+const RUTAS_ADMIN = ["/", "/dashboard", "/inspectores", "/formularios", "/configuracion", "/notificaciones"];
 
 function esRutaAdmin(ruta) {
   return RUTAS_ADMIN.some((r) => (r === "/" ? ruta === "/" : ruta === r || ruta.startsWith(`${r}/`)));

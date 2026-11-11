@@ -1,10 +1,25 @@
+import { redirect } from "next/navigation";
+import { obtenerUsuarioActual } from "@/modules/auth/dal";
+import { crearSesion } from "@/modules/auth/session";
 import FormularioCambioClave from "@/modules/auth/components/FormularioCambioClave";
 
 export const metadata = {
   title: "Cambiar contraseña · Sistema de Inspecciones Preventivas",
 };
 
-export default function CambiarClavePage() {
+export default async function CambiarClavePage() {
+  const usuario = await obtenerUsuarioActual();
+  if (!usuario) {
+    redirect("/login");
+  }
+
+  // Si en la base de datos el usuario ya actualizó su clave,
+  // aseguramos que su sesión esté al día y lo redirigimos a su vista inicial.
+  if (!usuario.debeCambiarClave) {
+    await crearSesion(usuario);
+    redirect(usuario.esAdmin ? "/dashboard" : "/mi-cronograma");
+  }
+
   return (
     <div className="flex min-h-[calc(100vh-2rem)] items-center justify-center md:min-h-[calc(100vh-3rem)]">
       <div className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-[0_10px_40px_-12px_rgba(29,29,27,0.18)] ring-1 ring-slate-200">

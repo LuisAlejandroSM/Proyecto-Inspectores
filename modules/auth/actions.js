@@ -1,6 +1,7 @@
 "use server";
 
 import { eq, or, sql } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { usuarios } from "@/db/schema";
@@ -131,5 +132,6 @@ export async function cambiarClave(_estadoPrevio, formData) {
 
   const actualizado = { ...usuario, debeCambiarClave: false };
   await crearSesion(actualizado);
-  redirect(destinoInicial(actualizado));
+  revalidatePath("/", "layout");
+  return { success: true, destino: destinoInicial(actualizado) };
 }
