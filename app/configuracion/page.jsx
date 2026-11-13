@@ -31,11 +31,11 @@ async function ContenidoConfiguracion() {
   } catch (error) {
     console.error("[configuracion] Error cargando usuarios:", error);
     return (
-      <section className="rounded-xl border border-red-300 bg-red-50 p-6">
-        <h2 className="text-base font-bold text-red-900">
+      <section className="rounded-2xl border border-rose-200 bg-rose-50/60 p-6 shadow-xs">
+        <h2 className="text-base font-bold text-rose-950">
           No se pudo consultar el listado de usuarios del sistema.
         </h2>
-        <p className="mt-2 font-mono text-xs text-red-700">
+        <p className="mt-2 font-mono text-xs text-rose-700">
           {error?.message || "Error al conectar con la base de datos."}
         </p>
       </section>
@@ -48,8 +48,8 @@ async function ContenidoConfiguracion() {
 function Cargando() {
   return (
     <div className="space-y-4" aria-busy="true">
-      <div className="h-10 w-64 animate-pulse rounded bg-slate-200/70" />
-      <div className="h-96 animate-pulse rounded-xl border border-slate-200 bg-white" />
+      <div className="h-10 w-64 animate-pulse rounded-2xl bg-zinc-200/60" />
+      <div className="h-96 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
     </div>
   );
 }

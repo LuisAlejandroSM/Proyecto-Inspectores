@@ -20,18 +20,18 @@ export default function TarjetaGrafico({ titulo, subtitulo, leyenda = [], tabla,
   const [verTabla, setVerTabla] = useState(false);
 
   return (
-    <figure className={`viz-root flex flex-col rounded-2xl border border-slate-200/90 bg-white p-5 shadow-sm hover:shadow-md transition-shadow ${className}`}>
+    <figure className={`viz-root flex flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs hover:border-zinc-300 transition-all ${className}`}>
       <figcaption className="mb-3.5 flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h3 className="text-sm font-bold text-slate-900">{titulo}</h3>
-          {subtitulo && <p className="text-xs text-slate-500 mt-0.5">{subtitulo}</p>}
+          <h3 className="text-sm font-bold text-zinc-950">{titulo}</h3>
+          {subtitulo && <p className="text-xs text-zinc-500 mt-0.5">{subtitulo}</p>}
         </div>
         {!vacio && (
           <button
             type="button"
             onClick={() => setVerTabla((v) => !v)}
             aria-pressed={verTabla}
-            className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-100 transition"
+            className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-semibold text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 transition"
           >
             {verTabla ? "Ver gráfica" : "Ver tabla"}
           </button>
@@ -39,12 +39,12 @@ export default function TarjetaGrafico({ titulo, subtitulo, leyenda = [], tabla,
       </figcaption>
 
       {leyenda.length > 1 && !vacio && !verTabla && (
-        <ul className="mb-2 flex flex-wrap gap-4 text-xs text-[var(--viz-text-secondary)]">
+        <ul className="mb-3 flex flex-wrap gap-4 text-xs text-zinc-500 font-medium">
           {leyenda.map((l) => (
             <li key={l.etiqueta} className="flex items-center gap-1.5">
               <span
                 aria-hidden="true"
-                className={l.forma === "linea" ? "h-0.5 w-4 rounded" : "h-2.5 w-2.5 rounded-sm"}
+                className={l.forma === "linea" ? "h-1 w-4 rounded-full" : "h-2.5 w-2.5 rounded-xs"}
                 style={{ background: l.color }}
               />
               {l.etiqueta}
@@ -54,26 +54,26 @@ export default function TarjetaGrafico({ titulo, subtitulo, leyenda = [], tabla,
       )}
 
       {vacio ? (
-        <p className="flex min-h-[160px] flex-1 items-center justify-center rounded border border-dashed border-black/10 px-4 text-center text-sm text-[var(--viz-text-secondary)]">
+        <div className="flex min-h-[160px] flex-1 items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 px-4 text-center text-xs text-zinc-400 font-medium">
           {vacio}
-        </p>
+        </div>
       ) : verTabla ? (
-        <div className="max-h-[320px] overflow-auto">
+        <div className="max-h-[320px] overflow-auto rounded-xl border border-zinc-200">
           <table className="w-full text-left text-xs">
-            <thead className="sticky top-0 bg-[var(--viz-surface)] text-[var(--viz-text-secondary)]">
-              <tr className="border-b border-[var(--viz-grid)]">
+            <thead className="sticky top-0 bg-zinc-50 text-zinc-600 font-semibold border-b border-zinc-200">
+              <tr>
                 {tabla.columnas.map((c, i) => (
-                  <th key={c} className={`px-2 py-1.5 font-semibold ${i > 0 ? "text-right" : ""}`}>
+                  <th key={c} className={`px-3 py-2 ${i > 0 ? "text-right" : ""}`}>
                     {c}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="text-[var(--viz-text-primary)]">
+            <tbody className="divide-y divide-zinc-100 text-zinc-900">
               {tabla.filas.map((fila, i) => (
-                <tr key={i} className="border-b border-[var(--viz-grid)]/60">
+                <tr key={i} className="hover:bg-zinc-50/70 transition">
                   {fila.map((celda, j) => (
-                    <td key={j} className={`px-2 py-1.5 ${j > 0 ? "text-right tabular-nums" : ""}`}>
+                    <td key={j} className={`px-3 py-2 ${j > 0 ? "text-right tabular-nums font-medium" : ""}`}>
                       {celda}
                     </td>
                   ))}

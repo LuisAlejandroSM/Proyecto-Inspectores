@@ -49,6 +49,7 @@ next-env.d.ts
 *.xlsx
 *.pdf
 /estilo/
+/diseño/
 /cronogramas_comoson/
 
 # datos para migrar a un servidor (esquema SQL y plantillas de formularios)

@@ -18,9 +18,9 @@ export default async function MiCronograma({ searchParams }) {
 
   if (!ROLES_OPERATIVOS.includes(usuario.rol)) {
     return (
-      <section className="rounded border border-blue-200 bg-blue-50 p-6 text-sm text-blue-900">
+      <section className="rounded-2xl border border-zinc-200 bg-white p-6 text-sm text-zinc-700 shadow-xs">
         Su usuario es de administración y no tiene inspecciones asignadas.{" "}
-        <Link href="/dashboard" className="font-semibold underline">
+        <Link href="/dashboard" className="font-bold text-zinc-950 underline decoration-[#f5b800] decoration-2">
           Ir al dashboard
         </Link>
       </section>
@@ -47,13 +47,12 @@ export default async function MiCronograma({ searchParams }) {
 
   if (!detalle) {
     return (
-      <section className="rounded border border-red-300 bg-red-50 p-6 text-sm text-red-900">
+      <section className="rounded-2xl border border-rose-200 bg-rose-50/60 p-6 text-sm text-rose-900 shadow-xs">
         No se pudo cargar su cronograma. Intente de nuevo en unos minutos.
       </section>
     );
   }
 
-  // Inspecciones eliminadas con registros este mes: siguen visibles para no perder el historial.
   plantillas = await completarConEliminadas(plantillas, detalle);
 
   const m = calcularMetricas(detalle, { mes, anio, hoy });
@@ -61,10 +60,8 @@ export default async function MiCronograma({ searchParams }) {
   const totalDias = diasEnMes(mes, anio);
   const corte = diaDeCorte(mes, anio, hoy);
   const mesEnCurso = numeroMes(mes) === hoy.mes && anio === hoy.anio;
-  // Día de referencia para la lista: hoy en el mes en curso; todo pasado o todo futuro si no.
   const diaActual = mesEnCurso ? hoy.dia : corte === totalDias ? totalDias + 1 : 0;
 
-  // Formulario que generó cada "P" (si su formato está vinculado a uno), por formato y día.
   const formularioPorCelda = new Map(
     formularios.map((f) => [`${f.plantillaId}|${diaDeFecha(f.fecha)}`, { asignacionId: f.asignacionId, estado: f.estado, titulo: f.titulo }])
   );
@@ -84,7 +81,6 @@ export default async function MiCronograma({ searchParams }) {
       observacion: r.observacion,
     }));
 
-  // La matriz del inspector muestra solo los formatos que tiene asignados este mes.
   const asignadas = new Set(detalle.map((r) => r.plantillaId));
   const registros = detalle.map((r) => ({
     plantillaId: r.plantillaId,
@@ -98,13 +94,12 @@ export default async function MiCronograma({ searchParams }) {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Hola, {usuario.nombre}</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="text-2xl font-black tracking-tight text-zinc-950">Hola, {usuario.nombre}</h1>
+        <p className="mt-1 text-sm text-zinc-500 font-medium">
           {usuario.rol} · Cronograma de inspecciones preventivas de {mes} {anio}
         </p>
       </div>
 
-      {/* En el celular: la cifra principal ocupa el ancho y los indicadores van de a dos. */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
         <div className="col-span-2 lg:col-span-1">
           <CifraPrincipal

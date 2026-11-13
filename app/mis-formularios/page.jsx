@@ -12,8 +12,8 @@ export default function MisFormulariosPage() {
     <div className="space-y-4">
       <div className="mx-auto max-w-2xl space-y-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Mis Formularios</h1>
-          <p className="mt-1 text-sm text-slate-500">Formularios asignados para completar en campo</p>
+          <h1 className="text-2xl font-black tracking-tight text-zinc-950">Mis Formularios</h1>
+          <p className="mt-1 text-sm text-zinc-500 font-medium">Formularios asignados para completar en campo</p>
         </div>
         <BarraEstadoOffline />
       </div>

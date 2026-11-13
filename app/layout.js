@@ -45,7 +45,7 @@ export default function RootLayout({ children }) {
         <Suspense fallback={null}>
           <MenuPrincipal />
         </Suspense>
-        <main className="w-full min-w-0 flex-1 p-4 md:w-auto md:p-6">
+        <main className="w-full min-w-0 flex-1 p-4 pb-24 md:w-auto md:p-6 md:pb-6">
           <div className="mx-auto max-w-[1800px]">{children}</div>
         </main>
       </body>

@@ -5,10 +5,10 @@ import { useTransition } from "react";
 import { ANIOS, MESES, VISTAS } from "@/modules/cronogramas/constants";
 
 const CLASE_SELECT =
-  "rounded-xl border border-slate-200 bg-slate-50/60 px-3 py-2 text-sm font-semibold text-slate-900 shadow-2xs hover:bg-white focus:bg-white focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition outline-none";
-const CLASE_LABEL = "flex flex-col gap-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-500";
+  "rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-semibold text-zinc-900 shadow-2xs hover:border-zinc-300 focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/25 transition outline-none";
+const CLASE_LABEL = "flex flex-col gap-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500";
 
-/** Filtros del dashboard (una fila, arriba de todo lo que afectan). El estado vive en la URL. */
+/** Filtros del dashboard: barra compacta, estado en la URL. */
 export default function FiltrosDashboard({ mes, anio, rol }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -19,7 +19,7 @@ export default function FiltrosDashboard({ mes, anio, rol }) {
   };
 
   return (
-    <div className="flex flex-wrap items-end gap-3.5 rounded-2xl border border-slate-200/90 bg-white p-4 shadow-sm">
+    <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-xs">
       <label className={CLASE_LABEL}>
         Mes
         <select value={mes} onChange={(e) => navegar({ mes: e.target.value })} className={CLASE_SELECT}>
@@ -51,8 +51,8 @@ export default function FiltrosDashboard({ mes, anio, rol }) {
           ))}
         </select>
       </label>
-      <span aria-live="polite" className="pb-2.5 text-xs font-medium text-slate-400">
-        {isPending ? "Actualizando…" : ""}
+      <span aria-live="polite" className="pb-2 text-xs font-medium text-zinc-400">
+        {isPending ? "Actualizando métricas…" : ""}
       </span>
     </div>
   );

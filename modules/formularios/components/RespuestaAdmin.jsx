@@ -22,8 +22,8 @@ export default async function RespuestaAdmin({ params }) {
 
   return (
     <div className="mx-auto max-w-3xl space-y-4">
-      <Link href={`/formularios/${formulario.id}/resultados`} className="text-sm font-semibold text-blue-700 hover:underline">
-        ← {formulario.titulo}
+      <Link href={`/formularios/${formulario.id}/resultados`} className="inline-flex items-center gap-1 text-xs font-bold text-zinc-600 hover:text-zinc-950 transition">
+        <span aria-hidden="true">←</span> Volver a resultados de {formulario.titulo}
       </Link>
       <EncabezadoFormato
         titulo={formulario.titulo}
@@ -31,24 +31,24 @@ export default async function RespuestaAdmin({ params }) {
         emision={formulario.emision}
         revision={formulario.revision}
       >
-        <dl className="mt-3 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+        <dl className="mt-4 grid gap-x-6 gap-y-2 text-xs sm:grid-cols-2 border-t border-zinc-100 pt-3">
           <div>
-            <dt className="inline text-slate-500">Inspector: </dt>
-            <dd className="inline font-semibold text-slate-800">
-              {inspector.nombre} <span className="font-normal text-slate-500">({inspector.rol})</span>
+            <dt className="inline text-zinc-500 font-medium">Inspector: </dt>
+            <dd className="inline font-bold text-zinc-950">
+              {inspector.nombre} <span className="font-normal text-zinc-400">({inspector.rol})</span>
             </dd>
           </div>
           <div>
-            <dt className="inline text-slate-500">Enviada: </dt>
-            <dd className="inline font-semibold text-slate-800">{textoFechaHora(respuesta?.enviadaEn) ?? "Aún no enviada"}</dd>
+            <dt className="inline text-zinc-500 font-medium">Enviada: </dt>
+            <dd className="inline font-bold text-zinc-950">{textoFechaHora(respuesta?.enviadaEn) ?? "Aún no enviada"}</dd>
           </div>
           <div>
-            <dt className="inline text-slate-500">Asignada: </dt>
-            <dd className="inline text-slate-800">{textoFechaHora(asignacion.creadoEn)}</dd>
+            <dt className="inline text-zinc-500 font-medium">Asignada: </dt>
+            <dd className="inline text-zinc-800 font-semibold">{textoFechaHora(asignacion.creadoEn)}</dd>
           </div>
           <div>
-            <dt className="inline text-slate-500">Fecha límite: </dt>
-            <dd className="inline text-slate-800">{textoFecha(asignacion.fechaLimite) ?? "—"}</dd>
+            <dt className="inline text-zinc-500 font-medium">Fecha límite: </dt>
+            <dd className="inline text-zinc-800 font-semibold">{textoFecha(asignacion.fechaLimite) ?? "—"}</dd>
           </div>
         </dl>
       </EncabezadoFormato>
@@ -56,9 +56,9 @@ export default async function RespuestaAdmin({ params }) {
       {respuesta ? (
         <VerRespuesta campos={respuesta.camposSnapshot} respuestas={respuesta.respuestas} fotos={fotos} />
       ) : (
-        <p className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-8 text-center text-sm text-slate-500">
+        <div className="rounded-2xl border border-dashed border-zinc-200 bg-white p-8 text-center text-sm text-zinc-400 font-medium shadow-xs">
           El inspector todavía no envía este formulario.
-        </p>
+        </div>
       )}
     </div>
   );

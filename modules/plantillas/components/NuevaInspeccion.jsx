@@ -7,8 +7,8 @@ import { PERIODICIDADES } from "../constants";
 const FORM_VACIO = { elementoNombre: "", codigoFormato: "", periodicidad: "Semanal", cantidadPlanificada: 4 };
 
 const CLASE_CAMPO =
-  "mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-sm font-medium text-slate-800 shadow-2xs focus:bg-white focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition outline-none";
-const CLASE_ETIQUETA = "block text-xs font-bold uppercase tracking-wider text-slate-500";
+  "mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm font-medium text-zinc-900 shadow-2xs focus:border-[#f5b800] focus:ring-4 focus:ring-[#f5b800]/20 transition outline-none";
+const CLASE_ETIQUETA = "block text-xs font-bold uppercase tracking-wider text-zinc-500";
 
 /**
  * Botón "+ Agregar inspección" y formulario para sumar un formato al catálogo del rol
@@ -52,14 +52,14 @@ export default function NuevaInspeccion({ rol, etiquetaRol }) {
     return (
       <div className="flex flex-wrap items-center justify-end gap-3">
         {aviso && (
-          <span aria-live="polite" className="mr-auto text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-200/60">
+          <span aria-live="polite" className="mr-auto text-xs font-semibold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
             {aviso}
           </span>
         )}
         <button
           type="button"
           onClick={abrir}
-          className="rounded-xl bg-[#0f1420] px-4 py-2 text-xs font-bold text-white shadow-sm ring-1 ring-white/10 hover:bg-[#1a2337] active:scale-[0.98] transition"
+          className="rounded-xl bg-[#f5b800] hover:bg-[#e0a800] px-4 py-2 text-xs font-bold text-[#09090b] shadow-xs active:scale-[0.98] transition"
         >
           + Agregar inspección
         </button>
@@ -68,9 +68,9 @@ export default function NuevaInspeccion({ rol, etiquetaRol }) {
   }
 
   return (
-    <form onSubmit={handleGuardar} className="rounded-2xl border border-slate-200/90 bg-white shadow-sm overflow-hidden">
-      <div className="border-b border-slate-100 bg-slate-50/80 px-5 py-3.5">
-        <h2 className="text-sm font-bold text-slate-900 tracking-tight">Agregar inspección · {etiquetaRol}</h2>
+    <form onSubmit={handleGuardar} className="rounded-2xl border border-zinc-200 bg-white shadow-xs overflow-hidden">
+      <div className="border-b border-zinc-100 bg-zinc-50/70 px-5 py-3.5">
+        <h2 className="text-sm font-bold text-zinc-950 tracking-tight">Agregar inspección · {etiquetaRol}</h2>
       </div>
 
       <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-[2fr_1fr_1fr_120px]">
@@ -127,7 +127,7 @@ export default function NuevaInspeccion({ rol, etiquetaRol }) {
         </label>
       </div>
 
-      <div className="flex flex-wrap items-center justify-end gap-2.5 border-t border-slate-100 bg-slate-50/40 px-5 py-3">
+      <div className="flex flex-wrap items-center justify-end gap-2.5 border-t border-zinc-100 bg-zinc-50/50 px-5 py-3.5">
         {error && (
           <span aria-live="polite" className="mr-auto text-xs font-semibold text-rose-600">
             {error}
@@ -137,14 +137,14 @@ export default function NuevaInspeccion({ rol, etiquetaRol }) {
           type="button"
           onClick={() => setAbierto(false)}
           disabled={isPending}
-          className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition disabled:opacity-50"
+          className="rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-xs font-bold text-zinc-700 shadow-2xs hover:bg-zinc-50 transition disabled:opacity-50"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-xl bg-[#0f1420] px-4 py-2 text-xs font-bold text-white shadow-sm ring-1 ring-white/10 hover:bg-[#1a2337] active:scale-[0.98] transition disabled:opacity-50"
+          className="rounded-xl bg-[#f5b800] hover:bg-[#e0a800] px-4 py-2 text-xs font-bold text-[#09090b] shadow-xs active:scale-[0.98] transition disabled:opacity-50"
         >
           {isPending ? "Guardando…" : "Guardar inspección"}
         </button>

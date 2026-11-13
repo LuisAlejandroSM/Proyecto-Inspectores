@@ -8,7 +8,7 @@ import { esNegativa, esNoAplica } from "../campos";
 import { textoFecha } from "../fechas";
 import { calcularResultados, fallasDeRespuesta, generarCsv } from "../resultados";
 
-const CLASE_SELECT = "rounded border border-slate-300 bg-white px-2 py-1.5 text-sm font-medium text-slate-800";
+const CLASE_SELECT = "rounded-xl border border-zinc-200 bg-zinc-50/50 px-3 py-1.5 text-xs font-semibold text-zinc-900 hover:border-zinc-300 focus:bg-white focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition outline-none";
 
 const PERIODOS = [
   ["todo", "Todo"],
@@ -17,7 +17,6 @@ const PERIODOS = [
   ["mes", "Este mes"],
 ];
 
-// Fecha mínima de envío para el período elegido (null = sin límite).
 function desdePeriodo(periodo) {
   const ahora = new Date();
   if (periodo === "mes") return new Date(ahora.getFullYear(), ahora.getMonth(), 1);
@@ -25,7 +24,6 @@ function desdePeriodo(periodo) {
   return dias ? new Date(ahora.getTime() - dias * 86400000) : null;
 }
 
-// Color por columna de una lista: fallas en rojo (estado crítico), N/A en gris, el resto en azul/verde.
 function colorColumna(col, indicePositiva) {
   if (esNegativa(col)) return "var(--viz-critical)";
   if (esNoAplica(col)) return "var(--viz-axis)";
@@ -45,11 +43,11 @@ function coloresDeColumnas(columnas) {
 
 function Tarjeta({ titulo, subtitulo, children, accion }) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+    <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs hover:border-zinc-300 transition-all">
+      <div className="mb-3.5 flex flex-wrap items-start justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-[var(--viz-text-primary)]">{titulo}</h3>
-          {subtitulo && <p className="text-xs text-[var(--viz-text-secondary)]">{subtitulo}</p>}
+          <h3 className="text-sm font-bold text-zinc-950">{titulo}</h3>
+          {subtitulo && <p className="text-xs text-zinc-500 mt-0.5">{subtitulo}</p>}
         </div>
         {accion}
       </div>
@@ -62,18 +60,18 @@ function Tarjeta({ titulo, subtitulo, children, accion }) {
 function Barras({ filas, total, color = "var(--viz-plan)" }) {
   const maximo = Math.max(1, ...filas.map((f) => f.cantidad));
   return (
-    <ul className="space-y-2">
+    <ul className="space-y-2.5">
       {filas.map((f) => {
         const pct = total > 0 ? f.cantidad / total : null;
         return (
-          <li key={f.etiqueta} className="grid grid-cols-[minmax(0,10rem)_1fr] items-center gap-3 text-sm sm:grid-cols-[minmax(0,14rem)_1fr]">
-            <span className="truncate text-[var(--viz-text-primary)]" title={f.etiqueta}>
+          <li key={f.etiqueta} className="grid grid-cols-[minmax(0,10rem)_1fr] items-center gap-3 text-xs sm:grid-cols-[minmax(0,14rem)_1fr]">
+            <span className="truncate font-medium text-zinc-700" title={f.etiqueta}>
               {f.etiqueta}
             </span>
             <span className="flex items-center gap-2" title={`${f.etiqueta}: ${f.cantidad} (${formatoPorcentaje(pct)})`}>
-              <span className="h-3.5 rounded-r" style={{ width: `${(f.cantidad / maximo) * 80}%`, minWidth: f.cantidad ? 4 : 0, background: color }} />
-              <span className="whitespace-nowrap text-xs font-semibold tabular-nums text-[var(--viz-text-primary)]">
-                {f.cantidad} <span className="font-normal text-[var(--viz-muted)]">({formatoPorcentaje(pct)})</span>
+              <span className="h-3 rounded-full" style={{ width: `${(f.cantidad / maximo) * 80}%`, minWidth: f.cantidad ? 6 : 0, background: color }} />
+              <span className="whitespace-nowrap text-xs font-bold tabular-nums text-zinc-950">
+                {f.cantidad} <span className="font-normal text-zinc-400">({formatoPorcentaje(pct)})</span>
               </span>
             </span>
           </li>
@@ -87,36 +85,36 @@ function ResumenLista({ r }) {
   const colores = coloresDeColumnas(r.columnas);
   return (
     <div className="space-y-3">
-      <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[var(--viz-text-secondary)]" aria-label="Leyenda">
+      <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-500 font-medium" aria-label="Leyenda">
         {r.columnas.map((c) => (
           <li key={c} className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm" style={{ background: colores[c] }} />
+            <span className="h-2.5 w-2.5 rounded-xs" style={{ background: colores[c] }} />
             {c}
             {esNegativa(c) && " (falla)"}
           </li>
         ))}
       </ul>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[560px] text-left text-sm">
-          <thead className="text-xs text-[var(--viz-muted)]">
-            <tr className="border-b border-[var(--viz-grid)]">
-              <th className="py-1.5 pr-3 font-semibold">Ítem</th>
-              <th className="w-40 py-1.5 pr-3 font-semibold">Distribución</th>
+      <div className="overflow-x-auto rounded-xl border border-zinc-200">
+        <table className="w-full min-w-[560px] text-left text-xs">
+          <thead className="bg-zinc-50 text-zinc-600 font-semibold border-b border-zinc-200">
+            <tr>
+              <th className="py-2 px-3">Ítem</th>
+              <th className="w-40 py-2 px-3">Distribución</th>
               {r.columnas.map((c) => (
-                <th key={c} className="w-14 py-1.5 text-right font-semibold">
+                <th key={c} className="w-14 py-2 px-3 text-right">
                   {c}
                 </th>
               ))}
-              <th className="w-16 py-1.5 text-right font-semibold">% falla</th>
+              <th className="w-16 py-2 px-3 text-right">% falla</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-zinc-100">
             {r.filas.map((f) => (
-              <tr key={f.texto} className={`border-b border-slate-100 ${f.fallas > 0 ? "bg-red-50/40" : ""}`}>
-                <td className="py-1.5 pr-3 text-[var(--viz-text-primary)]">{f.texto}</td>
-                <td className="py-1.5 pr-3">
+              <tr key={f.texto} className={`hover:bg-zinc-50/70 transition ${f.fallas > 0 ? "bg-rose-50/30" : ""}`}>
+                <td className="py-2 px-3 font-medium text-zinc-900">{f.texto}</td>
+                <td className="py-2 px-3">
                   {f.marcadas > 0 ? (
-                    <span className="flex h-3 gap-[2px] overflow-hidden rounded" aria-hidden="true">
+                    <span className="flex h-3 gap-[2px] overflow-hidden rounded-md bg-zinc-100 p-0.5" aria-hidden="true">
                       {r.columnas
                         .filter((c) => f.cuenta[c] > 0)
                         .map((c) => (
@@ -128,20 +126,20 @@ function ResumenLista({ r }) {
                         ))}
                     </span>
                   ) : (
-                    <span className="text-xs text-[var(--viz-muted)]">Sin respuestas</span>
+                    <span className="text-xs text-zinc-400">Sin respuestas</span>
                   )}
                 </td>
                 {r.columnas.map((c) => (
                   <td
                     key={c}
-                    className={`py-1.5 text-right tabular-nums ${
-                      esNegativa(c) && f.cuenta[c] > 0 ? "font-bold text-[var(--viz-critical)]" : "text-[var(--viz-text-secondary)]"
+                    className={`py-2 px-3 text-right tabular-nums ${
+                      esNegativa(c) && f.cuenta[c] > 0 ? "font-bold text-rose-600" : "text-zinc-600"
                     }`}
                   >
                     {f.cuenta[c] || "·"}
                   </td>
                 ))}
-                <td className="py-1.5 text-right text-xs font-semibold tabular-nums text-[var(--viz-text-primary)]">
+                <td className="py-2 px-3 text-right text-xs font-bold tabular-nums text-zinc-950">
                   {f.tasaFalla === null ? "—" : formatoPorcentaje(f.tasaFalla)}
                 </td>
               </tr>
@@ -158,7 +156,7 @@ function ResumenPregunta({ r }) {
 
   let contenido = null;
   if (r.respondidas === 0) {
-    contenido = <p className="text-sm text-[var(--viz-muted)]">Nadie respondió esta pregunta en el período.</p>;
+    contenido = <p className="text-xs text-zinc-400">Nadie respondió esta pregunta en el período.</p>;
   } else if (r.opciones) {
     contenido = <Barras filas={r.opciones} total={r.respondidas} />;
   } else if (r.tipo === "numero" && r.estadisticas) {
@@ -169,9 +167,9 @@ function ResumenPregunta({ r }) {
           ["Mínimo", r.estadisticas.minimo],
           ["Máximo", r.estadisticas.maximo],
         ].map(([etiqueta, valor]) => (
-          <div key={etiqueta} className="rounded-lg bg-slate-50 px-3 py-2">
-            <dt className="text-xs text-[var(--viz-text-secondary)]">{etiqueta}</dt>
-            <dd className="text-xl font-semibold tabular-nums text-[var(--viz-text-primary)]">
+          <div key={etiqueta} className="rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+            <dt className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">{etiqueta}</dt>
+            <dd className="mt-1 text-xl font-black tabular-nums text-zinc-950">
               {Number.isInteger(valor) ? formatoNumero(valor) : valor.toFixed(1).replace(".", ",")}
             </dd>
           </div>
@@ -180,19 +178,19 @@ function ResumenPregunta({ r }) {
     );
   } else if (r.tipo === "fecha") {
     contenido = (
-      <div className="space-y-2 text-sm">
-        <p className="text-[var(--viz-text-secondary)]">
-          Desde <strong className="text-[var(--viz-text-primary)]">{textoFecha(r.primera)}</strong> hasta{" "}
-          <strong className="text-[var(--viz-text-primary)]">{textoFecha(r.ultima)}</strong>
+      <div className="space-y-2 text-xs">
+        <p className="text-zinc-600 font-medium">
+          Desde <strong className="text-zinc-950 font-bold">{textoFecha(r.primera)}</strong> hasta{" "}
+          <strong className="text-zinc-950 font-bold">{textoFecha(r.ultima)}</strong>
         </p>
         {r.esVencimiento &&
           (r.vencidas.length > 0 ? (
-            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2">
-              <p className="text-sm font-semibold text-red-800">✕ {r.vencidas.length} ya vencida(s) al momento de la inspección</p>
-              <ul className="mt-1 space-y-0.5 text-xs text-red-900">
+            <div className="rounded-xl border border-rose-200 bg-rose-50 p-3">
+              <p className="text-xs font-bold text-rose-800">✕ {r.vencidas.length} ya vencida(s) al momento de la inspección</p>
+              <ul className="mt-1.5 space-y-1 text-xs text-rose-900">
                 {r.vencidas.slice(0, 10).map((v) => (
                   <li key={v.asignacionId}>
-                    <Link href={`/formularios/respuesta/${v.asignacionId}`} className="hover:underline">
+                    <Link href={`/formularios/respuesta/${v.asignacionId}`} className="hover:underline font-medium">
                       {v.inspector}: venció el {textoFecha(v.valor)}
                     </Link>
                   </li>
@@ -200,21 +198,21 @@ function ResumenPregunta({ r }) {
               </ul>
             </div>
           ) : (
-            <p className="text-xs font-medium text-[var(--viz-good-text)]">✓ Ninguna vencida al momento de la inspección</p>
+            <p className="text-xs font-bold text-emerald-700">✓ Ninguna vencida al momento de la inspección</p>
           ))}
       </div>
     );
   } else if (r.agrupados) {
     contenido = (
       <div>
-        <p className="mb-2 text-xs text-[var(--viz-text-secondary)]">{r.distintos} valor(es) distinto(s)</p>
-        <ul className="max-h-60 divide-y divide-slate-100 overflow-y-auto rounded-lg border border-slate-100 pr-1">
+        <p className="mb-2 text-xs text-zinc-500">{r.distintos} valor(es) distinto(s)</p>
+        <ul className="max-h-60 divide-y divide-zinc-100 overflow-y-auto rounded-xl border border-zinc-200 pr-1">
           {r.agrupados.map((g) => (
-            <li key={g.texto} className="flex items-center justify-between gap-3 px-3 py-1.5 text-sm">
-              <span className="min-w-0 truncate text-[var(--viz-text-primary)]" title={g.texto}>
+            <li key={g.texto} className="flex items-center justify-between gap-3 px-3 py-2 text-xs">
+              <span className="min-w-0 truncate text-zinc-800 font-medium" title={g.texto}>
                 {g.texto}
               </span>
-              <span className="shrink-0 text-xs font-semibold tabular-nums text-[var(--viz-text-secondary)]">
+              <span className="shrink-0 text-xs font-bold tabular-nums text-zinc-500">
                 {g.cantidad > 1 ? `${g.cantidad} veces` : "1 vez"}
               </span>
             </li>
@@ -226,9 +224,9 @@ function ResumenPregunta({ r }) {
     contenido = (
       <ul className="max-h-72 space-y-2 overflow-y-auto pr-1">
         {r.textos.map((t) => (
-          <li key={t.asignacionId} className="rounded-lg bg-slate-50 px-3 py-2">
-            <p className="whitespace-pre-line text-sm text-[var(--viz-text-primary)]">{t.texto}</p>
-            <Link href={`/formularios/respuesta/${t.asignacionId}`} className="mt-0.5 block text-xs text-[var(--viz-text-secondary)] hover:text-blue-700 hover:underline">
+          <li key={t.asignacionId} className="rounded-xl border border-zinc-200 bg-zinc-50/50 p-3">
+            <p className="whitespace-pre-line text-xs font-medium text-zinc-900 leading-relaxed">{t.texto}</p>
+            <Link href={`/formularios/respuesta/${t.asignacionId}`} className="mt-1 block text-[11px] font-semibold text-zinc-500 hover:text-amber-600 transition">
               {t.inspector} · {t.fecha}
             </Link>
           </li>
@@ -240,19 +238,20 @@ function ResumenPregunta({ r }) {
   } else if (r.fotos) {
     contenido = (
       <div>
-        <p className="mb-2 text-sm text-[var(--viz-text-secondary)]">
+        <p className="mb-2.5 text-xs text-zinc-500">
           {r.tipo === "firma" ? `${r.cantidad} firma(s)` : `${r.cantidad} foto(s) en total`}
           {r.cantidad > r.fotos.length && ` · se muestran las ${r.fotos.length} más recientes`}
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2.5">
           {r.fotos.map((f) => (
             <Link
               key={f.id}
               href={`/formularios/respuesta/${f.asignacionId}`}
               title={`${f.inspector} · ${f.fecha}`}
-              className={`block overflow-hidden rounded-lg border border-slate-200 ${r.tipo === "firma" ? "h-16 w-32 bg-white p-1" : "h-20 w-20 bg-slate-100"}`}
+              className={`block overflow-hidden rounded-xl border border-zinc-200 shadow-2xs hover:border-zinc-400 transition ${
+                r.tipo === "firma" ? "h-16 w-32 bg-white p-1" : "h-20 w-20 bg-zinc-100"
+              }`}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element -- imagen privada servida por /api/archivos */}
               <img
                 src={`/api/archivos/${f.id}`}
                 alt={`${r.etiqueta} — ${f.inspector}`}
@@ -268,7 +267,7 @@ function ResumenPregunta({ r }) {
 
   const accion =
     r.tipo === "tabla_verificacion" && r.fallas > 0 ? (
-      <span className="rounded border border-red-200 bg-red-50 px-2 py-0.5 text-[11px] font-semibold text-red-700">✕ {r.fallas} falla(s)</span>
+      <span className="rounded-lg border border-rose-200 bg-rose-50 px-2 py-0.5 text-[11px] font-bold text-rose-700">✕ {r.fallas} falla(s)</span>
     ) : null;
 
   return (
@@ -320,8 +319,8 @@ export default function ResultadosFormulario({ titulo, campos, respuestas, asign
   return (
     <div className="viz-root space-y-4">
       {/* Filtros en una fila, arriba de todo */}
-      <div className="flex flex-wrap items-end gap-3 rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-sm">
-        <label className="flex flex-col gap-1 text-xs font-medium text-slate-500">
+      <div className="flex flex-wrap items-end gap-3.5 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-xs">
+        <label className="flex flex-col gap-1.5 text-[11px] font-bold uppercase tracking-wider text-zinc-500">
           Inspector
           <select value={inspector} onChange={(e) => setInspector(e.target.value)} className={CLASE_SELECT}>
             <option value="todos">Todos</option>
@@ -332,7 +331,7 @@ export default function ResultadosFormulario({ titulo, campos, respuestas, asign
             ))}
           </select>
         </label>
-        <label className="flex flex-col gap-1 text-xs font-medium text-slate-500">
+        <label className="flex flex-col gap-1.5 text-[11px] font-bold uppercase tracking-wider text-zinc-500">
           Período de envío
           <select value={periodo} onChange={(e) => setPeriodo(e.target.value)} className={CLASE_SELECT}>
             {PERIODOS.map(([valor, etiqueta]) => (
@@ -342,18 +341,18 @@ export default function ResultadosFormulario({ titulo, campos, respuestas, asign
             ))}
           </select>
         </label>
-        <span className="pb-2 text-xs text-slate-500">{filtradas.length} respuesta(s)</span>
+        <span className="pb-2.5 text-xs font-semibold text-zinc-500">{filtradas.length} respuesta(s)</span>
         <button
           type="button"
           onClick={descargar}
           disabled={filtradas.length === 0}
-          className="ml-auto rounded border border-slate-300 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-40"
+          className="ml-auto rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-2 text-xs font-bold text-zinc-800 shadow-2xs hover:bg-zinc-100 transition disabled:opacity-40"
         >
           Descargar Excel (CSV)
         </button>
       </div>
 
-      {/* Tres indicadores del mismo alto; en el celular "Respondidas" ocupa la fila completa. */}
+      {/* Tres indicadores del mismo alto */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:gap-4">
         <div className="col-span-2 sm:col-span-1">
           <Indicador
@@ -378,30 +377,30 @@ export default function ResultadosFormulario({ titulo, campos, respuestas, asign
       </div>
 
       {filtradas.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-slate-300 bg-white px-4 py-10 text-center text-sm text-slate-500">
+        <div className="rounded-2xl border border-dashed border-zinc-200 bg-white px-4 py-12 text-center text-sm text-zinc-400 font-medium shadow-xs">
           {respuestas.length === 0
             ? "Todavía no hay respuestas. Aparecerán aquí cuando los inspectores envíen el formulario."
             : "No hay respuestas con estos filtros."}
-        </p>
+        </div>
       ) : (
         <>
           {datos.peoresItems.length > 0 && (
-            <Tarjeta titulo="Ítems con más fallas" subtitulo="Marcados como malo / no cumple en las listas de verificación">
-              <ul className="space-y-2">
+            <Tarjeta titulo="Ítems con más fallas" subtitulo="Marcados como no conforme o falla en las listas de verificación">
+              <ul className="space-y-2.5">
                 {datos.peoresItems.map((f) => {
                   const maximo = datos.peoresItems[0].fallas;
                   return (
-                    <li key={`${f.lista}|${f.texto}`} className="grid items-center gap-x-3 gap-y-1 text-sm sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+                    <li key={`${f.lista}|${f.texto}`} className="grid items-center gap-x-3 gap-y-1 text-xs sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                       <span className="min-w-0">
-                        <span className="block text-[var(--viz-text-primary)] sm:truncate" title={f.texto}>
+                        <span className="block font-semibold text-zinc-900 sm:truncate" title={f.texto}>
                           {f.texto}
                         </span>
-                        <span className="block truncate text-xs text-[var(--viz-muted)]">{f.lista}</span>
+                        <span className="block truncate text-[11px] text-zinc-400">{f.lista}</span>
                       </span>
                       <span className="flex items-center gap-2" title={`${f.fallas} falla(s) de ${f.marcadas} respuesta(s)`}>
-                        <span className="h-3.5 rounded-r" style={{ width: `${(f.fallas / maximo) * 75}%`, minWidth: 4, background: "var(--viz-critical)" }} />
-                        <span className="whitespace-nowrap text-xs font-semibold tabular-nums text-[var(--viz-text-primary)]">
-                          {f.fallas} <span className="font-normal text-[var(--viz-muted)]">de {f.marcadas}</span>
+                        <span className="h-3 rounded-full" style={{ width: `${(f.fallas / maximo) * 75}%`, minWidth: 6, background: "var(--viz-critical)" }} />
+                        <span className="whitespace-nowrap text-xs font-bold tabular-nums text-zinc-950">
+                          {f.fallas} <span className="font-normal text-zinc-400">de {f.marcadas}</span>
                         </span>
                       </span>
                     </li>
@@ -411,55 +410,57 @@ export default function ResultadosFormulario({ titulo, campos, respuestas, asign
             </Tarjeta>
           )}
 
-          <div className="space-y-3">
-            <h3 className="pt-2 text-sm font-semibold text-slate-900">Resumen por pregunta</h3>
+          <div className="space-y-4">
+            <h3 className="text-sm font-bold text-zinc-950">Resumen por pregunta</h3>
             {datos.resumenes.map((r) => (
               <ResumenPregunta key={r.id} r={r} />
             ))}
           </div>
 
-          <section className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-            <h3 className="border-b border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800">Respuestas individuales</h3>
-            <table className="w-full min-w-[560px] text-left text-sm">
-              <thead className="text-xs text-slate-500">
-                <tr>
-                  <th className="px-4 py-2">Inspector</th>
-                  <th className="px-4 py-2">Enviada</th>
-                  <th className="px-4 py-2">A tiempo</th>
-                  <th className="px-4 py-2 text-right">Fallas</th>
-                  <th className="px-4 py-2 text-right" />
-                </tr>
-              </thead>
-              <tbody>
-                {filtradas.map((r) => {
-                  const fallas = fallasDeRespuesta(campos, r);
-                  return (
-                    <tr key={r.id} className="border-t border-slate-100">
-                      <td className="px-4 py-2">
-                        <span className="font-medium text-slate-800">{r.inspector}</span>
-                        <span className="block text-xs text-slate-500">{r.rol}</span>
-                      </td>
-                      <td className="px-4 py-2 text-xs text-slate-600">{r.enviadaTexto}</td>
-                      <td className="px-4 py-2 text-xs">
-                        {r.aTiempo === null ? (
-                          <span className="text-slate-400">Sin límite</span>
-                        ) : r.aTiempo ? (
-                          <span className="font-medium text-[var(--viz-good-text)]">✓ Sí</span>
-                        ) : (
-                          <span className="font-medium text-[var(--viz-critical)]">✕ Fuera de plazo</span>
-                        )}
-                      </td>
-                      <td className={`px-4 py-2 text-right tabular-nums ${fallas ? "font-bold text-[var(--viz-critical)]" : "text-slate-400"}`}>{fallas}</td>
-                      <td className="whitespace-nowrap px-4 py-2 text-right text-xs">
-                        <Link href={`/formularios/respuesta/${r.id}`} className="font-semibold text-blue-700 hover:underline">
-                          Ver respuesta
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <section className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-xs">
+            <h3 className="border-b border-zinc-100 bg-zinc-50/70 px-5 py-3.5 text-sm font-bold text-zinc-950">Respuestas individuales</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[560px] text-left text-xs">
+                <thead className="bg-zinc-50 text-zinc-600 font-semibold border-b border-zinc-200">
+                  <tr>
+                    <th className="py-2.5 px-4">Inspector</th>
+                    <th className="py-2.5 px-4">Enviada</th>
+                    <th className="py-2.5 px-4">A tiempo</th>
+                    <th className="py-2.5 px-4 text-right">Fallas</th>
+                    <th className="py-2.5 px-4 text-right">Acción</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-100 text-zinc-900">
+                  {filtradas.map((r) => {
+                    const fallas = fallasDeRespuesta(campos, r);
+                    return (
+                      <tr key={r.id} className="hover:bg-zinc-50/70 transition">
+                        <td className="py-2.5 px-4">
+                          <span className="font-bold text-zinc-950">{r.inspector}</span>
+                          <span className="block text-[11px] text-zinc-400">{r.rol}</span>
+                        </td>
+                        <td className="py-2.5 px-4 text-zinc-500 font-medium">{r.enviadaTexto}</td>
+                        <td className="py-2.5 px-4">
+                          {r.aTiempo === null ? (
+                            <span className="text-zinc-400">Sin límite</span>
+                          ) : r.aTiempo ? (
+                            <span className="font-bold text-emerald-700">✓ Sí</span>
+                          ) : (
+                            <span className="font-bold text-rose-600">✕ Fuera de plazo</span>
+                          )}
+                        </td>
+                        <td className={`py-2.5 px-4 text-right tabular-nums ${fallas ? "font-black text-rose-600" : "text-zinc-400"}`}>{fallas}</td>
+                        <td className="whitespace-nowrap py-2.5 px-4 text-right">
+                          <Link href={`/formularios/respuesta/${r.id}`} className="font-bold text-zinc-900 hover:text-amber-600 transition">
+                            Ver respuesta →
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </section>
         </>
       )}

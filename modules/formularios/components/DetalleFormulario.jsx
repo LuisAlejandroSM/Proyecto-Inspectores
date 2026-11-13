@@ -55,8 +55,6 @@ async function cargarRespuestas(id) {
 
 /**
  * Server Component (solo administradores): una sola sección de un formulario.
- * Cada sección es su propia página y carga solo los datos que necesita.
- * @param {{ params: Promise<{ id: string }>, seccion: "editar" | "asignar" | "resultados" }} props
  */
 export default async function DetalleFormulario({ params, seccion }) {
   await connection();
@@ -67,13 +65,12 @@ export default async function DetalleFormulario({ params, seccion }) {
 
   const formulario = await obtenerFormulario(id);
   if (!formulario) notFound();
-  // Formato del cronograma vinculado (si lo hay), para mostrarlo en la cabecera y en Asignar.
+
   const formatos = await cargarFormatosParaVincular();
   const formato = formatos.find((f) => f.id === formulario.plantillaId) ?? null;
 
   let contenido;
   if (seccion === "asignar") {
-    // Solo inspectores del rol del formulario (sin rol definido no se lista a nadie).
     const [asignaciones, inspectores] = await Promise.all([
       cargarAsignaciones(id),
       formulario.rol ? obtenerInspectores({ rol: formulario.rol }) : Promise.resolve([]),
@@ -115,26 +112,31 @@ export default async function DetalleFormulario({ params, seccion }) {
   return (
     <div className="space-y-4">
       <div className="space-y-1.5">
-        {/* Ruta: Formularios / sección */}
-        <nav aria-label="Ruta" className="flex items-center gap-1.5 text-sm text-slate-500">
-          <Link href="/formularios" className="hover:text-slate-900">
+        <nav aria-label="Ruta" className="flex items-center gap-1.5 text-xs font-semibold text-zinc-400">
+          <Link href="/formularios" className="hover:text-zinc-950 transition">
             Formularios
           </Link>
-          <span aria-hidden="true" className="text-slate-300">
+          <span aria-hidden="true" className="text-zinc-300">
             /
           </span>
-          <span className="text-slate-700">{SECCIONES[seccion] ?? SECCIONES.editar}</span>
+          <span className="text-zinc-700 font-bold">{SECCIONES[seccion] ?? SECCIONES.editar}</span>
         </nav>
-        <h1 className="flex flex-wrap items-center gap-2 text-2xl font-bold tracking-tight text-slate-900">
+        <h1 className="flex flex-wrap items-center gap-2.5 text-2xl font-black tracking-tight text-zinc-950">
           {formulario.titulo}
           {formulario.rol && (
-            <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-200">{formulario.rol}</span>
+            <span className="rounded-full bg-white border border-zinc-200 px-3 py-0.5 text-xs font-bold text-zinc-700 shadow-2xs">
+              {formulario.rol}
+            </span>
           )}
           {formato && (
-            <span className="rounded-full bg-marca-suave px-2.5 py-0.5 text-xs font-medium text-tinta">Cronograma · {formato.codigo}</span>
+            <span className="rounded-full bg-amber-500/10 border border-amber-300 px-3 py-0.5 text-xs font-bold text-amber-800">
+              Cronograma · {formato.codigo}
+            </span>
           )}
           {!formulario.activo && (
-            <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-slate-500 ring-1 ring-slate-200">Archivado</span>
+            <span className="rounded-full bg-zinc-100 border border-zinc-200 px-3 py-0.5 text-xs font-bold text-zinc-500">
+              Archivado
+            </span>
           )}
         </h1>
       </div>

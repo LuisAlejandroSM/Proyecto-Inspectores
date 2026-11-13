@@ -10,13 +10,13 @@ export const metadata = {
 function Cargando() {
   return (
     <div className="space-y-4" aria-busy="true">
-      <div className="h-12 w-64 animate-pulse rounded bg-slate-200/70" />
+      <div className="h-14 w-64 animate-pulse rounded-2xl bg-zinc-200/60" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
-          <div key={i} className="h-28 animate-pulse rounded-lg border border-slate-200 bg-white" />
+          <div key={i} className="h-32 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
         ))}
       </div>
-      <div className="h-80 animate-pulse rounded-lg border border-slate-200 bg-white" />
+      <div className="h-80 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
     </div>
   );
 }

@@ -51,14 +51,14 @@ export default function FormularioEjecucion({ item, mes, anio, onGuardado }) {
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-1" aria-label="Cantidad ejecutada">
+        <div className="flex items-center gap-1.5" aria-label="Cantidad ejecutada">
           <button
             type="button"
             onClick={() => setCantidad((c) => Math.max(0, c - 1))}
             disabled={noEjecutada || isPending}
-            className="h-10 w-10 rounded border border-slate-300 text-lg font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-40"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-base font-bold text-zinc-700 hover:bg-zinc-100 disabled:opacity-40 transition"
             aria-label="Restar uno"
           >
             −
@@ -71,33 +71,33 @@ export default function FormularioEjecucion({ item, mes, anio, onGuardado }) {
             value={noEjecutada ? 0 : cantidad}
             disabled={noEjecutada || isPending}
             onChange={(e) => setCantidad(Math.min(999, Math.max(0, Number.parseInt(e.target.value, 10) || 0)))}
-            className="h-10 w-16 rounded border border-slate-300 text-center text-sm font-semibold tabular-nums disabled:bg-slate-100"
+            className="h-10 w-16 rounded-xl border border-zinc-200 bg-white text-center text-sm font-bold tabular-nums text-zinc-950 focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 outline-none disabled:bg-zinc-100"
             aria-label="Cantidad de inspecciones realizadas"
           />
           <button
             type="button"
             onClick={() => setCantidad((c) => Math.min(999, c + 1))}
             disabled={noEjecutada || isPending}
-            className="h-10 w-10 rounded border border-slate-300 text-lg font-bold text-slate-600 hover:bg-slate-100 disabled:opacity-40"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-base font-bold text-zinc-700 hover:bg-zinc-100 disabled:opacity-40 transition"
             aria-label="Sumar uno"
           >
             +
           </button>
-          <span className="ml-1 text-xs text-slate-500">realizadas</span>
+          <span className="ml-1 text-xs font-medium text-zinc-500">realizadas</span>
         </div>
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded border border-red-200 bg-red-50/60 px-3 py-2 text-xs font-semibold text-red-700">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-rose-200 bg-rose-50/60 px-3.5 py-2 text-xs font-bold text-rose-700 shadow-2xs">
           <input
             type="checkbox"
             checked={noEjecutada}
             disabled={isPending}
             onChange={(e) => setNoEjecutada(e.target.checked)}
-            className="h-4 w-4 accent-red-600"
+            className="h-4 w-4 rounded border-rose-300 accent-rose-600"
           />
           No se ejecutó (N)
         </label>
       </div>
 
-      <label className="block text-xs font-semibold text-slate-600">
+      <label className="block text-xs font-bold uppercase tracking-wider text-zinc-500">
         Observación / hallazgo
         <textarea
           rows={3}
@@ -106,15 +106,15 @@ export default function FormularioEjecucion({ item, mes, anio, onGuardado }) {
           disabled={isPending}
           onChange={(e) => setObservacion(e.target.value)}
           placeholder="Ej. Extintor con presión baja, se reportó a mantenimiento."
-          className="mt-1 w-full rounded border border-slate-300 px-2 py-1.5 text-sm font-normal text-slate-800"
+          className="mt-1.5 w-full rounded-xl border border-zinc-200 bg-white p-3 text-sm font-medium text-zinc-900 placeholder:text-zinc-400 focus:border-[#f5b800] focus:ring-4 focus:ring-[#f5b800]/20 outline-none transition"
         />
       </label>
 
-      <div className="flex items-center justify-end gap-3">
+      <div className="flex items-center justify-end gap-3 pt-1">
         {estado.texto && (
           <span
             aria-live="polite"
-            className={`text-xs font-medium ${estado.tipo === "error" ? "text-red-600" : "text-emerald-700"}`}
+            className={`text-xs font-semibold ${estado.tipo === "error" ? "text-rose-600" : "text-emerald-700"}`}
           >
             {estado.texto}
           </span>
@@ -123,9 +123,9 @@ export default function FormularioEjecucion({ item, mes, anio, onGuardado }) {
           type="button"
           onClick={guardar}
           disabled={isPending || (!cambio && registrada)}
-          className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-40"
+          className="rounded-xl bg-[#f5b800] hover:bg-[#e0a800] px-4 py-2 text-xs font-bold text-[#09090b] shadow-xs active:scale-[0.98] transition disabled:opacity-40"
         >
-          {isPending ? "Guardando…" : registrada ? "Actualizar" : "Guardar"}
+          {isPending ? "Guardando…" : registrada ? "Actualizar registro" : "Guardar registro"}
         </button>
       </div>
     </div>

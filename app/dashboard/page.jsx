@@ -11,13 +11,13 @@ export const metadata = {
 function Cargando() {
   return (
     <div className="space-y-4" aria-busy="true">
-      <div className="h-16 animate-pulse rounded border border-slate-200 bg-white" />
+      <div className="h-20 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
-          <div key={i} className="h-28 animate-pulse rounded-lg border border-slate-200 bg-white" />
+          <div key={i} className="h-32 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
         ))}
       </div>
-      <div className="h-72 animate-pulse rounded-lg border border-slate-200 bg-white" />
+      <div className="h-72 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
     </div>
   );
 }
@@ -29,8 +29,8 @@ export default function DashboardPage({ searchParams }) {
         <AlertaDashboardNotificaciones />
       </Suspense>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Dashboard de Métricas</h1>
-        <p className="mt-1 text-sm text-slate-500">Indicadores clave de inspecciones preventivas y efectividad operativa mensual</p>
+        <h1 className="text-2xl font-black tracking-tight text-zinc-950">Dashboard de Métricas</h1>
+        <p className="mt-1 text-sm text-zinc-500">Indicadores clave de inspecciones preventivas y efectividad operativa mensual</p>
       </div>
       <Suspense fallback={<Cargando />}>
         <DashboardMetricas searchParams={searchParams} />

@@ -37,11 +37,9 @@ function BarraInterna() {
   };
 
   useEffect(() => {
-    // 1. Activar sincronización automática al cambiar de red o enfocar ventana
     const limpiarAutoSync = iniciarAutoSincronizacion();
     refrescarCola();
 
-    // 2. Escuchar cambios de conectividad
     const alEstarOnline = () => {
       setOnline(true);
       refrescarCola();
@@ -55,7 +53,7 @@ function BarraInterna() {
       setSincronizando(true);
     };
 
-    const alTerminarSync = (e) => {
+    const alTerminarSync = () => {
       setSincronizando(false);
       setProgresoTexto("");
       refrescarCola();
@@ -85,11 +83,10 @@ function BarraInterna() {
     });
   };
 
-  // Si está conectado y no hay nada en la cola, solo mostramos un indicador discreto arriba
   if (online && pendientes === 0) {
     return (
       <div className="flex items-center justify-end px-1 py-1">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-700">
           <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
           En línea (Sincronizado)
         </span>
@@ -98,40 +95,40 @@ function BarraInterna() {
   }
 
   return (
-    <div className="space-y-2">
-      {/* 1. Aviso de falta de señal */}
+    <div className="space-y-2.5">
+      {/* Aviso de falta de señal */}
       {!online && (
-        <div className="flex items-center justify-between rounded-xl border border-amber-300 bg-amber-50 px-4 py-2.5 text-xs text-amber-900 shadow-sm">
-          <div className="flex items-center gap-2">
-            <span className="text-base">📡</span>
+        <div className="flex items-center justify-between rounded-2xl border border-amber-300 bg-amber-500/10 px-4 py-3 text-xs text-amber-950 shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-500/20 text-base">📡</span>
             <div>
-              <p className="font-bold">Modo sin señal activado</p>
+              <p className="font-bold text-amber-950">Modo sin señal activado</p>
               <p className="text-[11px] text-amber-800">
-                Puedes llenar formularios con fotos y firmas. Se guardarán en tu teléfono hasta que tengas internet.
+                Puede llenar formularios con fotos y firmas. Se guardarán en su teléfono hasta que tenga internet.
               </p>
             </div>
           </div>
-          <span className="rounded-md bg-amber-200/80 px-2 py-0.5 text-[10px] font-bold text-amber-900">
+          <span className="rounded-lg bg-[#09090b] text-[#f5b800] px-2.5 py-1 text-[10px] font-black tracking-wider">
             OFFLINE
           </span>
         </div>
       )}
 
-      {/* 2. Banner de cola de envíos pendientes */}
+      {/* Banner de cola de envíos pendientes */}
       {pendientes > 0 && (
-        <div className="rounded-xl border border-blue-200 bg-blue-50 px-4 py-3 shadow-sm">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white shadow-xs">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-xs">
+          <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#09090b] text-xs font-black text-[#f5b800] shadow-xs">
                 {pendientes}
               </span>
               <div>
-                <p className="text-xs font-bold text-blue-950">
+                <p className="text-xs font-bold text-zinc-950">
                   {pendientes === 1
                     ? "1 inspección guardada en este teléfono"
                     : `${pendientes} inspecciones guardadas en este teléfono`}
                 </p>
-                <p className="text-[11px] text-blue-700">
+                <p className="text-[11px] text-zinc-500">
                   {sincronizando
                     ? progresoTexto || "Subiendo al servidor…"
                     : online
@@ -145,7 +142,7 @@ function BarraInterna() {
               <button
                 type="button"
                 onClick={() => setMostrarDetalles((prev) => !prev)}
-                className="rounded-lg border border-blue-200 bg-white px-2.5 py-1 text-xs font-semibold text-blue-700 hover:bg-blue-100/60"
+                className="rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-bold text-zinc-700 hover:bg-zinc-100 transition"
               >
                 {mostrarDetalles ? "Ocultar lista" : "Ver lista"}
               </button>
@@ -154,11 +151,11 @@ function BarraInterna() {
                   type="button"
                   onClick={forzarSincronizacion}
                   disabled={sincronizando}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-blue-700 px-3 py-1 text-xs font-semibold text-white shadow-xs hover:bg-blue-800 disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#f5b800] hover:bg-[#e0a800] px-3.5 py-1.5 text-xs font-bold text-[#09090b] shadow-xs active:scale-[0.98] transition disabled:opacity-50"
                 >
                   {sincronizando ? (
                     <>
-                      <span className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      <span className="h-3 w-3 animate-spin rounded-full border-2 border-[#09090b] border-t-transparent" />
                       Subiendo…
                     </>
                   ) : (
@@ -172,33 +169,32 @@ function BarraInterna() {
             </div>
           </div>
 
-          {/* Lista desplegable con el detalle de las inspecciones en cola */}
           {mostrarDetalles && itemsCola.length > 0 && (
-            <div className="mt-3 divide-y divide-blue-200/60 rounded-lg border border-blue-200 bg-white/80 p-2 text-xs">
+            <div className="mt-3 divide-y divide-zinc-100 rounded-xl border border-zinc-200 bg-zinc-50/50 p-2 text-xs">
               {itemsCola.map((item) => (
-                <div key={item.id} className="flex items-center justify-between py-1.5 px-2">
+                <div key={item.id} className="flex items-center justify-between py-2 px-2.5">
                   <div>
-                    <span className="font-semibold text-slate-800">{item.formularioTitulo || "Inspección"}</span>
-                    <span className="ml-2 text-[10px] text-slate-500">
+                    <span className="font-bold text-zinc-900">{item.formularioTitulo || "Inspección"}</span>
+                    <span className="ml-2 text-[10px] text-zinc-400 font-medium">
                       {new Date(item.creadoEn).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </span>
                     {item.fotos?.length > 0 && (
-                      <span className="ml-2 text-[10px] text-blue-600">
+                      <span className="ml-2 text-[10px] font-bold text-amber-700">
                         ({item.fotos.length} foto/firma)
                       </span>
                     )}
                   </div>
                   <div>
                     {item.estado === "sincronizando" ? (
-                      <span className="rounded bg-blue-100 px-1.5 py-0.5 text-[10px] font-bold text-blue-700">
+                      <span className="rounded-md bg-amber-100 border border-amber-300 px-2 py-0.5 text-[10px] font-bold text-amber-900">
                         Subiendo…
                       </span>
                     ) : item.estado === "error" ? (
-                      <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-bold text-red-700" title={item.error}>
+                      <span className="rounded-md bg-rose-100 border border-rose-300 px-2 py-0.5 text-[10px] font-bold text-rose-800" title={item.error}>
                         Reintentando…
                       </span>
                     ) : (
-                      <span className="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-600">
+                      <span className="rounded-md bg-zinc-100 border border-zinc-200 px-2 py-0.5 text-[10px] font-bold text-zinc-600">
                         En cola
                       </span>
                     )}

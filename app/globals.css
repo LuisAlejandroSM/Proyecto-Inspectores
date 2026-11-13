@@ -1,60 +1,70 @@
 @import "tailwindcss";
 
-/* La interfaz está diseñada solo en tema claro: no se cambia el fondo con el modo oscuro
-   del sistema (antes dejaba el fondo negro con tarjetas claras). */
+/* 
+ * ARQUITECTURA DE DISEÑO CORPORATIVO CVCONCA (REGLA 60-30-10)
+ * ------------------------------------------------------------
+ * 60% Superficies: Fondo ultra suave (#F8FAFC) y tarjetas blanco puro (#FFFFFF).
+ * 30% Estructura y Tipografía: Negro carbón (#09090B), bordes sutiles 1px (#E4E4E7) y texto secundario (#71717A).
+ * 10% Acentos: Amarillo corporativo (#F5B800) reservado para CTAs, indicadores activos y focus rings.
+ */
+
 :root {
   color-scheme: light;
   --background: #f8fafc;
-  --foreground: #0f172a;
-}
+  --foreground: #09090b;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-superficie: #f8fafc;
+  --color-tarjeta: #ffffff;
+  --color-borde: #e4e4e7;
+  --color-borde-fuerte: #d4d4d8;
 
-/* Identidad Cvconca moderna: amarillo oro y carbón profundo, con blanco para dar contraste.
-   - marca: amarillo de acento (#f5b800) para acentos, insignias e indicadores activos.
-   - carbón profundo: (#10141e) para navegación enterprise y contraste ejecutivo. */
-@theme {
-  --shadow-sm: 0 1px 3px 0 rgb(15 23 42 / 0.06), 0 1px 2px -1px rgb(15 23 42 / 0.04);
-  --shadow-md: 0 4px 14px -3px rgb(15 23 42 / 0.08);
-  --shadow-lg: 0 10px 25px -5px rgb(15 23 42 / 0.08);
+  --color-carbon: #09090b;
+  --color-carbon-suave: #18181b;
+  --color-carbon-borde: #27272a;
 
   --color-marca: #f5b800;
-  --color-marca-suave: #fff6d6;
-  --color-tinta: #0f172a;
+  --color-marca-hover: #e0a800;
+  --color-marca-suave: #fef9c3;
+  --color-marca-texto: #09090b;
 
-  --color-blue-50: #fffaeb;
-  --color-blue-100: #fff1c2;
-  --color-blue-200: #fde68f;
-  --color-blue-300: #f9d75e;
-  --color-blue-400: #f6c629;
-  --color-blue-500: #f5b800;
-  --color-blue-600: #1d1d1b;
-  --color-blue-700: #876200;
-  --color-blue-800: #6b4e00;
-  --color-blue-900: #4a3600;
+  --color-texto-principal: #09090b;
+  --color-texto-secundario: #71717a;
+  --color-texto-terciario: #a1a1aa;
+}
 
-  --color-slate-50: #fafafa;
-  --color-slate-100: #f4f4f3;
-  --color-slate-200: #e6e6e3;
-  --color-slate-300: #d4d4d0;
-  --color-slate-400: #a3a39e;
-  --color-slate-500: #73736e;
-  --color-slate-600: #545450;
-  --color-slate-700: #3f3f3c;
-  --color-slate-800: #282826;
-  --color-slate-900: #1d1d1b;
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans), "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+
+  /* Colores de marca y estructura */
+  --color-marca: #f5b800;
+  --color-marca-hover: #e0a800;
+  --color-marca-suave: #fef9c3;
+  --color-marca-glow: rgba(245, 184, 0, 0.18);
+
+  --color-carbon: #09090b;
+  --color-carbon-900: #18181b;
+  --color-carbon-800: #27272a;
+
+  --color-borde-subtle: #e4e4e7;
+  --color-borde-card: #f4f4f5;
+
+  /* Sombras sutiles y corporativas */
+  --shadow-2xs: 0 1px 2px 0 rgb(9 9 11 / 0.03);
+  --shadow-xs: 0 1px 3px 0 rgb(9 9 11 / 0.05), 0 1px 2px -1px rgb(9 9 11 / 0.03);
+  --shadow-sm: 0 2px 6px -1px rgb(9 9 11 / 0.06), 0 1px 4px -1px rgb(9 9 11 / 0.04);
+  --shadow-md: 0 6px 16px -3px rgb(9 9 11 / 0.07), 0 2px 6px -2px rgb(9 9 11 / 0.04);
+  --shadow-lg: 0 12px 28px -6px rgb(9 9 11 / 0.09), 0 4px 10px -3px rgb(9 9 11 / 0.04);
+  --shadow-xl: 0 20px 40px -10px rgb(9 9 11 / 0.12);
 }
 
 html,
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), "Geist", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
   letter-spacing: -0.011em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -66,26 +76,60 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: var(--font-geist-sans), "Geist", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
   letter-spacing: -0.025em;
+  color: var(--color-texto-principal);
+  font-weight: 700;
 }
 
-/* Tokens de color para las gráficas del dashboard (paleta validada con el validador de dataviz).
-   La aplicación es de tema claro, por eso solo se definen los pasos para fondo claro. */
+/* Scrollbars minimalistas */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+
+/* Enfoque accesible consistente en toda la app */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  border-color: #f5b800 !important;
+  box-shadow: 0 0 0 2px rgba(245, 184, 0, 0.25) !important;
+}
+
+/* Transición fluida para elementos interactivos */
+button,
+a {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Tokens de color para las gráficas del dashboard (Data Visualization) */
 .viz-root {
   --viz-surface: #ffffff;
-  --viz-text-primary: #0b0b0b;
-  --viz-text-secondary: #52514e;
-  --viz-muted: #898781;
-  --viz-grid: #e1e0d9;
-  --viz-axis: #c3c2b7;
-  /* Series: planificado = categórico 1 (azul), ejecutado = categórico 3 (aqua). */
-  --viz-plan: #2a78d6;
-  --viz-plan-wash: rgba(42, 120, 214, 0.1);
-  --viz-ejec: #1baf7a;
-  /* Estados (reservados para cumplimiento; siempre con ícono + texto). */
-  --viz-good: #0ca30c;
-  --viz-warning: #fab219;
-  --viz-critical: #d03b3b;
-  --viz-good-text: #006300;
+  --viz-text-primary: #09090b;
+  --viz-text-secondary: #71717a;
+  --viz-muted: #a1a1aa;
+  --viz-grid: #f4f4f5;
+  --viz-axis: #e4e4e7;
+  /* Series operacionales */
+  --viz-plan: #3b82f6;
+  --viz-plan-wash: rgba(59, 130, 246, 0.08);
+  --viz-ejec: #10b981;
+  /* Estados */
+  --viz-good: #10b981;
+  --viz-warning: #f5b800;
+  --viz-critical: #ef4444;
+  --viz-good-text: #065f46;
 }

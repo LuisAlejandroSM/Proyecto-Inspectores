@@ -117,13 +117,13 @@ export default function GeneradorCronograma({
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200/90 bg-white shadow-sm overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/80 px-5 py-3.5">
+    <section className="rounded-2xl border border-zinc-200 bg-white shadow-xs overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 bg-zinc-50/70 px-5 py-3.5">
         <div>
-          <h2 className="text-sm font-bold text-slate-900 tracking-tight">
+          <h2 className="text-sm font-bold text-zinc-950 tracking-tight">
             Generar cronograma · {usuarioNombre} · {mes} {anio}
           </h2>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-zinc-500">
             {tienePlan
               ? "Este inspector ya tiene planificación este mes. Puede regenerarla o ajustarla en la matriz."
               : "Elija los formatos que le corresponden y el día de la semana en que hará cada uno."}
@@ -142,7 +142,7 @@ export default function GeneradorCronograma({
             type="button"
             onClick={() => setAbierto((v) => !v)}
             aria-expanded={abierto}
-            className="rounded-xl border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
+            className="rounded-xl border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-bold text-zinc-700 shadow-2xs hover:bg-zinc-50 transition"
           >
             {abierto ? "Ocultar" : tienePlan ? "Regenerar plan" : "Generar plan"}
           </button>
@@ -150,85 +150,85 @@ export default function GeneradorCronograma({
       </div>
 
       {abierto && (
-        <div className="space-y-3 p-4">
+        <div className="space-y-3 p-4 sm:p-5">
           <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={() => marcarTodos(true)}
-                className="rounded border border-slate-300 px-2 py-1 font-semibold text-slate-600 hover:bg-slate-100"
+                className="rounded-lg border border-zinc-200 bg-zinc-50 px-2.5 py-1 font-semibold text-zinc-700 hover:bg-zinc-100 transition"
               >
                 Todos
               </button>
               <button
                 type="button"
                 onClick={() => marcarTodos(false)}
-                className="rounded border border-slate-300 px-2 py-1 font-semibold text-slate-600 hover:bg-slate-100"
+                className="rounded-lg border border-zinc-200 bg-zinc-50 px-2.5 py-1 font-semibold text-zinc-700 hover:bg-zinc-100 transition"
               >
                 Ninguno
               </button>
             </div>
-            <dl className="flex flex-wrap gap-4 text-slate-600">
+            <dl className="flex flex-wrap gap-4 text-zinc-600">
               {DIAS_ASIGNABLES.map((d) => (
-                <div key={d.valor} className="flex gap-1">
-                  <dt className="font-semibold">{d.etiqueta}</dt>
-                  <dd className="tabular-nums">{vistaPrevia.porDia[d.valor]}</dd>
+                <div key={d.valor} className="flex gap-1.5">
+                  <dt className="font-semibold text-zinc-500">{d.etiqueta}</dt>
+                  <dd className="font-bold tabular-nums text-zinc-900">{vistaPrevia.porDia[d.valor]}</dd>
                 </div>
               ))}
-              <div className="flex gap-1 border-l border-slate-200 pl-4">
-                <dt className="font-semibold">Total P</dt>
-                <dd className="font-bold tabular-nums text-blue-700">{vistaPrevia.total}</dd>
+              <div className="flex gap-1.5 border-l border-zinc-200 pl-4">
+                <dt className="font-bold text-zinc-700">Total P</dt>
+                <dd className="font-black tabular-nums text-zinc-950">{vistaPrevia.total}</dd>
               </div>
             </dl>
           </div>
 
-          <div className="max-h-[420px] overflow-auto rounded border border-slate-200">
+          <div className="max-h-[420px] overflow-auto rounded-xl border border-zinc-200">
             <table className="w-full text-left text-xs">
-              <thead className="sticky top-0 bg-white text-xs text-slate-500">
+              <thead className="sticky top-0 bg-zinc-50 text-xs font-semibold text-zinc-600 border-b border-zinc-200">
                 <tr>
-                  <th className="w-10 p-2 text-center">Asignar</th>
-                  <th className="w-10 p-2 text-center">N°</th>
-                  <th className="p-2">Elemento a inspeccionar</th>
-                  <th className="p-2">Periodicidad</th>
-                  <th className="w-24 p-2">Día</th>
-                  <th className="p-2">Días planificados</th>
+                  <th className="w-10 p-2.5 text-center">Asignar</th>
+                  <th className="w-10 p-2.5 text-center">N°</th>
+                  <th className="p-2.5">Elemento a inspeccionar</th>
+                  <th className="p-2.5">Periodicidad</th>
+                  <th className="w-24 p-2.5">Día</th>
+                  <th className="p-2.5">Días planificados</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-zinc-100">
                 {plantillas.map((p, indice) => {
                   const c = configDe(p.id);
                   const tipo = tipoPeriodicidad(p.periodicidad);
                   const dias = vistaPrevia.porPlantilla[p.id] ?? [];
                   const conDia = usaDiaDeSemana(p.periodicidad);
                   return (
-                    <tr key={p.id} className={`border-t border-slate-100 ${c.incluido ? "" : "opacity-50"}`}>
-                      <td className="p-2 text-center">
+                    <tr key={p.id} className={`hover:bg-zinc-50/70 transition ${c.incluido ? "" : "opacity-50"}`}>
+                      <td className="p-2.5 text-center">
                         <input
                           type="checkbox"
                           checked={c.incluido}
                           onChange={(e) => actualizar(p.id, { incluido: e.target.checked })}
                           aria-label={`Asignar ${p.elementoNombre}`}
-                          className="h-4 w-4 accent-blue-600"
+                          className="h-4 w-4 rounded border-zinc-300 accent-[#f5b800]"
                         />
                       </td>
-                      <td className="p-2 text-center tabular-nums text-slate-500">{indice + 1}</td>
-                      <td className="p-2 font-medium text-slate-800">
+                      <td className="p-2.5 text-center tabular-nums text-zinc-400 font-medium">{indice + 1}</td>
+                      <td className="p-2.5 font-medium text-zinc-900">
                         {p.elementoNombre}
-                        <span className="ml-1 font-mono text-[10px] font-normal text-slate-400">{p.codigoFormato}</span>
+                        <span className="ml-1 font-mono text-[10px] font-normal text-zinc-400">{p.codigoFormato}</span>
                       </td>
-                      <td className="p-2 text-slate-600">
+                      <td className="p-2.5 text-zinc-600">
                         <span className="block max-w-[220px] truncate" title={p.periodicidad}>
                           {p.periodicidad}
                         </span>
-                        <span className="text-[10px] text-slate-400">{DESCRIPCION_REGLA[tipo]}</span>
+                        <span className="text-[10px] text-zinc-400">{DESCRIPCION_REGLA[tipo]}</span>
                       </td>
-                      <td className="p-2">
+                      <td className="p-2.5">
                         {conDia ? (
                           <select
                             value={c.diaSemana}
                             disabled={!c.incluido}
                             onChange={(e) => actualizar(p.id, { diaSemana: Number(e.target.value) })}
-                            className="rounded border border-slate-300 bg-white px-1.5 py-1 text-xs"
+                            className="rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs font-semibold text-zinc-900 focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition outline-none"
                           >
                             {DIAS_ASIGNABLES.map((d) => (
                               <option key={d.valor} value={d.valor}>
@@ -237,15 +237,15 @@ export default function GeneradorCronograma({
                             ))}
                           </select>
                         ) : (
-                          <span className="text-[10px] text-slate-400">LUN–VIE</span>
+                          <span className="text-[10px] font-bold text-zinc-400">LUN–VIE</span>
                         )}
                       </td>
-                      <td className="p-2 tabular-nums text-slate-600">
+                      <td className="p-2.5 tabular-nums text-zinc-600">
                         {c.incluido ? (
                           <>
-                            <span className="font-semibold text-blue-700">{dias.length} P</span>
+                            <span className="font-bold text-zinc-950">{dias.length} P</span>
                             {dias.length > 0 && dias.length <= 8 && (
-                              <span className="ml-1 text-slate-400">({dias.join(", ")})</span>
+                              <span className="ml-1 text-zinc-400">({dias.join(", ")})</span>
                             )}
                           </>
                         ) : (
@@ -260,14 +260,14 @@ export default function GeneradorCronograma({
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-2">
-            <span className="text-xs text-slate-500 font-medium">
+            <span className="text-xs text-zinc-500 font-medium">
               {vistaPrevia.formatos} formato(s) · {vistaPrevia.total} inspección(es) en el mes
             </span>
             <button
               type="button"
               onClick={handleGenerar}
               disabled={isPending}
-              className="rounded-xl bg-[#0f1420] px-4 py-2 text-xs font-bold text-white shadow-sm ring-1 ring-white/10 hover:bg-[#1a2337] active:scale-[0.98] transition disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-[#f5b800] hover:bg-[#e0a800] px-4 py-2 text-xs font-bold text-[#09090b] shadow-xs active:scale-[0.98] transition disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isPending ? "Generando…" : tienePlan ? "Regenerar cronograma" : "Generar cronograma"}
             </button>

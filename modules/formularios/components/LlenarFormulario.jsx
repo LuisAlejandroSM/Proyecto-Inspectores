@@ -352,21 +352,21 @@ function FormularioInterno({ asignacionId, formulario, fotosIniciales }) {
   return (
     <div className="mx-auto max-w-3xl space-y-4 pb-24">
       {/* Cabecera Flowdit moderna con progreso de auditoría */}
-      <div className="sticky top-14 z-20 -mx-4 -mt-2 border-b border-slate-200/90 bg-white/95 px-5 py-3.5 shadow-sm backdrop-blur-md sm:mx-0 sm:mt-0 sm:rounded-2xl sm:border">
+      <div className="sticky top-14 z-20 -mx-4 -mt-2 border-b border-zinc-200 bg-white/95 px-5 py-3.5 shadow-xs backdrop-blur-md sm:mx-0 sm:mt-0 sm:rounded-2xl sm:border">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <span className="inline-block rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-800 border border-amber-200">
+            <span className="inline-block rounded-md bg-amber-500/10 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-amber-800 border border-amber-300">
               Inspección Preventiva
             </span>
-            <h2 className="mt-0.5 truncate text-base font-extrabold text-slate-900 sm:text-lg">
+            <h2 className="mt-0.5 truncate text-base font-black text-zinc-950 sm:text-lg">
               {formulario.titulo}
             </h2>
           </div>
           <div className="flex flex-col items-end">
-            <span className="text-xs font-bold text-slate-700">
+            <span className="text-xs font-bold text-zinc-700">
               {preguntasRespondidas} / {totalPreguntas} respondidas ({porcentaje}%)
             </span>
-            <div className="mt-1.5 h-2 w-32 overflow-hidden rounded-full bg-slate-100 ring-1 ring-slate-200 sm:w-44">
+            <div className="mt-1.5 h-2 w-32 overflow-hidden rounded-full bg-zinc-100 ring-1 ring-zinc-200 sm:w-44">
               <div
                 className="h-full bg-emerald-500 transition-all duration-300"
                 style={{ width: `${porcentaje}%` }}
@@ -377,7 +377,7 @@ function FormularioInterno({ asignacionId, formulario, fotosIniciales }) {
       </div>
 
       {borradorRestaurado && (
-        <p className="rounded-xl border border-amber-200 bg-amber-50/70 px-4 py-2.5 text-xs font-semibold text-amber-900 shadow-sm">
+        <p className="rounded-xl border border-amber-300 bg-amber-500/10 px-4 py-2.5 text-xs font-bold text-amber-900 shadow-2xs">
           Se recuperó el borrador guardado en este dispositivo.
         </p>
       )}
@@ -389,15 +389,15 @@ function FormularioInterno({ asignacionId, formulario, fotosIniciales }) {
         if (c.tipo === "seccion" && c.grupoAdicional >= 2) {
           return (
             <div key={c.id} id={`bloque-${c.id}`} className="col-span-full mt-4">
-              <div className="flex items-center justify-between rounded-xl border border-l-[6px] border-slate-200 border-l-blue-600 bg-white px-5 py-3 shadow-sm">
+              <div className="flex items-center justify-between rounded-2xl border border-l-[6px] border-zinc-200 border-l-[#f5b800] bg-white px-5 py-3.5 shadow-xs">
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">{c.etiqueta}</h3>
-                  {c.ayuda && <p className="text-xs text-slate-500">{c.ayuda}</p>}
+                  <h3 className="text-base font-black text-zinc-950">{c.etiqueta}</h3>
+                  {c.ayuda && <p className="text-xs text-zinc-500">{c.ayuda}</p>}
                 </div>
                 <button
                   type="button"
                   onClick={() => quitarInspectorAdicional(c.grupoAdicional)}
-                  className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition hover:bg-red-100 hover:text-red-800"
+                  className="rounded-xl bg-rose-50 border border-rose-200 px-3 py-1.5 text-xs font-bold text-rose-700 transition hover:bg-rose-100"
                 >
                   Quitar este inspector
                 </button>
@@ -437,7 +437,7 @@ function FormularioInterno({ asignacionId, formulario, fotosIniciales }) {
           <button
             type="button"
             onClick={() => setInspectoresVisibles((prev) => Math.min(maxGrupos, prev + 1))}
-            className="inline-flex items-center gap-2 rounded-xl border-2 border-dashed border-blue-400 bg-blue-50/60 px-5 py-3 text-sm font-semibold text-blue-700 shadow-sm transition hover:border-blue-600 hover:bg-blue-100"
+            className="inline-flex items-center gap-2 rounded-2xl border-2 border-dashed border-zinc-300 bg-white px-5 py-3.5 text-xs sm:text-sm font-bold text-zinc-700 shadow-xs transition hover:border-[#f5b800] hover:bg-amber-50/40 hover:text-zinc-950"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -448,8 +448,8 @@ function FormularioInterno({ asignacionId, formulario, fotosIniciales }) {
       )}
       </div>
 
-      {/* Barra de envío fija abajo estilo Flowdit */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200/90 bg-white/95 px-4 py-3.5 shadow-2xl backdrop-blur-md md:sticky md:rounded-2xl md:border md:shadow-md">
+      {/* Barra de envío fija abajo */}
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-zinc-200 bg-white/95 px-4 py-3.5 shadow-xl backdrop-blur-md md:sticky md:rounded-2xl md:border md:shadow-xs">
         <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <span className="flex h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500 animate-pulse" />
@@ -460,7 +460,7 @@ function FormularioInterno({ asignacionId, formulario, fotosIniciales }) {
                   ? "text-rose-600"
                   : mensaje.tipo === "ok"
                   ? "text-emerald-700"
-                  : "text-slate-500"
+                  : "text-zinc-500"
               }`}
             >
               {mensaje.texto || "Borrador seguro guardado localmente"}
@@ -470,7 +470,7 @@ function FormularioInterno({ asignacionId, formulario, fotosIniciales }) {
             type="button"
             onClick={enviar}
             disabled={isPending}
-            className="shrink-0 rounded-xl bg-slate-900 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-50 active:scale-[0.98]"
+            className="shrink-0 rounded-xl bg-[#f5b800] hover:bg-[#e0a800] px-6 py-2.5 text-sm font-black text-[#09090b] shadow-xs transition active:scale-[0.98] disabled:opacity-50"
           >
             {isPending ? "Enviando…" : "Enviar inspección →"}
           </button>

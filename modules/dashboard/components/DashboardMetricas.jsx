@@ -64,9 +64,9 @@ export default async function DashboardMetricas({ searchParams }) {
 
   if (!datos.ok) {
     return (
-      <section className="rounded border border-red-300 bg-red-50 p-6">
-        <h2 className="text-base font-bold text-red-900">No se pudo conectar con la base de datos.</h2>
-        <p className="mt-2 font-mono text-xs text-red-700">{datos.detalle}</p>
+      <section className="rounded-2xl border border-rose-200 bg-rose-50/50 p-6 shadow-xs">
+        <h2 className="text-base font-bold text-rose-950">No se pudo conectar con la base de datos.</h2>
+        <p className="mt-2 font-mono text-xs text-rose-700">{datos.detalle}</p>
       </section>
     );
   }
@@ -131,14 +131,19 @@ export default async function DashboardMetricas({ searchParams }) {
       <FiltrosDashboard mes={filtros.mes} anio={filtros.anio} rol={filtros.rolClave} />
 
       {sinPlan && (
-        <p className="rounded border border-dashed border-blue-300 bg-blue-50/50 px-4 py-3 text-sm text-blue-900">
-          No hay inspecciones planificadas en {filtros.mes} {filtros.anio} para {etiquetaRol}. Genere los
-          cronogramas desde{" "}
-          <Link href="/" className="font-semibold underline">
-            Cronogramas
-          </Link>{" "}
-          para ver las métricas.
-        </p>
+        <div className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-xs flex items-center gap-3">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-700 font-bold text-xs">
+            ℹ
+          </span>
+          <p className="text-xs sm:text-sm text-zinc-600 leading-relaxed">
+            No hay inspecciones planificadas en <strong className="text-zinc-950 font-semibold">{filtros.mes} {filtros.anio}</strong> para <strong className="text-zinc-950 font-semibold">{etiquetaRol}</strong>. Genere los
+            cronogramas desde{" "}
+            <Link href="/" className="font-bold text-zinc-950 underline decoration-[#f5b800] decoration-2 underline-offset-2 hover:text-[#d97706] transition">
+              Cronogramas
+            </Link>{" "}
+            para visualizar las métricas consolidadas.
+          </p>
+        </div>
       )}
 
       {/* Indicadores principales: una fila de 4, todos del mismo alto */}
@@ -170,8 +175,6 @@ export default async function DashboardMetricas({ searchParams }) {
           referencia={refAnterior}
           subirEsBueno
         />
-        {/* Cumplimiento en fecha y No ejecutadas (N) se ven en "Resultado de lo planificado";
-            los pendientes, en su tabla detallada al final. */}
         <div className="col-span-2 sm:col-span-1">
           <Indicador
             grande
@@ -200,7 +203,6 @@ export default async function DashboardMetricas({ searchParams }) {
             }}
           >
             <GraficoAcumulado
-              // Más alto cuando a la derecha van dos tarjetas (resultado + efectividad por rol).
               alto={filtros.rol ? 260 : 300}
               dias={m.totalDias}
               diaHoy={mesEnCurso ? m.corte : 0}
@@ -315,95 +317,113 @@ export default async function DashboardMetricas({ searchParams }) {
         </TarjetaGrafico>
       </div>
 
-      {/* Efectividad por inspector + pendientes de registrar (lado a lado, mismo alto).
-          Con un rol filtrado, la efectividad por inspector sube junto al resultado y los pendientes
-          ocupan toda la fila. */}
+      {/* Efectividad por inspector + pendientes de registrar (lado a lado, mismo alto). */}
       <div className="grid gap-4 lg:grid-cols-3">
         {!filtros.rol && tarjetaInspectores("h-full")}
 
         <section
-          className={`viz-root h-full rounded-lg border border-black/10 bg-[var(--viz-surface)] p-4 shadow-sm ${
+          className={`viz-root flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs hover:border-zinc-300 transition-all ${
             filtros.rol ? "lg:col-span-3" : "lg:col-span-2"
           }`}
         >
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="text-sm font-semibold text-[var(--viz-text-primary)]">Pendientes de registrar</h3>
-            <span className="text-2xl font-semibold tabular-nums text-[var(--viz-text-primary)]">
-              {formatoNumero(t.pendientes)} <span className="text-xs font-normal text-[var(--viz-muted)]">en total</span>
-            </span>
-          </div>
-          <p className="mb-3 text-xs text-[var(--viz-text-secondary)]">
-            Inspecciones planificadas en días ya pasados que no tienen cantidad ejecutada ni &quot;N&quot;
-          </p>
-          {m.pendientes.length === 0 ? (
-            <p className="rounded border border-dashed border-black/10 px-4 py-6 text-center text-sm text-[var(--viz-text-secondary)]">
-              No hay registros pendientes.
+          <div>
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h3 className="text-sm font-bold text-zinc-950">Pendientes de registrar</h3>
+              <span className="text-2xl font-black tabular-nums text-zinc-950">
+                {formatoNumero(t.pendientes)} <span className="text-xs font-normal text-zinc-500">en total</span>
+              </span>
+            </div>
+            <p className="mb-3.5 text-xs text-zinc-500">
+              Inspecciones planificadas en días ya pasados que no tienen cantidad ejecutada ni &quot;N&quot;
             </p>
+          </div>
+          {m.pendientes.length === 0 ? (
+            <div className="flex min-h-[140px] items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 px-4 text-center text-xs text-zinc-400 font-medium">
+              No hay registros pendientes.
+            </div>
           ) : (
-            <table className="w-full text-left text-xs">
-              <thead className="text-[var(--viz-text-secondary)]">
-                <tr className="border-b border-[var(--viz-grid)]">
-                  <th className="py-1.5 pr-2 font-semibold">Inspector</th>
-                  <th className="px-2 py-1.5 font-semibold">Formato</th>
-                  <th className="px-2 py-1.5 font-semibold">Días</th>
-                  <th className="py-1.5 pl-2 text-right font-semibold">Pendientes</th>
-                </tr>
-              </thead>
-              <tbody className="text-[var(--viz-text-primary)]">
-                {m.pendientes.map((p) => (
-                  <tr key={`${p.inspector}|${p.codigo}|${p.elemento}`} className="border-b border-[var(--viz-grid)]/60">
-                    <td className="py-1.5 pr-2 font-medium">{p.inspector}</td>
-                    <td className="px-2 py-1.5">
-                      {p.elemento} <span className="text-[10px] text-[var(--viz-muted)]">{p.codigo}</span>
-                    </td>
-                    <td className="px-2 py-1.5 tabular-nums text-[var(--viz-text-secondary)]">
-                      {p.dias.slice(0, 10).join(", ")}
-                      {p.dias.length > 10 ? "…" : ""}
-                    </td>
-                    <td className="py-1.5 pl-2 text-right font-semibold tabular-nums">{p.cantidad}</td>
+            <div className="overflow-x-auto rounded-xl border border-zinc-200">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-zinc-50 text-zinc-600 font-semibold border-b border-zinc-200">
+                  <tr>
+                    <th className="py-2 px-3">Inspector</th>
+                    <th className="py-2 px-3">Formato</th>
+                    <th className="py-2 px-3">Días</th>
+                    <th className="py-2 px-3 text-right">Pendientes</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-zinc-100 text-zinc-900">
+                  {m.pendientes.map((p) => (
+                    <tr key={`${p.inspector}|${p.codigo}|${p.elemento}`} className="hover:bg-zinc-50/70 transition">
+                      <td className="py-2 px-3 font-semibold text-zinc-950">{p.inspector}</td>
+                      <td className="py-2 px-3">
+                        <span className="font-medium text-zinc-800">{p.elemento}</span>{" "}
+                        <span className="text-[10px] font-mono text-zinc-400">{p.codigo}</span>
+                      </td>
+                      <td className="py-2 px-3 tabular-nums text-zinc-500">
+                        {p.dias.slice(0, 10).join(", ")}
+                        {p.dias.length > 10 ? "…" : ""}
+                      </td>
+                      <td className="py-2 px-3 text-right font-bold tabular-nums text-amber-600">{p.cantidad}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </section>
       </div>
 
       {/* Observaciones de los inspectores */}
-      <section className="viz-root rounded-lg border border-black/10 bg-[var(--viz-surface)] p-4 shadow-sm">
-        <h3 className="text-sm font-semibold text-[var(--viz-text-primary)]">Observaciones recientes</h3>
-        <p className="mb-3 text-xs text-[var(--viz-text-secondary)]">
+      <section className="viz-root rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs hover:border-zinc-300 transition-all">
+        <h3 className="text-sm font-bold text-zinc-950">Observaciones recientes</h3>
+        <p className="mb-3.5 text-xs text-zinc-500">
           Hallazgos que registraron los inspectores al ejecutar (los 10 más recientes del mes)
         </p>
         {datos.observaciones.length === 0 ? (
-          <p className="rounded border border-dashed border-black/10 px-4 py-6 text-center text-sm text-[var(--viz-text-secondary)]">
+          <div className="flex min-h-[140px] items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 px-4 text-center text-xs text-zinc-400 font-medium">
             Sin observaciones en este mes.
-          </p>
+          </div>
         ) : (
-          <table className="w-full text-left text-xs">
-            <thead className="text-[var(--viz-text-secondary)]">
-              <tr className="border-b border-[var(--viz-grid)]">
-                <th className="py-1.5 pr-2 font-semibold">Inspector</th>
-                <th className="px-2 py-1.5 font-semibold">Formato</th>
-                <th className="px-2 py-1.5 font-semibold">Día</th>
-                <th className="px-2 py-1.5 font-semibold">Resultado</th>
-                <th className="py-1.5 pl-2 font-semibold">Observación</th>
-              </tr>
-            </thead>
-            <tbody className="text-[var(--viz-text-primary)]">
-              {datos.observaciones.map((o, i) => (
-                <tr key={`${o.inspector}|${o.codigo}|${o.fecha}|${i}`} className="border-b border-[var(--viz-grid)]/60 align-top">
-                  <td className="py-1.5 pr-2 font-medium">{o.inspector}</td>
-                  <td className="px-2 py-1.5">
-                    {o.elemento} <span className="text-[10px] text-[var(--viz-muted)]">{o.codigo}</span>
-                  </td>
-                  <td className="px-2 py-1.5 tabular-nums">{diaDeFecha(o.fecha)}</td>
-                  <td className="px-2 py-1.5">{o.noEjecutado ? "N" : o.ejecutado ? `${o.ejecutado} ejec.` : "—"}</td>
-                  <td className="py-1.5 pl-2 whitespace-pre-line">{o.observacion}</td>
+          <div className="overflow-x-auto rounded-xl border border-zinc-200">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-zinc-50 text-zinc-600 font-semibold border-b border-zinc-200">
+                <tr>
+                  <th className="py-2 px-3">Inspector</th>
+                  <th className="py-2 px-3">Formato</th>
+                  <th className="py-2 px-3">Día</th>
+                  <th className="py-2 px-3">Resultado</th>
+                  <th className="py-2 px-3">Observación</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-zinc-100 text-zinc-900">
+                {datos.observaciones.map((o, i) => (
+                  <tr key={`${o.inspector}|${o.codigo}|${o.fecha}|${i}`} className="align-top hover:bg-zinc-50/70 transition">
+                    <td className="py-2 px-3 font-semibold text-zinc-950 whitespace-nowrap">{o.inspector}</td>
+                    <td className="py-2 px-3">
+                      <span className="font-medium text-zinc-800">{o.elemento}</span>{" "}
+                      <span className="text-[10px] font-mono text-zinc-400">{o.codigo}</span>
+                    </td>
+                    <td className="py-2 px-3 tabular-nums font-medium text-zinc-600">{diaDeFecha(o.fecha)}</td>
+                    <td className="py-2 px-3 whitespace-nowrap">
+                      {o.noEjecutado ? (
+                        <span className="inline-flex items-center rounded-md border border-rose-200 bg-rose-50 px-1.5 py-0.5 text-[11px] font-bold text-rose-700">
+                          N (No ejecutada)
+                        </span>
+                      ) : o.ejecutado ? (
+                        <span className="inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[11px] font-bold text-emerald-700">
+                          {o.ejecutado} ejec.
+                        </span>
+                      ) : (
+                        <span className="text-zinc-400">—</span>
+                      )}
+                    </td>
+                    <td className="py-2 px-3 whitespace-pre-line text-zinc-700 leading-relaxed max-w-md">{o.observacion}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </section>
     </div>

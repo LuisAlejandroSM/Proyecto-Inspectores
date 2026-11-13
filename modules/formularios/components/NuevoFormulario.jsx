@@ -12,10 +12,10 @@ export default async function NuevoFormulario() {
   return (
     <div className="space-y-4">
       <div>
-        <Link href="/formularios" className="text-sm font-semibold text-blue-700 hover:underline">
-          ← Formularios
+        <Link href="/formularios" className="inline-flex items-center gap-1 text-xs font-bold text-zinc-500 hover:text-zinc-950 transition">
+          <span aria-hidden="true">←</span> Formularios
         </Link>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight text-slate-900">Nuevo Formulario</h1>
+        <h1 className="mt-1 text-2xl font-black tracking-tight text-zinc-950">Nuevo Formulario</h1>
       </div>
       <EditorFormulario formulario={null} formatos={formatos} />
     </div>

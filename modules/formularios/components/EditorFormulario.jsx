@@ -545,9 +545,9 @@ export default function EditorFormulario({ formulario, formatos = [] }) {
   return (
     <div className="space-y-4">
       {/* Barra de acciones */}
-      <div className="sticky top-14 z-20 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur md:top-2">
+      <div className="sticky top-14 z-20 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-zinc-200 bg-white/95 px-4 sm:px-5 py-3 shadow-xs backdrop-blur md:top-2">
         <div className="flex items-center gap-3">
-          <div className="flex rounded-lg border border-slate-200 p-1 text-sm font-semibold">
+          <div className="flex rounded-xl border border-zinc-200 bg-zinc-100 p-1 text-xs font-bold">
             {[
               [false, "Editar"],
               [true, "Vista previa"],
@@ -557,19 +557,19 @@ export default function EditorFormulario({ formulario, formatos = [] }) {
                 type="button"
                 onClick={() => setVistaPrevia(valor)}
                 aria-pressed={vistaPrevia === valor}
-                className={`rounded-md px-3 py-1 ${vistaPrevia === valor ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"}`}
+                className={`rounded-lg px-3 py-1.5 transition ${vistaPrevia === valor ? "bg-[#09090b] text-white shadow-xs" : "text-zinc-600 hover:text-zinc-950 hover:bg-white"}`}
               >
                 {etiqueta}
               </button>
             ))}
           </div>
-          <span className="hidden text-xs text-slate-500 sm:inline">{totalPreguntas} pregunta(s)</span>
+          <span className="hidden text-xs text-zinc-500 font-medium sm:inline">{totalPreguntas} pregunta(s)</span>
         </div>
         <div className="flex items-center gap-3">
           <span
             aria-live="polite"
             className={`text-xs font-medium ${
-              estado.tipo === "error" ? "text-red-600" : estado.tipo === "ok" ? "text-emerald-700" : sucio ? "text-amber-600" : "text-slate-400"
+              estado.tipo === "error" ? "text-rose-600" : estado.tipo === "ok" ? "text-emerald-700" : sucio ? "text-amber-600" : "text-zinc-400"
             }`}
           >
             {estado.texto || (sucio ? "Cambios sin guardar" : formulario?.id ? "Sin cambios" : "")}
@@ -578,7 +578,7 @@ export default function EditorFormulario({ formulario, formatos = [] }) {
             type="button"
             onClick={guardar}
             disabled={isPending}
-            className="rounded bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700 disabled:opacity-50"
+            className="rounded-xl bg-[#f5b800] hover:bg-[#e0a800] px-4 py-2 text-xs sm:text-sm font-bold text-[#09090b] shadow-xs active:scale-[0.98] transition disabled:opacity-50"
           >
             {isPending ? "Guardando…" : formulario?.id ? "Guardar cambios" : "Crear formulario"}
           </button>
@@ -599,7 +599,7 @@ export default function EditorFormulario({ formulario, formatos = [] }) {
         <div className="mx-auto grid max-w-[54rem] gap-3 lg:grid-cols-[minmax(0,1fr)_3.25rem]">
           <div className="min-w-0 space-y-3">
             {/* Encabezado del formulario */}
-            <div className="overflow-hidden rounded-xl border border-slate-200 border-t-[10px] border-t-marca bg-white shadow-sm">
+            <div className="overflow-hidden rounded-2xl border border-zinc-200 border-t-[8px] border-t-[#f5b800] bg-white shadow-xs">
               <div className="space-y-3 px-6 pb-5 pt-4">
                 {/* Textareas que crecen con el contenido: el título largo se ve completo en el celular. */}
                 <textarea
@@ -610,7 +610,7 @@ export default function EditorFormulario({ formulario, formatos = [] }) {
                   onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
                   placeholder="Título del formulario"
                   aria-label="Título del formulario"
-                  className="field-sizing-content w-full resize-none border-b border-transparent bg-transparent py-1 text-2xl font-bold text-slate-900 placeholder:text-slate-400 hover:border-slate-200 focus:border-blue-600 focus:outline-none sm:text-3xl"
+                  className="field-sizing-content w-full resize-none border-b border-transparent bg-transparent py-1 text-2xl font-black text-zinc-950 placeholder:text-zinc-400 hover:border-zinc-200 focus:border-[#f5b800] focus:outline-none sm:text-3xl"
                 />
                 <textarea
                   rows={1}
@@ -619,10 +619,10 @@ export default function EditorFormulario({ formulario, formatos = [] }) {
                   onChange={(e) => cambiar(() => setDescripcion(e.target.value))}
                   placeholder="Descripción o instrucciones del formulario"
                   aria-label="Descripción del formulario"
-                  className="field-sizing-content min-h-9 w-full resize-none border-b border-transparent bg-transparent py-1 text-sm text-slate-700 placeholder:text-slate-400 hover:border-slate-200 focus:border-blue-600 focus:outline-none"
+                  className="field-sizing-content min-h-9 w-full resize-none border-b border-transparent bg-transparent py-1 text-sm font-medium text-zinc-600 placeholder:text-zinc-400 hover:border-zinc-200 focus:border-[#f5b800] focus:outline-none"
                 />
               </div>
-              <div className="divide-y divide-slate-100 border-t border-slate-100">
+              <div className="divide-y divide-zinc-100 border-t border-zinc-100">
                 <FilaAjuste
                   etiqueta="Dirigido a"
                   ayuda={rol ? `Solo se podrá asignar a personal con rol ${rol}.` : "Obligatorio: elija un rol para poder asignarlo."}
@@ -635,8 +635,8 @@ export default function EditorFormulario({ formulario, formatos = [] }) {
                         role="radio"
                         aria-checked={rol === r}
                         onClick={() => elegirRol(r)}
-                        className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                          rol === r ? "bg-tinta text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        className={`rounded-full px-3.5 py-1 text-xs font-bold transition ${
+                          rol === r ? "bg-[#09090b] text-white shadow-xs" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
                         }`}
                       >
                         {r}
@@ -734,13 +734,13 @@ export default function EditorFormulario({ formulario, formatos = [] }) {
                       setArrastre(null);
                       setArrastrable(null);
                     }}
-                    className={`relative scroll-mt-24 rounded-xl border bg-white transition ${
-                      esSeccion ? "border-l-[6px] border-slate-200 border-l-marca" : "border-slate-200"
-                    } ${activa ? "shadow-md" : "cursor-pointer shadow-sm hover:border-slate-300"} ${
+                    className={`relative scroll-mt-24 rounded-2xl border bg-white transition ${
+                      esSeccion ? "border-l-[6px] border-zinc-200 border-l-[#f5b800]" : "border-zinc-200"
+                    } ${activa ? "shadow-md ring-1 ring-zinc-300" : "cursor-pointer shadow-xs hover:border-zinc-300"} ${
                       arrastre?.id === c.id ? "opacity-40" : ""
-                    } ${lineaArriba ? "shadow-[0_-4px_0_0_#2563eb]" : ""} ${lineaAbajo ? "shadow-[0_4px_0_0_#2563eb]" : ""}`}
+                    } ${lineaArriba ? "shadow-[0_-4px_0_0_#f5b800]" : ""} ${lineaAbajo ? "shadow-[0_4px_0_0_#f5b800]" : ""}`}
                   >
-                    {activa && !esSeccion && <span className="absolute inset-y-0 left-0 w-1.5 rounded-l-xl bg-marca" aria-hidden="true" />}
+                    {activa && !esSeccion && <span className="absolute inset-y-0 left-0 w-1.5 rounded-l-2xl bg-[#f5b800]" aria-hidden="true" />}
 
                     {/* Asa para arrastrar (escritorio) */}
                     <div
@@ -796,7 +796,7 @@ export default function EditorFormulario({ formulario, formatos = [] }) {
             <button
               type="button"
               onClick={() => insertar(campoVacio("opcion_unica"))}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 bg-white/60 px-4 py-4 text-sm font-semibold text-slate-600 transition hover:border-blue-400 hover:bg-blue-50 hover:text-blue-700"
+              className="flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-zinc-200 bg-white px-4 py-4 text-xs sm:text-sm font-bold text-zinc-600 transition hover:border-[#f5b800] hover:bg-amber-50/40 hover:text-zinc-950 shadow-2xs"
             >
               <Icono nombre="mas" />
               Agregar pregunta
@@ -806,7 +806,7 @@ export default function EditorFormulario({ formulario, formatos = [] }) {
           {/* Barra flotante de herramientas: al costado en escritorio, abajo en el celular */}
           <aside
             aria-label="Agregar elementos"
-            className="sticky bottom-3 z-10 mx-auto flex w-max gap-1 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg lg:top-24 lg:bottom-auto lg:mx-0 lg:flex-col lg:self-start"
+            className="sticky bottom-3 z-10 mx-auto flex w-max gap-1 rounded-2xl border border-zinc-200 bg-white/95 p-1.5 shadow-md backdrop-blur lg:top-24 lg:bottom-auto lg:mx-0 lg:flex-col lg:self-start"
           >
             {herramientas.map((h) => (
               <BotonIcono key={h.tipo} icono={h.icono} etiqueta={h.etiqueta} onClick={() => insertar(campoVacio(h.tipo))} />

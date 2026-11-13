@@ -8,10 +8,10 @@ export const metadata = {
 function Cargando() {
   return (
     <div className="space-y-4" aria-busy="true">
-      <div className="h-14 animate-pulse rounded-xl border border-slate-200 bg-white" />
+      <div className="h-14 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
       <div className="space-y-3">
-        <div className="h-24 animate-pulse rounded-xl border border-slate-200 bg-white" />
-        <div className="h-24 animate-pulse rounded-xl border border-slate-200 bg-white" />
+        <div className="h-24 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
+        <div className="h-24 animate-pulse rounded-2xl border border-zinc-200 bg-white" />
       </div>
     </div>
   );
@@ -22,7 +22,7 @@ export default function NotificacionesPage() {
     <div className="space-y-6">
       <header className="space-y-1">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#f5b800] text-[#0f1420] shadow-sm">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-700">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -37,10 +37,10 @@ export default function NotificacionesPage() {
             </svg>
           </div>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+            <h1 className="text-2xl font-black tracking-tight text-zinc-950">
               Notificaciones y Alertas
             </h1>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-zinc-500 font-medium">
               Control de inspecciones no ejecutadas (N), justificaciones de inspectores y formatos pendientes
             </p>
           </div>
