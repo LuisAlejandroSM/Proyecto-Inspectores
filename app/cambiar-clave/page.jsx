@@ -49,7 +49,10 @@ export default async function CambiarClavePage() {
           <span className="block text-[11px] font-black tracking-[0.25em] text-[#f5b800] uppercase">
             PRIMER INGRESO
           </span>
-          <h1 className="mt-1.5 text-xl sm:text-2xl font-black tracking-tight text-white">
+          <h1
+            style={{ color: "#ffffff" }}
+            className="mt-1.5 text-xl sm:text-2xl font-black tracking-tight !text-white"
+          >
             Cree su contraseña
           </h1>
           <p className="mt-1 text-xs font-medium text-zinc-400">
