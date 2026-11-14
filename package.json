@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "db:wsl": "wsl -d Ubuntu -u root -- systemctl start postgresql@18-main",
     "build": "next build",
     "start": "next start -p 80",
     "lint": "eslint",
