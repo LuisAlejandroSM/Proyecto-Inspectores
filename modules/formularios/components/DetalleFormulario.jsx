@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { requerirAdmin } from "@/modules/auth/dal";
 import { obtenerInspectores } from "@/modules/usuarios/queries";
+import { TIPOS_CAMPO } from "../campos";
 import { hoyISO, textoFecha, textoFechaHora } from "../fechas";
 import { cargarFormatosParaVincular } from "../formatos";
 import { listarAsignacionesDeFormulario, listarRespuestasDeFormulario, obtenerFormulario } from "../queries";
@@ -69,6 +70,8 @@ export default async function DetalleFormulario({ params, seccion }) {
   const formatos = await cargarFormatosParaVincular();
   const formato = formatos.find((f) => f.id === formulario.plantillaId) ?? null;
 
+  const numPreguntas = formulario.campos.filter((c) => TIPOS_CAMPO[c.tipo]?.esPregunta).length;
+
   let contenido;
   if (seccion === "asignar") {
     const [asignaciones, inspectores] = await Promise.all([
@@ -83,6 +86,7 @@ export default async function DetalleFormulario({ params, seccion }) {
         formato={formato ? { nombre: formato.nombre, codigo: formato.codigo, periodicidad: formato.periodicidad } : null}
         inspectores={inspectores.map((i) => ({ id: i.id, nombre: i.nombre, rol: i.rol }))}
         asignaciones={asignaciones}
+        numPreguntas={numPreguntas}
       />
     );
   } else if (seccion === "resultados") {
@@ -139,6 +143,39 @@ export default async function DetalleFormulario({ params, seccion }) {
             </span>
           )}
         </h1>
+
+        <div className="flex flex-wrap items-center gap-1.5 pt-3 border-b border-zinc-200">
+          <Link
+            href={`/formularios/${formulario.id}/asignar`}
+            className={`rounded-t-xl px-4 py-2 text-xs font-bold transition border-b-2 ${
+              seccion === "asignar"
+                ? "border-[#f5b800] bg-white text-zinc-950 shadow-2xs"
+                : "border-transparent text-zinc-500 hover:text-zinc-950 hover:bg-zinc-50"
+            }`}
+          >
+            Asignaciones y Seguimiento
+          </Link>
+          <Link
+            href={`/formularios/${formulario.id}/resultados`}
+            className={`rounded-t-xl px-4 py-2 text-xs font-bold transition border-b-2 ${
+              seccion === "resultados"
+                ? "border-[#f5b800] bg-white text-zinc-950 shadow-2xs"
+                : "border-transparent text-zinc-500 hover:text-zinc-950 hover:bg-zinc-50"
+            }`}
+          >
+            Resultados globales
+          </Link>
+          <Link
+            href={`/formularios/${formulario.id}/editar`}
+            className={`rounded-t-xl px-4 py-2 text-xs font-bold transition border-b-2 ${
+              seccion === "editar"
+                ? "border-[#f5b800] bg-white text-zinc-950 shadow-2xs"
+                : "border-transparent text-zinc-500 hover:text-zinc-950 hover:bg-zinc-50"
+            }`}
+          >
+            Diseño del formulario
+          </Link>
+        </div>
       </div>
       {contenido}
     </div>

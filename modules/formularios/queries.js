@@ -27,6 +27,7 @@ export async function listarFormularios() {
       activo: formularios.activo,
       campos: formularios.campos,
       actualizadoEn: formularios.actualizadoEn,
+      totalAsignados: sql`count(distinct ${asignacionesFormulario.usuarioId})`.mapWith(Number),
       pendientes: sql`count(${asignacionesFormulario.id}) filter (where ${asignacionesFormulario.estado} = 'pendiente')`.mapWith(Number),
       completadas: sql`count(${asignacionesFormulario.id}) filter (where ${asignacionesFormulario.estado} = 'completada')`.mapWith(Number),
     })

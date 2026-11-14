@@ -62,7 +62,7 @@ function IconoBorrar() {
 /**
  * Asignación del formulario a inspectores y seguimiento de sus respuestas.
  */
-export default function PanelAsignaciones({ formularioId, activo, rol, formato = null, inspectores, asignaciones }) {
+export default function PanelAsignaciones({ formularioId, activo, rol, formato = null, inspectores, asignaciones, numPreguntas = 0 }) {
   const [isPending, startTransition] = useTransition();
   const [seleccion, setSeleccion] = useState(() => new Set());
   const [busqueda, setBusqueda] = useState("");
@@ -265,9 +265,9 @@ export default function PanelAsignaciones({ formularioId, activo, rol, formato =
       <section className="rounded-2xl border border-zinc-200 bg-white shadow-xs">
         <div className="border-b border-zinc-100 bg-zinc-50/70 px-5 py-4">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="text-base font-bold text-zinc-950">Seguimiento</h3>
+            <h3 className="text-base font-bold text-zinc-950">Seguimiento por Inspector</h3>
             <span className="text-sm text-zinc-500">
-              <strong className="text-zinc-950 font-bold">{completadas}</strong> de {asignaciones.length} respondieron
+              <strong className="text-zinc-950 font-bold">{completadas}</strong> de {asignaciones.length} inspectores respondieron
             </span>
           </div>
           {asignaciones.length > 0 && (
@@ -293,8 +293,8 @@ export default function PanelAsignaciones({ formularioId, activo, rol, formato =
 
         {asignaciones.length === 0 ? (
           <div className="px-5 py-12 text-center">
-            <p className="text-sm font-bold text-zinc-800">Aún no se ha asignado a nadie</p>
-            <p className="mt-1 text-xs text-zinc-500">Elija inspectores a la izquierda para enviarles este formulario.</p>
+            <p className="text-sm font-bold text-zinc-800">Aún no se ha asignado a ningún inspector</p>
+            <p className="mt-1 text-xs text-zinc-500">Elija inspectores en el panel izquierdo para enviarles esta inspección.</p>
           </div>
         ) : (
           <ul className="divide-y divide-zinc-100">
@@ -308,10 +308,25 @@ export default function PanelAsignaciones({ formularioId, activo, rol, formato =
                       <span className="shrink-0 rounded-md bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold text-zinc-600">Cronograma</span>
                     )}
                   </p>
-                  <p className="text-xs text-zinc-500">
-                    {a.completadaTexto ?? `Asignado ${a.asignadoTexto}`}
-                    {a.limiteTexto && <span className={a.vencida ? "font-bold text-rose-600" : ""}> · Límite {a.limiteTexto}</span>}
-                  </p>
+                  
+                  {/* Detalle de avance: preguntas respondidas vs pendientes */}
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+                    {a.estado === "completada" ? (
+                      <span className="inline-flex items-center gap-1 font-bold text-emerald-700">
+                        ✓ {numPreguntas} de {numPreguntas} preguntas respondidas
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 font-semibold text-amber-800">
+                        ⏳ {numPreguntas} preguntas pendientes por responder
+                      </span>
+                    )}
+                    <span className="text-zinc-400">·</span>
+                    <span className="text-zinc-500 font-medium">
+                      {a.completadaTexto ?? `Asignado ${a.asignadoTexto}`}
+                      {a.limiteTexto && <span className={a.vencida ? " font-bold text-rose-600" : ""}> · Límite {a.limiteTexto}</span>}
+                    </span>
+                  </div>
+
                   {a.nota && <p className="mt-0.5 truncate text-xs italic text-zinc-500">“{a.nota}”</p>}
                 </div>
                 <div className="flex items-center gap-2">
@@ -319,9 +334,9 @@ export default function PanelAsignaciones({ formularioId, activo, rol, formato =
                   {a.estado === "completada" ? (
                     <Link
                       href={`/formularios/respuesta/${a.id}`}
-                      className="whitespace-nowrap rounded-xl border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-bold text-zinc-800 hover:bg-zinc-100 transition"
+                      className="whitespace-nowrap rounded-xl bg-[#09090b] hover:bg-zinc-800 text-white px-3.5 py-1.5 text-xs font-bold shadow-2xs transition"
                     >
-                      Ver respuesta
+                      Ver respuesta →
                     </Link>
                   ) : a.origen === "cronograma" ? (
                     <span className="w-8" aria-hidden="true" />
