@@ -1,33 +1,59 @@
+import Image from "next/image";
 import FormularioLogin from "@/modules/auth/components/FormularioLogin";
 
 export const metadata = {
-  title: "Iniciar sesión · Sistema de Inspecciones Preventivas",
+  title: "Iniciar sesión · CVCONCA · Sistema de Inspecciones Preventivas",
 };
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-[calc(100vh-2rem)] items-center justify-center p-4 md:min-h-[calc(100vh-3rem)]">
-      <div className="w-full max-w-sm overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
-        {/* Barra superior de acento corporativo */}
-        <div className="h-1 bg-[#f5b800]" aria-hidden="true" />
-        
-        <div className="px-7 pb-8 pt-7">
-          <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-[#f5b800] text-sm font-black text-[#09090b] shadow-xs">
-              C
-            </div>
-            <span className="block text-[11px] font-black tracking-widest text-[#09090b] uppercase">
-              CVCONCA
-            </span>
-            <h1 className="mt-1 text-lg font-bold tracking-tight text-zinc-900">
-              Inspecciones Preventivas
-            </h1>
-            <p className="mt-1 text-xs text-zinc-500">
-              Ingrese con su usuario y contraseña asignada
-            </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#09090b] p-4 sm:p-6 overflow-y-auto">
+      {/* Luz ambiental sutil en el fondo */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_25%,rgba(245,184,0,0.12)_0%,rgba(9,9,11,1)_70%)]"
+        aria-hidden="true"
+      />
+
+      {/* Tarjeta de Inicio de Sesión Corporativa */}
+      <div className="relative w-full max-w-sm sm:max-w-md overflow-hidden rounded-3xl border border-white/10 bg-[#121215]/95 p-7 sm:p-9 shadow-2xl backdrop-blur-xl ring-1 ring-white/5">
+        {/* Línea superior con gradiente amarillo corporativo */}
+        <div
+          className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500/0 via-[#f5b800] to-amber-500/0"
+          aria-hidden="true"
+        />
+
+        <div className="text-center">
+          {/* Logo Medallón Oficial */}
+          <div className="relative mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-full bg-black/60 p-2 ring-2 ring-[#f5b800]/30 shadow-2xl shadow-black/80">
+            <Image
+              src="/logo-cvconca.png"
+              alt="Logo CVCONCA"
+              width={84}
+              height={84}
+              className="h-full w-full object-contain"
+              priority
+            />
           </div>
 
+          <span className="block text-[11px] font-black tracking-[0.25em] text-[#f5b800] uppercase">
+            CVCONCA C.A.
+          </span>
+          <h1 className="mt-1.5 text-xl sm:text-2xl font-black tracking-tight text-white">
+            Inspecciones Preventivas
+          </h1>
+          <p className="mt-1 text-xs font-medium text-zinc-400">
+            Sistema Operativo y Gestión SST / SIHO
+          </p>
+        </div>
+
+        <div className="mt-7">
           <FormularioLogin />
+        </div>
+
+        <div className="mt-7 border-t border-zinc-800/80 pt-4 text-center">
+          <p className="text-[11px] font-medium text-zinc-500">
+            Acceso autorizado para personal e inspectores de CVCONCA C.A.
+          </p>
         </div>
       </div>
     </div>

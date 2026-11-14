@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -143,22 +144,48 @@ function ContenidoDesktop({ usuario, colapsada, botonColapsar }) {
           colapsada ? "justify-center px-2" : "justify-between px-4"
         }`}
       >
-        {!colapsada && (
-          <div className="flex items-center gap-2.5 min-w-0 pr-1">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f5b800] text-[11px] font-black text-[#09090b] shadow-xs">
-              C
-            </span>
-            <div className="min-w-0">
-              <span className="block text-[11px] font-black tracking-widest text-[#f5b800] uppercase">
-                CVCONCA
-              </span>
-              <span className="block text-[11px] font-semibold text-slate-400 tracking-tight truncate leading-none mt-0.5">
-                SST / SIHO
-              </span>
+        {colapsada ? (
+          <div className="flex flex-col items-center gap-1.5">
+            <div
+              className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full overflow-hidden bg-black/60 ring-1 ring-[#f5b800]/40 shadow-sm"
+              title="CVCONCA - SST / SIHO"
+            >
+              <Image
+                src="/logo-cvconca.png"
+                alt="Logo CVCONCA"
+                width={32}
+                height={32}
+                className="h-full w-full object-contain"
+                priority
+              />
             </div>
+            {botonColapsar}
           </div>
+        ) : (
+          <>
+            <div className="flex items-center gap-2.5 min-w-0 pr-1">
+              <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full overflow-hidden bg-black/60 ring-1 ring-[#f5b800]/40 shadow-sm">
+                <Image
+                  src="/logo-cvconca.png"
+                  alt="Logo CVCONCA"
+                  width={32}
+                  height={32}
+                  className="h-full w-full object-contain"
+                  priority
+                />
+              </div>
+              <div className="min-w-0">
+                <span className="block text-[11px] font-black tracking-widest text-white uppercase">
+                  CVCONCA
+                </span>
+                <span className="block text-[10px] font-semibold text-[#f5b800] tracking-tight truncate leading-none mt-0.5">
+                  SST / SIHO
+                </span>
+              </div>
+            </div>
+            {botonColapsar}
+          </>
         )}
-        {botonColapsar}
       </div>
 
       {/* Menú de Navegación */}
@@ -303,14 +330,21 @@ export default function BarraLateral({ usuario, colapsadaInicial = false }) {
       {/* ======================================================== */}
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-[#27272a] bg-[#09090b]/95 backdrop-blur-md px-4 md:hidden">
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[#f5b800] text-[11px] font-black text-[#09090b] shadow-xs">
-            C
-          </span>
+          <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full overflow-hidden bg-black/60 ring-1 ring-[#f5b800]/40 shadow-sm">
+            <Image
+              src="/logo-cvconca.png"
+              alt="Logo CVCONCA"
+              width={32}
+              height={32}
+              className="h-full w-full object-contain"
+              priority
+            />
+          </div>
           <div className="min-w-0">
-            <span className="block text-[11px] font-black tracking-widest text-[#f5b800] uppercase">
+            <span className="block text-[11px] font-black tracking-widest text-white uppercase">
               CVCONCA
             </span>
-            <span className="block text-[10px] font-semibold text-zinc-400 tracking-tight truncate leading-none mt-0.5">
+            <span className="block text-[10px] font-semibold text-[#f5b800] tracking-tight truncate leading-none mt-0.5">
               Inspecciones Preventivas
             </span>
           </div>

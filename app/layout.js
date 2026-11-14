@@ -14,22 +14,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "Sistema de Inspecciones Preventivas",
-  description: "Control operativo de inspecciones preventivas",
+  title: "CVCONCA · Sistema de Inspecciones Preventivas",
+  description: "Control operativo y gestión SST / SIHO de inspecciones preventivas para CVCONCA C.A.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Inspecciones Preventivas",
+    title: "CVCONCA SST",
   },
   icons: {
-    icon: "/icono-pwa.svg",
-    apple: "/icono-pwa.svg",
+    icon: "/logo-cvconca.png",
+    apple: "/logo-cvconca.png",
   },
 };
 
 export const viewport = {
-  themeColor: "#0b1f4b",
+  themeColor: "#09090b",
 };
 
 export default function RootLayout({ children }) {

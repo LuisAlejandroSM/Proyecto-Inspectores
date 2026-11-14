@@ -1,17 +1,17 @@
 {
-  "name": "Sistema de Cronogramas SST",
-  "short_name": "SST Cvconca",
-  "description": "Sistema de gestión de cronogramas e inspecciones SST/SIHO para Cvconca con soporte fuera de línea",
+  "name": "CVCONCA · Sistema de Inspecciones SST",
+  "short_name": "CVCONCA SST",
+  "description": "Sistema de gestión de cronogramas e inspecciones SST/SIHO para CVCONCA C.A. con soporte fuera de línea",
   "start_url": "/mis-formularios",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#0b1f4b",
-  "theme_color": "#0b1f4b",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
   "icons": [
     {
-      "src": "/icono-pwa.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "src": "/logo-cvconca.png",
+      "sizes": "447x447",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
