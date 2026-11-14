@@ -4,10 +4,8 @@ import { requerirAdmin } from "@/modules/auth/dal";
 import { normalizarFiltros, numeroMes, VISTAS } from "@/modules/cronogramas/constants";
 import { obtenerInspectores } from "@/modules/usuarios/queries";
 import { calcularMetricas, mesesAnteriores, razon } from "../metricas";
-import { obtenerDetalleMes, obtenerObservacionesRecientes, obtenerTotalesPorMes } from "../queries";
-import { diaDeFecha } from "@/modules/cronogramas/constants";
+import { obtenerDetalleMes, obtenerTotalesPorMes } from "../queries";
 import FiltrosDashboard from "./FiltrosDashboard";
-import BarrasRanking from "./graficos/BarrasRanking";
 import { formatoNumero, formatoPorcentaje } from "./graficos/escala";
 import GraficoAcumulado from "./graficos/GraficoAcumulado";
 import GraficoColumnas from "./graficos/GraficoColumnas";
@@ -29,17 +27,15 @@ async function cargarDatos({ mes, anio, rol }) {
   try {
     const periodos = mesesAnteriores(mes, anio, MESES_TENDENCIA);
     const anterior = periodos[periodos.length - 2];
-    const [detalle, detalleAnterior, totales, inspectores, observaciones] = await Promise.all([
+    const [detalle, detalleAnterior, totales, inspectores] = await Promise.all([
       obtenerDetalleMes({ mes, anio, rol }),
       obtenerDetalleMes({ mes: anterior.mes, anio: anterior.anio, rol }),
       obtenerTotalesPorMes({ periodos, rol }),
       obtenerInspectores({ rol }),
-      obtenerObservacionesRecientes({ mes, anio, rol }),
     ]);
     return {
       ok: true,
       detalle,
-      observaciones,
       detalleAnterior,
       anterior,
       totales,
@@ -95,36 +91,6 @@ export default async function DashboardMetricas({ searchParams }) {
   const refAnterior = mesEnCurso ? `${anterior.mes} (días 1–${m.corte})` : anterior.mes;
   const sinPlan = t.planificadas === 0 && t.ejecutadas === 0;
   const etiquetaRol = filtros.rol ?? "todos los roles";
-
-  // Ranking de inspectores: va abajo con todos los roles, o a la derecha del avance con un rol filtrado.
-  const tarjetaInspectores = (className) => (
-    <TarjetaGrafico
-      className={className}
-      titulo="Efectividad por inspector"
-      subtitulo="Ejecutadas ÷ planificadas a la fecha, de mayor a menor"
-      vacio={m.inspectores.length === 0 ? "Ningún inspector tiene cronograma este mes." : null}
-      tabla={{
-        columnas: ["Inspector", "Planificadas", "Ejecutadas", "N", "Pendientes", "Efectividad"],
-        filas: m.inspectores.map((i) => [
-          i.nombre,
-          i.pALaFecha,
-          i.eALaFecha,
-          i.noEjecutadas,
-          i.pendientes,
-          formatoPorcentaje(i.efectividad),
-        ]),
-      }}
-    >
-      <BarrasRanking
-        color={COLOR_PLAN}
-        filas={m.inspectores.map((i) => ({
-          etiqueta: i.nombre,
-          valor: i.efectividad,
-          detalle: `${formatoNumero(i.eALaFecha)} de ${formatoNumero(i.pALaFecha)} · ${formatoNumero(i.pendientes)} pendientes`,
-        }))}
-      />
-    </TarjetaGrafico>
-  );
 
   return (
     <div className="space-y-4">
@@ -238,31 +204,27 @@ export default async function DashboardMetricas({ searchParams }) {
             />
           </TarjetaGrafico>
 
-          {filtros.rol ? (
-            tarjetaInspectores("flex-1")
-          ) : (
-            <TarjetaGrafico
-              className="flex-1"
-              titulo="Efectividad por rol"
-              subtitulo="Ejecutadas ÷ planificadas a la fecha"
-              vacio={m.roles.length === 0 ? "Sin datos para este mes." : null}
-              tabla={{
-                columnas: ["Rol", "Planificadas", "Ejecutadas", "Efectividad"],
-                filas: m.roles.map((r) => [r.rol, r.pALaFecha, r.eALaFecha, formatoPorcentaje(r.efectividad)]),
-              }}
-            >
-              <div className="space-y-4">
-                {m.roles.map((r) => (
-                  <Medidor
-                    key={r.rol}
-                    etiqueta={r.rol}
-                    valor={r.efectividad}
-                    detalle={`${formatoNumero(r.eALaFecha)} de ${formatoNumero(r.pALaFecha)}`}
-                  />
-                ))}
-              </div>
-            </TarjetaGrafico>
-          )}
+          <TarjetaGrafico
+            className="flex-1"
+            titulo="Efectividad por rol"
+            subtitulo="Ejecutadas ÷ planificadas a la fecha"
+            vacio={m.roles.length === 0 ? "Sin datos para este mes." : null}
+            tabla={{
+              columnas: ["Rol", "Planificadas", "Ejecutadas", "Efectividad"],
+              filas: m.roles.map((r) => [r.rol, r.pALaFecha, r.eALaFecha, formatoPorcentaje(r.efectividad)]),
+            }}
+          >
+            <div className="space-y-4">
+              {m.roles.map((r) => (
+                <Medidor
+                  key={r.rol}
+                  etiqueta={r.rol}
+                  valor={r.efectividad}
+                  detalle={`${formatoNumero(r.eALaFecha)} de ${formatoNumero(r.pALaFecha)}`}
+                />
+              ))}
+            </div>
+          </TarjetaGrafico>
         </div>
       </div>
 
@@ -317,108 +279,68 @@ export default async function DashboardMetricas({ searchParams }) {
         </TarjetaGrafico>
       </div>
 
-      {/* Efectividad por inspector + pendientes de registrar (lado a lado, mismo alto). */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        {!filtros.rol && tarjetaInspectores("h-full")}
-
-        <section
-          className={`viz-root flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs hover:border-zinc-300 transition-all ${
-            filtros.rol ? "lg:col-span-3" : "lg:col-span-2"
-          }`}
-        >
+      {/* Pendientes de registrar (sección expandida a todo el ancho) */}
+      <section className="viz-root rounded-2xl border border-zinc-200 bg-white p-5 sm:p-6 shadow-xs hover:border-zinc-300 transition-all">
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-100 pb-4">
           <div>
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <h3 className="text-sm font-bold text-zinc-950">Pendientes de registrar</h3>
-              <span className="text-2xl font-black tabular-nums text-zinc-950">
-                {formatoNumero(t.pendientes)} <span className="text-xs font-normal text-zinc-500">en total</span>
-              </span>
-            </div>
-            <p className="mb-3.5 text-xs text-zinc-500">
-              Inspecciones planificadas en días ya pasados que no tienen cantidad ejecutada ni &quot;N&quot;
+            <h3 className="text-base sm:text-lg font-bold text-zinc-950">Pendientes de registrar</h3>
+            <p className="mt-0.5 text-xs text-zinc-500">
+              Inspecciones planificadas en días ya pasados que aún no tienen cantidad ejecutada ni &quot;N&quot;
             </p>
           </div>
-          {m.pendientes.length === 0 ? (
-            <div className="flex min-h-[140px] items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 px-4 text-center text-xs text-zinc-400 font-medium">
-              No hay registros pendientes.
-            </div>
-          ) : (
-            <div className="overflow-x-auto rounded-xl border border-zinc-200">
-              <table className="w-full text-left text-xs">
-                <thead className="bg-zinc-50 text-zinc-600 font-semibold border-b border-zinc-200">
-                  <tr>
-                    <th className="py-2 px-3">Inspector</th>
-                    <th className="py-2 px-3">Formato</th>
-                    <th className="py-2 px-3">Días</th>
-                    <th className="py-2 px-3 text-right">Pendientes</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-100 text-zinc-900">
-                  {m.pendientes.map((p) => (
-                    <tr key={`${p.inspector}|${p.codigo}|${p.elemento}`} className="hover:bg-zinc-50/70 transition">
-                      <td className="py-2 px-3 font-semibold text-zinc-950">{p.inspector}</td>
-                      <td className="py-2 px-3">
-                        <span className="font-medium text-zinc-800">{p.elemento}</span>{" "}
-                        <span className="text-[10px] font-mono text-zinc-400">{p.codigo}</span>
-                      </td>
-                      <td className="py-2 px-3 tabular-nums text-zinc-500">
-                        {p.dias.slice(0, 10).join(", ")}
-                        {p.dias.length > 10 ? "…" : ""}
-                      </td>
-                      <td className="py-2 px-3 text-right font-bold tabular-nums text-amber-600">{p.cantidad}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
-      </div>
+          <div className="flex items-center gap-2.5 rounded-xl border border-amber-200/80 bg-amber-50 px-3.5 py-1.5 shadow-2xs">
+            <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Total pendientes</span>
+            <span className="text-2xl font-black tabular-nums text-amber-950">
+              {formatoNumero(t.pendientes)}
+            </span>
+          </div>
+        </div>
 
-      {/* Observaciones de los inspectores */}
-      <section className="viz-root rounded-2xl border border-zinc-200 bg-white p-5 shadow-xs hover:border-zinc-300 transition-all">
-        <h3 className="text-sm font-bold text-zinc-950">Observaciones recientes</h3>
-        <p className="mb-3.5 text-xs text-zinc-500">
-          Hallazgos que registraron los inspectores al ejecutar (los 10 más recientes del mes)
-        </p>
-        {datos.observaciones.length === 0 ? (
-          <div className="flex min-h-[140px] items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 px-4 text-center text-xs text-zinc-400 font-medium">
-            Sin observaciones en este mes.
+        {m.pendientes.length === 0 ? (
+          <div className="mt-5 flex min-h-[160px] flex-col items-center justify-center rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 p-6 text-center">
+            <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 font-bold text-emerald-700">
+              ✓
+            </div>
+            <p className="text-sm font-bold text-zinc-900">Al día sin registros pendientes</p>
+            <p className="mt-0.5 text-xs text-zinc-500">
+              Todas las inspecciones planificadas hasta la fecha han sido debidamente registradas.
+            </p>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-zinc-200">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-zinc-50 text-zinc-600 font-semibold border-b border-zinc-200">
+          <div className="mt-4 overflow-x-auto rounded-xl border border-zinc-200">
+            <table className="w-full text-left text-xs sm:text-sm">
+              <thead className="border-b border-zinc-200 bg-zinc-50 text-xs font-bold uppercase tracking-wider text-zinc-600">
                 <tr>
-                  <th className="py-2 px-3">Inspector</th>
-                  <th className="py-2 px-3">Formato</th>
-                  <th className="py-2 px-3">Día</th>
-                  <th className="py-2 px-3">Resultado</th>
-                  <th className="py-2 px-3">Observación</th>
+                  <th className="px-4 py-3">Inspector</th>
+                  <th className="px-4 py-3">Formato / Elemento</th>
+                  <th className="px-4 py-3">Días vencidos</th>
+                  <th className="px-4 py-3 text-right">Pendientes</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-100 text-zinc-900">
-                {datos.observaciones.map((o, i) => (
-                  <tr key={`${o.inspector}|${o.codigo}|${o.fecha}|${i}`} className="align-top hover:bg-zinc-50/70 transition">
-                    <td className="py-2 px-3 font-semibold text-zinc-950 whitespace-nowrap">{o.inspector}</td>
-                    <td className="py-2 px-3">
-                      <span className="font-medium text-zinc-800">{o.elemento}</span>{" "}
-                      <span className="text-[10px] font-mono text-zinc-400">{o.codigo}</span>
-                    </td>
-                    <td className="py-2 px-3 tabular-nums font-medium text-zinc-600">{diaDeFecha(o.fecha)}</td>
-                    <td className="py-2 px-3 whitespace-nowrap">
-                      {o.noEjecutado ? (
-                        <span className="inline-flex items-center rounded-md border border-rose-200 bg-rose-50 px-1.5 py-0.5 text-[11px] font-bold text-rose-700">
-                          N (No ejecutada)
+                {m.pendientes.map((p) => (
+                  <tr key={`${p.inspector}|${p.codigo}|${p.elemento}`} className="hover:bg-zinc-50/70 transition">
+                    <td className="whitespace-nowrap px-4 py-3 font-bold text-zinc-950">
+                      <div className="flex items-center gap-2.5">
+                        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-100 text-[11px] font-black text-zinc-700">
+                          {p.inspector.slice(0, 2).toUpperCase()}
                         </span>
-                      ) : o.ejecutado ? (
-                        <span className="inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[11px] font-bold text-emerald-700">
-                          {o.ejecutado} ejec.
-                        </span>
-                      ) : (
-                        <span className="text-zinc-400">—</span>
-                      )}
+                        <span>{p.inspector}</span>
+                      </div>
                     </td>
-                    <td className="py-2 px-3 whitespace-pre-line text-zinc-700 leading-relaxed max-w-md">{o.observacion}</td>
+                    <td className="px-4 py-3">
+                      <span className="font-semibold text-zinc-900">{p.elemento}</span>{" "}
+                      <span className="font-mono text-[11px] text-zinc-400">({p.codigo})</span>
+                    </td>
+                    <td className="px-4 py-3 font-medium tabular-nums text-zinc-600">
+                      {p.dias.slice(0, 15).join(", ")}
+                      {p.dias.length > 15 ? "…" : ""}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-right">
+                      <span className="inline-flex items-center rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-black tabular-nums text-amber-800">
+                        {p.cantidad} pendiente{p.cantidad !== 1 ? "s" : ""}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
