@@ -121,12 +121,11 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
   const esAdmin = usuarioActual?.esAdmin === true;
   const puedeAdministrar = esAdmin || esSuperAdmin;
 
-  // Roles que este usuario tiene permiso de crear
-  const rolesPermitidosCrear = [
-    ROL_ADMINISTRACION,
-    ROL_SUPERVISOR_SIHO,
-    ...ROLES_OPERATIVOS,
-  ];
+  // Solo el Administrador del Sistema puede crear otros Administradores.
+  // Los Supervisores SIHO solo pueden crear Supervisores e Inspectores.
+  const rolesPermitidosCrear = esSuperAdmin
+    ? [ROL_ADMINISTRACION, ROL_SUPERVISOR_SIHO, ...ROLES_OPERATIVOS]
+    : [ROL_SUPERVISOR_SIHO, ...ROLES_OPERATIVOS];
 
   const [rolSeleccionado, setRolSeleccionado] = useState(
     rolesPermitidosCrear[0]
@@ -198,6 +197,7 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
   };
 
   const handleRestablecer = (u) => {
+    if (!esSuperAdmin && (u.rol === ROL_ADMINISTRACION || u.esSuperAdmin)) return;
     if (
       !window.confirm(
         `¿Generar una contraseña temporal nueva para ${u.nombre}? Su contraseña anterior dejará de funcionar.`
@@ -220,7 +220,7 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
   };
 
   const handleAdmin = (u) => {
-    if (!puedeAdministrar) return;
+    if (!esSuperAdmin) return;
     const dar = !u.esAdmin;
     const accion = dar
       ? `¿Asignar permisos de Administrador a ${u.nombre}? Tendrá acceso a ver cronogramas, formularios, reportes y gestionar usuarios.`
@@ -245,6 +245,7 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
 
   const handleEstado = (u) => {
     if (!puedeAdministrar) return;
+    if (!esSuperAdmin && (u.rol === ROL_ADMINISTRACION || u.esSuperAdmin)) return;
     const nuevoActivo = !u.activo;
     const accion = nuevoActivo
       ? `¿Reactivar la cuenta de ${u.nombre}? Podrá volver a acceder al sistema.`
@@ -394,7 +395,9 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
                 className={CLASE_CAMPO}
               >
                 <optgroup label="Nivel Administrativo">
-                  <option value={ROL_ADMINISTRACION}>Administrador (Acceso total)</option>
+                  {esSuperAdmin && (
+                    <option value={ROL_ADMINISTRACION}>Administrador (Acceso total)</option>
+                  )}
                   <option value={ROL_SUPERVISOR_SIHO}>Supervisor SIHO (Supervisión y control)</option>
                 </optgroup>
                 <optgroup label="Inspectores Operativos (En campo)">
@@ -577,8 +580,8 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
 
                     <td className="whitespace-nowrap px-5 py-3 text-right text-xs">
                       <div className="inline-flex flex-wrap justify-end gap-x-2 gap-y-1">
-                        {/* Restablecer contraseña: cualquier administrador */}
-                        {u.activo && !yo && (u.alias || u.correo) && (
+                        {/* Restablecer contraseña: no se puede para admin/superadmin a menos que sea superadmin */}
+                        {u.activo && !yo && (u.alias || u.correo) && (esSuperAdmin || (u.rol !== ROL_ADMINISTRACION && !esSuper)) && (
                           <button
                             type="button"
                             onClick={() => handleRestablecer(u)}
@@ -589,8 +592,8 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
                           </button>
                         )}
 
-                        {/* Promover/Quitar Administrador: cualquier administrador */}
-                        {puedeAdministrar && !yo && !esSuper && (
+                        {/* Promover/Quitar Administrador: exclusivo para el Administrador del Sistema */}
+                        {esSuperAdmin && !yo && !esSuper && (
                           <button
                             type="button"
                             onClick={() => handleAdmin(u)}
@@ -601,8 +604,8 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
                           </button>
                         )}
 
-                        {/* Desactivar/Reactivar cuenta: cualquier administrador */}
-                        {puedeAdministrar && !yo && !esSuper && (
+                        {/* Desactivar/Reactivar cuenta: no se puede desactivar a un administrador si no es superadmin */}
+                        {puedeAdministrar && !yo && !esSuper && (esSuperAdmin || u.rol !== ROL_ADMINISTRACION) && (
                           <button
                             type="button"
                             onClick={() => handleEstado(u)}

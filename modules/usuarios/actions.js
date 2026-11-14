@@ -51,7 +51,12 @@ export async function crearInspector(entrada) {
   const cargo = texto(entrada?.cargo, 100) || null;
 
   // Solo administradores pueden registrar usuarios (garantizado por autorizarAccion con soloAdmin: true).
-  // Un administrador puede crear otros Administradores, Supervisores SIHO o Inspectores Operativos.
+  // Solo el Administrador del Sistema (Superadmin) puede crear usuarios con rol Administración.
+  // Los Supervisores SIHO solo pueden crear otros Supervisores SIHO o Inspectores Operativos.
+  if (rol === ROL_ADMINISTRACION && !auth.usuario.esSuperAdmin) {
+    return { success: false, error: "Solo el Administrador del Sistema puede crear usuarios con rol Administración." };
+  }
+
   const esRolAdmin = rol === ROL_ADMINISTRACION || rol === ROL_SUPERVISOR_SIHO;
 
   if (nombre.length < 3) {
@@ -116,12 +121,15 @@ export async function cambiarEstadoInspector(entrada) {
 
   try {
     const [objetivo] = await db
-      .select({ esAdmin: usuarios.esAdmin, esSuperAdmin: usuarios.esSuperAdmin })
+      .select({ esAdmin: usuarios.esAdmin, esSuperAdmin: usuarios.esSuperAdmin, rol: usuarios.rol })
       .from(usuarios)
       .where(eq(usuarios.id, id));
     if (!objetivo) return { success: false, error: "El usuario no existe." };
     if (!activo && objetivo.esSuperAdmin) {
       return { success: false, error: "No se puede desactivar la cuenta del Administrador del Sistema." };
+    }
+    if (!auth.usuario.esSuperAdmin && (objetivo.rol === ROL_ADMINISTRACION || objetivo.esSuperAdmin)) {
+      return { success: false, error: "Solo el Administrador del Sistema puede desactivar a un Administrador." };
     }
     if (!activo && objetivo.esAdmin && (await otrosAdminsActivos(id)) === 0) {
       return { success: false, error: "No se puede desactivar al único administrador." };
@@ -153,8 +161,20 @@ export async function restablecerClave(entrada) {
 
   const claveTemporal = generarClaveTemporal();
   try {
-    const [objetivo] = await db.select({ nombre: usuarios.nombre, alias: usuarios.alias, correo: usuarios.correo }).from(usuarios).where(eq(usuarios.id, id));
+    const [objetivo] = await db
+      .select({
+        nombre: usuarios.nombre,
+        alias: usuarios.alias,
+        correo: usuarios.correo,
+        rol: usuarios.rol,
+        esSuperAdmin: usuarios.esSuperAdmin,
+      })
+      .from(usuarios)
+      .where(eq(usuarios.id, id));
     if (!objetivo) return { success: false, error: "El usuario no existe." };
+    if (!auth.usuario.esSuperAdmin && (objetivo.rol === ROL_ADMINISTRACION || objetivo.esSuperAdmin)) {
+      return { success: false, error: "Solo el Administrador del Sistema puede restablecer la clave de un Administrador." };
+    }
 
     await db
       .update(usuarios)
@@ -175,12 +195,11 @@ export async function restablecerClave(entrada) {
 }
 
 /**
- * Da o quita permiso de administrador/supervisor. Solo un Administrador puede hacerlo.
- * No se lo puede quitar uno mismo ni dejar el sistema sin administradores.
+ * Da o quita permiso de administrador/supervisor. Exclusivo para el Administrador del Sistema (Superadmin).
  * @param {{ id: string, esAdmin: boolean }} entrada
  */
 export async function cambiarAdministrador(entrada) {
-  const auth = await autorizarAccion({ soloAdmin: true });
+  const auth = await autorizarAccion({ soloSuperAdmin: true });
   if (auth.error) return { success: false, error: auth.error };
 
   const id = String(entrada?.id ?? "");

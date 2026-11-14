@@ -100,11 +100,15 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
   const actualId = usuarioActual?.id || usuarioActualId;
   const esSuperAdmin = usuarioActual?.esSuperAdmin === true;
   const puedeAdministrar = usuarioActual?.esAdmin === true || esSuperAdmin;
+  const rolesPermitidos = esSuperAdmin
+    ? [...ROLES_OPERATIVOS, ROL_ADMINISTRACION, ROL_SUPERVISOR_SIHO]
+    : [...ROLES_OPERATIVOS, ROL_SUPERVISOR_SIHO];
+
   const [isPending, startTransition] = useTransition();
   const [lista, setLista] = useState(inspectores);
   const [formAbierto, setFormAbierto] = useState(false);
   const [form, setForm] = useState(FORM_VACIO);
-  const [rol, setRol] = useState(ROLES_FORM.includes(rolInicial) ? rolInicial : ROLES_FORM[0]);
+  const [rol, setRol] = useState(rolesPermitidos.includes(rolInicial) ? rolInicial : rolesPermitidos[0]);
   const [errorForm, setErrorForm] = useState("");
   const [mensaje, setMensaje] = useState({ tipo: "idle", texto: "" });
   const [claveMostrada, setClaveMostrada] = useState(null);
@@ -118,6 +122,7 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
 
   const abrirFormulario = () => {
     setForm(FORM_VACIO);
+    setRol(rolesPermitidos.includes(rolInicial) ? rolInicial : rolesPermitidos[0]);
     setErrorForm("");
     setFormAbierto(true);
   };
@@ -150,6 +155,10 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
   };
 
   const handleRestablecer = (u) => {
+    if (!esSuperAdmin && (u.rol === ROL_ADMINISTRACION || u.esSuperAdmin)) {
+      setMensaje({ tipo: "error", texto: "Solo el Administrador del Sistema puede restablecer la clave de un Administrador." });
+      return;
+    }
     if (!window.confirm(`¿Generar nueva contraseña temporal para ${u.nombre}? La actual dejará de funcionar.`)) {
       return;
     }
@@ -175,6 +184,10 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
   };
 
   const handleEstado = (u) => {
+    if (!esSuperAdmin && (u.rol === ROL_ADMINISTRACION || u.esSuperAdmin)) {
+      setMensaje({ tipo: "error", texto: "Solo el Administrador del Sistema puede desactivar a un Administrador." });
+      return;
+    }
     const accion = u.activo ? "desactivar" : "reactivar";
     if (!window.confirm(`¿Seguro que desea ${accion} a ${u.nombre}?`)) return;
     startTransition(async () => {
@@ -243,7 +256,7 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
             <label className={CLASE_ETIQUETA}>
               Rol *
               <select value={rol} onChange={(e) => setRol(e.target.value)} className={CLASE_CAMPO}>
-                {ROLES_FORM.map((r) => (
+                {rolesPermitidos.map((r) => (
                   <option key={r} value={r}>
                     {r}
                   </option>
@@ -369,7 +382,7 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
                             Cronograma
                           </Link>
                         )}
-                        {u.activo && !yo && (u.alias || u.correo) && (
+                        {u.activo && !yo && (u.alias || u.correo) && (esSuperAdmin || (u.rol !== ROL_ADMINISTRACION && !u.esSuperAdmin)) && (
                           <button
                             type="button"
                             onClick={() => handleRestablecer(u)}
@@ -379,7 +392,7 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
                             {u.tieneAcceso ? "Clave" : "Acceso"}
                           </button>
                         )}
-                        {puedeAdministrar && !yo && (
+                        {puedeAdministrar && !yo && (esSuperAdmin || (u.rol !== ROL_ADMINISTRACION && !u.esSuperAdmin)) && (
                           <button
                             type="button"
                             onClick={() => handleEstado(u)}
@@ -454,7 +467,7 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
                                 Cronograma
                               </Link>
                             )}
-                            {u.activo && !yo && (u.alias || u.correo) && (
+                            {u.activo && !yo && (u.alias || u.correo) && (esSuperAdmin || (u.rol !== ROL_ADMINISTRACION && !u.esSuperAdmin)) && (
                               <button
                                 type="button"
                                 onClick={() => handleRestablecer(u)}
@@ -464,7 +477,7 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
                                 {u.tieneAcceso ? "Restablecer clave" : "Dar acceso"}
                               </button>
                             )}
-                            {puedeAdministrar && !yo && (
+                            {puedeAdministrar && !yo && (esSuperAdmin || (u.rol !== ROL_ADMINISTRACION && !u.esSuperAdmin)) && (
                               <button
                                 type="button"
                                 onClick={() => handleEstado(u)}
