@@ -2,7 +2,7 @@ import Image from "next/image";
 import FormularioLogin from "@/modules/auth/components/FormularioLogin";
 
 export const metadata = {
-  title: "Iniciar sesión · CVCONCA · Sistema de Inspecciones Preventivas",
+  title: "Iniciar sesión · CVCONCA · Sistema de Inspecciones Operativas",
 };
 
 export default function LoginPage() {
@@ -39,21 +39,12 @@ export default function LoginPage() {
             CVCONCA C.A.
           </span>
           <h1 className="mt-1.5 text-xl sm:text-2xl font-black tracking-tight text-white">
-            Inspecciones Preventivas
+            Inspecciones Operativas
           </h1>
-          <p className="mt-1 text-xs font-medium text-zinc-400">
-            Sistema Operativo y Gestión SST / SIHO
-          </p>
         </div>
 
         <div className="mt-7">
           <FormularioLogin />
-        </div>
-
-        <div className="mt-7 border-t border-zinc-800/80 pt-4 text-center">
-          <p className="text-[11px] font-medium text-zinc-500">
-            Acceso autorizado para personal e inspectores de CVCONCA C.A.
-          </p>
         </div>
       </div>
     </div>

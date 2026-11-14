@@ -4,7 +4,7 @@ import { obtenerUsuarioActual } from "@/modules/auth/dal";
 import FormularioCambioClave from "@/modules/auth/components/FormularioCambioClave";
 
 export const metadata = {
-  title: "Cambiar contraseña · CVCONCA · Sistema de Inspecciones Preventivas",
+  title: "Cambiar contraseña · CVCONCA · Sistema de Inspecciones Operativas",
 };
 
 export default async function CambiarClavePage() {

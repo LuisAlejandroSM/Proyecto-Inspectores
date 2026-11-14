@@ -11,7 +11,7 @@ export default function FormularioLogin() {
 
   return (
     <form action={accion} className="space-y-4">
-      <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider">
+      <label className="block text-xs font-bold text-white uppercase tracking-wider">
         Usuario o correo
         <input
           name="identificador"
@@ -24,7 +24,7 @@ export default function FormularioLogin() {
         />
       </label>
 
-      <label className="block text-xs font-bold text-zinc-300 uppercase tracking-wider">
+      <label className="block text-xs font-bold text-white uppercase tracking-wider">
         Contraseña
         <input
           name="clave"
