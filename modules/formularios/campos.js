@@ -195,8 +195,24 @@ export function validarRespuestas(campos, entrada, archivosPorCampo = {}) {
   const errores = {};
   const datos = entrada && typeof entrada === "object" ? entrada : {};
 
+  // Grupos adicionales (ej. Inspector adicional 2, 3, 4): solo se exigen si el usuario empezó a llenar ese grupo
+  const gruposAdicionalesActivos = new Set();
+  for (const campo of campos) {
+    if (campo.grupoAdicional && campo.grupoAdicional >= 2) {
+      const bruto = datos[campo.id];
+      const tieneArchivos = (archivosPorCampo[campo.id] ?? []).length > 0;
+      if ((bruto !== null && bruto !== undefined && String(bruto).trim() !== "") || tieneArchivos) {
+        gruposAdicionalesActivos.add(campo.grupoAdicional);
+      }
+    }
+  }
+
   for (const campo of campos) {
     if (!TIPOS_CAMPO[campo.tipo]?.esPregunta) continue;
+
+    // Si es un inspector adicional no activado, no se le exige
+    const esGrupoInactivo = campo.grupoAdicional && campo.grupoAdicional >= 2 && !gruposAdicionalesActivos.has(campo.grupoAdicional);
+
     const bruto = datos[campo.id];
     let valor = null;
 
@@ -264,7 +280,7 @@ export function validarRespuestas(campos, entrada, archivosPorCampo = {}) {
         break;
     }
 
-    if (!errores[campo.id] && campo.obligatorio && estaVacio(campo, valor)) {
+    if (!errores[campo.id] && campo.obligatorio && !esGrupoInactivo && estaVacio(campo, valor)) {
       errores[campo.id] =
         campo.tipo === "foto" ? "Agregue al menos una foto." : campo.tipo === "firma" ? "Falta la firma." : "Esta pregunta es obligatoria.";
     }
