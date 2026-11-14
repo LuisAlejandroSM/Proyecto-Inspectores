@@ -5,7 +5,7 @@ import NuevaInspeccion from "@/modules/plantillas/components/NuevaInspeccion";
 import { completarConEliminadas, obtenerPlantillas } from "@/modules/plantillas/queries";
 import { obtenerInspectores, obtenerUsuarioPorId } from "@/modules/usuarios/queries";
 import { diaDeFecha, diaDeLaSemana, normalizarFiltros, vistaPorClave, vistaPorRol } from "../constants";
-import { obtenerRegistrosConsolidados, obtenerRegistrosUsuario } from "../queries";
+import { obtenerRegistrosUsuario } from "../queries";
 import FiltrosCronograma from "./FiltrosCronograma";
 import GeneradorCronograma from "./GeneradorCronograma";
 import MatrizMes from "./MatrizMes";
@@ -18,21 +18,31 @@ async function cargarDatos(filtros) {
       filtros.usuarioId ? obtenerUsuarioPorId(filtros.usuarioId) : Promise.resolve(null),
     ]);
 
-    // Un inspector válido manda sobre la pestaña: siempre se muestra en la vista de su rol.
-    const usuario = usuarioSeleccionado && inspectores.some((i) => i.id === usuarioSeleccionado.id)
+    let vista = vistaPorClave(filtros.vista);
+
+    // Si viene un inspector explícito en la URL y es válido:
+    let usuario = usuarioSeleccionado && inspectores.some((i) => i.id === usuarioSeleccionado.id)
       ? usuarioSeleccionado
       : null;
-    const vista = usuario ? vistaPorRol(usuario.rol) : vistaPorClave(filtros.vista);
 
-    const [plantillas, registros] = usuario
-      ? await Promise.all([
-          obtenerPlantillas({ rol: usuario.rol }),
-          obtenerRegistrosUsuario({ usuarioId: usuario.id, mes: filtros.mes, anio: filtros.anio }),
-        ])
-      : await Promise.all([
-          obtenerPlantillas({ rol: vista.rol }),
-          obtenerRegistrosConsolidados({ rol: vista.rol, mes: filtros.mes, anio: filtros.anio }),
-        ]);
+    if (usuario) {
+      // Un inspector explícito alinea la pestaña con su rol correspondiente
+      vista = vistaPorRol(usuario.rol);
+    } else {
+      // Sin inspector en la URL: seleccionar automáticamente al primer inspector activo de este rol
+      const delRol = inspectores.filter((i) => i.rol === vista.rol);
+      usuario = delRol.find((i) => i.activo) || delRol[0] || null;
+    }
+
+    if (!usuario) {
+      // No hay inspectores registrados para este rol operativo
+      return { ok: true, vista, usuario: null, inspectores, plantillas: [], registros: [] };
+    }
+
+    const [plantillas, registros] = await Promise.all([
+      obtenerPlantillas({ rol: usuario.rol }),
+      obtenerRegistrosUsuario({ usuarioId: usuario.id, mes: filtros.mes, anio: filtros.anio }),
+    ]);
 
     // Inspecciones eliminadas que tienen registros este mes: se siguen mostrando (historial).
     const conEliminadas = await completarConEliminadas(plantillas, registros);
@@ -84,12 +94,6 @@ export default async function CronogramaMensual({ searchParams }) {
   }
 
   const { vista, usuario, inspectores, plantillas, registros } = resultado;
-  const inspectoresDelRol = inspectores.filter((i) => i.rol === vista.rol);
-
-  const modo = usuario ? "individual" : "consolidado";
-  const tituloVista = usuario
-    ? `Cronograma individual · ${usuario.nombre} (${usuario.rol})`
-    : `${vista.etiqueta} · consolidado de ${inspectoresDelRol.length} inspector(es)`;
 
   return (
     <div className="space-y-4">
@@ -103,48 +107,51 @@ export default async function CronogramaMensual({ searchParams }) {
 
       <NuevaInspeccion key={`nueva|${vista.rol}`} rol={vista.rol} etiquetaRol={vista.etiqueta} />
 
-      {!usuario && (
-        <p className="rounded border border-dashed border-blue-300 bg-blue-50/50 px-4 py-3 text-sm text-blue-900">
-          {inspectoresDelRol.length === 0 ? (
-            <>
-              No hay personal registrado con el rol <strong>{vista.rol}</strong>. Regístrelo en la opción{" "}
-              <Link href="/inspectores" className="font-semibold underline">
-                Inspectores
-              </Link>{" "}
-              para poder generarle su cronograma.
-            </>
-          ) : (
-            <>
-              Para generar o editar un cronograma, elija un inspector en el selector{" "}
-              <strong>Inspector / Responsable</strong>.
-            </>
-          )}
-        </p>
-      )}
+      {!usuario ? (
+        <section className="rounded-2xl border border-dashed border-zinc-300 bg-white p-8 text-center shadow-xs">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100 text-xl font-bold text-zinc-600">
+            👤
+          </div>
+          <h2 className="mt-3 text-base font-bold text-zinc-950">
+            No hay inspectores registrados en {vista.etiqueta}
+          </h2>
+          <p className="mx-auto mt-1 max-w-md text-xs text-zinc-500">
+            Para generar y consultar cronogramas individuales en este rol, primero debe registrar al personal operativo.
+          </p>
+          <div className="mt-4">
+            <Link
+              href="/inspectores"
+              className="inline-flex rounded-xl bg-[#09090b] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-zinc-800 transition"
+            >
+              Registrar inspector →
+            </Link>
+          </div>
+        </section>
+      ) : (
+        <>
+          <GeneradorCronograma
+            key={`gen|${usuario.id}|${filtros.mes}|${filtros.anio}`}
+            usuarioId={usuario.id}
+            usuarioNombre={usuario.nombre}
+            mes={filtros.mes}
+            anio={filtros.anio}
+            plantillas={plantillas}
+            asignacionActual={asignacionVigente(registros, filtros.mes, filtros.anio)}
+          />
 
-      {usuario && (
-        <GeneradorCronograma
-          key={`gen|${usuario.id}|${filtros.mes}|${filtros.anio}`}
-          usuarioId={usuario.id}
-          usuarioNombre={usuario.nombre}
-          mes={filtros.mes}
-          anio={filtros.anio}
-          plantillas={plantillas}
-          asignacionActual={asignacionVigente(registros, filtros.mes, filtros.anio)}
-        />
+          <MatrizMes
+            // La key reinicia el estado local de la matriz al cambiar de vista, mes, año o inspector.
+            key={`${vista.clave}|${usuario.id}|${filtros.mes}|${filtros.anio}`}
+            modo="individual"
+            usuarioId={usuario.id}
+            mes={filtros.mes}
+            anio={filtros.anio}
+            tituloVista={`Cronograma individual · ${usuario.nombre} (${usuario.rol})`}
+            plantillas={plantillas}
+            registrosIniciales={registros}
+          />
+        </>
       )}
-
-      <MatrizMes
-        // La key reinicia el estado local de la matriz al cambiar de vista, mes, año o inspector.
-        key={`${vista.clave}|${usuario?.id ?? "todos"}|${filtros.mes}|${filtros.anio}`}
-        modo={modo}
-        usuarioId={usuario?.id ?? null}
-        mes={filtros.mes}
-        anio={filtros.anio}
-        tituloVista={tituloVista}
-        plantillas={plantillas}
-        registrosIniciales={registros}
-      />
     </div>
   );
 }

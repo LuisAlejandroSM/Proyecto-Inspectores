@@ -22,7 +22,7 @@ export default function Page({ searchParams }) {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-black tracking-tight text-zinc-950">Cronogramas de Inspección</h1>
-        <p className="mt-1 text-sm text-zinc-500">Planificación mensual de inspecciones operativas por rol (formato CVC-SST-FT-11)</p>
+        <p className="mt-1 text-sm text-zinc-500">Planificación mensual y seguimiento operativo individual por inspector (formato CVC-SST-FT-11)</p>
       </div>
       <Suspense fallback={<CargandoCronograma />}>
         <CronogramaMensual searchParams={searchParams} />

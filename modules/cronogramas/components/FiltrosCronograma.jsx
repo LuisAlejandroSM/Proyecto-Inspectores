@@ -26,6 +26,13 @@ export default function FiltrosCronograma({ vista, mes, anio, usuarioId, inspect
 
   const inspectoresVisibles = inspectores.filter((i) => i.rol === rolVista);
 
+  const primerInspectorDe = (clave) => {
+    const rol = vistaPorClave(clave).rol;
+    const delRol = inspectores.filter((i) => i.rol === rol);
+    const encontrado = delRol.find((i) => i.activo) || delRol[0];
+    return encontrado?.id ?? null;
+  };
+
   const navegar = (cambios) => {
     if (!confirmarDescartarCambios()) return;
     const destino = { vista, mes, anio, usuario: usuarioId, ...cambios };
@@ -35,10 +42,7 @@ export default function FiltrosCronograma({ vista, mes, anio, usuarioId, inspect
   };
 
   const cambiarInspector = (id) => {
-    if (!id) {
-      navegar({ usuario: null });
-      return;
-    }
+    if (!id) return;
     const inspector = inspectores.find((i) => i.id === id);
     // Siempre se abre la pestaña del rol del inspector elegido.
     const vistaDestino = inspector ? vistaPorRol(inspector.rol).clave : vista;
@@ -50,10 +54,11 @@ export default function FiltrosCronograma({ vista, mes, anio, usuarioId, inspect
       <nav aria-label="Tipo de cronograma" className="inline-flex flex-wrap gap-1 rounded-2xl bg-zinc-100 p-1 border border-zinc-200/80 shadow-2xs">
         {VISTAS.map((v) => {
           const activa = v.clave === vista;
+          const usuarioDestino = primerInspectorDe(v.clave);
           return (
             <Link
               key={v.clave}
-              href={construirUrl({ vista: v.clave, mes, anio, usuario: null })}
+              href={construirUrl({ vista: v.clave, mes, anio, usuario: usuarioDestino })}
               onClick={(e) => {
                 if (!confirmarDescartarCambios()) e.preventDefault();
               }}
@@ -106,14 +111,18 @@ export default function FiltrosCronograma({ vista, mes, anio, usuarioId, inspect
           <select
             value={usuarioId ?? ""}
             onChange={(e) => cambiarInspector(e.target.value)}
-            className="rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2 text-sm font-semibold text-zinc-950 shadow-2xs hover:bg-white hover:border-zinc-300 focus:bg-white focus:border-[#f5b800] focus:ring-4 focus:ring-[#f5b800]/20 transition outline-none"
+            disabled={inspectoresVisibles.length === 0}
+            className="rounded-xl border border-zinc-200 bg-zinc-50/50 px-3.5 py-2 text-sm font-semibold text-zinc-950 shadow-2xs hover:bg-white hover:border-zinc-300 focus:bg-white focus:border-[#f5b800] focus:ring-4 focus:ring-[#f5b800]/20 transition outline-none disabled:opacity-50"
           >
-            <option value="">Consolidado — todos ({rolVista})</option>
-            {inspectoresVisibles.map((i) => (
-              <option key={i.id} value={i.id}>
-                {i.nombre}
-              </option>
-            ))}
+            {inspectoresVisibles.length === 0 ? (
+              <option value="">Sin inspectores registrados</option>
+            ) : (
+              inspectoresVisibles.map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.nombre} {i.activo ? "" : "(Inactivo)"}
+                </option>
+              ))
+            )}
           </select>
         </label>
 
