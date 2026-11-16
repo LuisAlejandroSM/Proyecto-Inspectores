@@ -12,14 +12,14 @@ export default function FormularioLogin() {
   return (
     <form action={accion} className="space-y-4">
       <label className="block text-xs font-bold text-white uppercase tracking-wider">
-        Usuario o correo
+        Usuario
         <input
           name="identificador"
           type="text"
           required
           autoComplete="username"
           placeholder="Ej. cperez"
-          defaultValue={estado.identificador || estado.correo || ""}
+          defaultValue={estado.identificador || ""}
           className={CLASE_CAMPO}
         />
       </label>
