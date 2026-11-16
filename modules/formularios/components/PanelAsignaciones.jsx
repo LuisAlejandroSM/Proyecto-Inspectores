@@ -210,11 +210,10 @@ export default function PanelAsignaciones({
   const [nota, setNota] = useState("");
   const [mensaje, setMensaje] = useState({ tipo: "idle", texto: "" });
 
-  // Estados de la lista / tabla de seguimiento
+  // Estados de la lista / seguimiento por inspector
   const [filtroEstado, setFiltroEstado] = useState("todos"); // todos | pendientes | completadas | vencidas | manuales | cronograma
   const [busquedaTabla, setBusquedaTabla] = useState("");
-  const [vistaModo, setVistaModo] = useState("agrupado"); // agrupado | tabla
-  const [gruposExpandidos, setGruposExpandidos] = useState(() => new Set());
+  const [gruposColapsados, setGruposColapsados] = useState(() => new Set());
 
   // Métricas generales
   const completadas = asignaciones.filter((a) => a.estado === "completada").length;
@@ -385,9 +384,9 @@ export default function PanelAsignaciones({
     return Array.from(mapa.values());
   }, [asignacionesFiltradas]);
 
-  // Toggle de expansión por inspector
+  // Toggle de colapso por inspector (por defecto todos expandidos)
   const alternarGrupo = (id) => {
-    setGruposExpandidos((prev) => {
+    setGruposColapsados((prev) => {
       const s = new Set(prev);
       if (s.has(id)) s.delete(id);
       else s.add(id);
@@ -397,9 +396,9 @@ export default function PanelAsignaciones({
 
   const expandirTodosLosGrupos = (expandir) => {
     if (expandir) {
-      setGruposExpandidos(new Set(gruposInspectores.map((g) => g.usuarioId)));
+      setGruposColapsados(new Set());
     } else {
-      setGruposExpandidos(new Set());
+      setGruposColapsados(new Set(gruposInspectores.map((g) => g.usuarioId)));
     }
   };
 
@@ -588,53 +587,23 @@ export default function PanelAsignaciones({
           </button>
         </div>
 
-        {/* Buscador y selector de vista */}
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 sm:w-64">
-            <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <IconoBuscar />
-            </span>
-            <input
-              type="search"
-              value={busquedaTabla}
-              onChange={(e) => setBusquedaTabla(e.target.value)}
-              placeholder="Buscar inspector…"
-              className="w-full rounded-xl border border-zinc-200 bg-white py-1.5 pl-9 pr-3 text-xs font-medium text-zinc-900 shadow-2xs placeholder:text-zinc-400 outline-none focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition"
-            />
-          </div>
-
-          {/* Conmutador de vista */}
-          <div className="inline-flex rounded-xl border border-zinc-200 bg-white p-1 shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setVistaModo("agrupado")}
-              title="Vista agrupada por inspector"
-              className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                vistaModo === "agrupado"
-                  ? "bg-zinc-900 text-white shadow-2xs"
-                  : "text-zinc-500 hover:text-zinc-950"
-              }`}
-            >
-              Agrupado
-            </button>
-            <button
-              type="button"
-              onClick={() => setVistaModo("tabla")}
-              title="Vista en tabla detallada"
-              className={`rounded-lg px-2.5 py-1 text-xs font-bold transition ${
-                vistaModo === "tabla"
-                  ? "bg-zinc-900 text-white shadow-2xs"
-                  : "text-zinc-500 hover:text-zinc-950"
-              }`}
-            >
-              Tabla
-            </button>
-          </div>
+        {/* Buscador de inspector */}
+        <div className="relative w-full sm:w-72">
+          <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <IconoBuscar />
+          </span>
+          <input
+            type="search"
+            value={busquedaTabla}
+            onChange={(e) => setBusquedaTabla(e.target.value)}
+            placeholder="Buscar por inspector, alias o nota…"
+            className="w-full rounded-xl border border-zinc-200 bg-white py-1.5 pl-9 pr-3 text-xs font-medium text-zinc-900 shadow-2xs placeholder:text-zinc-400 outline-none focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition"
+          />
         </div>
       </div>
 
       {/* -----------------------------------------------------------------
-       * SECCIÓN DE SEGUIMIENTO (VISTA AGRUPADA O VISTA TABLA)
+       * SECCIÓN DE SEGUIMIENTO AGRUPADO POR INSPECTOR
        * ----------------------------------------------------------------- */}
       <section className="rounded-2xl border border-zinc-200 bg-white shadow-xs overflow-hidden">
         {asignaciones.length === 0 ? (
@@ -677,9 +646,9 @@ export default function PanelAsignaciones({
               Limpiar filtros
             </button>
           </div>
-        ) : vistaModo === "agrupado" ? (
+        ) : (
           /* -------------------------------------------------------------
-           * VISTA 1: AGRUPADA POR INSPECTOR (Acordeones limpios)
+           * SEGUIMIENTO AGRUPADO POR INSPECTOR (Acordeones limpios)
            * ------------------------------------------------------------- */
           <div>
             <div className="flex items-center justify-between border-b border-zinc-100 bg-zinc-50/70 px-5 py-3 text-xs">
@@ -707,7 +676,7 @@ export default function PanelAsignaciones({
 
             <div className="divide-y divide-zinc-100">
               {gruposInspectores.map((grupo) => {
-                const abierto = gruposExpandidos.has(grupo.usuarioId);
+                const abierto = !gruposColapsados.has(grupo.usuarioId);
                 const porcentaje = grupo.asignaciones.length
                   ? Math.round((grupo.totalCompletadas / grupo.asignaciones.length) * 100)
                   : 0;
@@ -866,110 +835,6 @@ export default function PanelAsignaciones({
                 );
               })}
             </div>
-          </div>
-        ) : (
-          /* -------------------------------------------------------------
-           * VISTA 2: TABLA COMPLETA DETALLADA (Moderna, densa y escaneable)
-           * ------------------------------------------------------------- */
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="border-b border-zinc-200 bg-zinc-50/80 font-bold uppercase tracking-wider text-[10px] text-zinc-600">
-                <tr>
-                  <th className="py-3 px-4">Inspector</th>
-                  <th className="py-3 px-4">Origen / Tipo</th>
-                  <th className="py-3 px-4">Progreso</th>
-                  <th className="py-3 px-4">Fecha Límite</th>
-                  <th className="py-3 px-4">Asignado</th>
-                  <th className="py-3 px-4">Estado</th>
-                  <th className="py-3 px-4 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100 text-zinc-900">
-                {asignacionesFiltradas.map((a) => (
-                  <tr key={a.id} className="hover:bg-zinc-50/70 transition">
-                    <td className="py-3 px-4">
-                      <div className="flex items-center gap-3">
-                        <AvatarInspector nombre={a.inspector} activo={a.estado === "completada"} size="sm" />
-                        <div className="min-w-0">
-                          <p className="font-bold text-zinc-950 truncate text-sm">{a.inspector}</p>
-                          <p className="font-mono text-[11px] text-zinc-500">
-                            {a.alias ? `@${a.alias}` : a.correo || a.cargo || a.rol}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <div className="flex flex-col gap-0.5">
-                        <BadgeOrigen origen={a.origen} />
-                        {a.nota && (
-                          <span className="max-w-xs truncate text-[11px] italic text-zinc-500" title={a.nota}>
-                            &quot;{a.nota}&quot;
-                          </span>
-                        )}
-                      </div>
-                    </td>
-
-                    <td className="py-3 px-4">
-                      <BarraProgresoInspector
-                        completada={a.estado === "completada"}
-                        numPreguntas={numPreguntas}
-                      />
-                    </td>
-
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      {a.limiteTexto ? (
-                        <div className="flex flex-col">
-                          <span
-                            className={`font-semibold text-xs ${
-                              a.vencida ? "text-rose-600 font-bold" : "text-zinc-800"
-                            }`}
-                          >
-                            {a.limiteTexto}
-                          </span>
-                          {a.vencida && <span className="text-[10px] text-rose-600 font-bold">⚠️ Vencida</span>}
-                        </div>
-                      ) : (
-                        <span className="text-zinc-400">Sin límite</span>
-                      )}
-                    </td>
-
-                    <td className="py-3 px-4 text-zinc-500 font-medium whitespace-nowrap">
-                      {a.asignadoTexto}
-                    </td>
-
-                    <td className="py-3 px-4 whitespace-nowrap">
-                      <BadgeEstado estado={a.estado} vencida={a.vencida} />
-                    </td>
-
-                    <td className="py-3 px-4 text-right whitespace-nowrap">
-                      <div className="inline-flex items-center gap-1.5 justify-end">
-                        {a.estado === "completada" ? (
-                          <Link
-                            href={`/formularios/respuesta/${a.id}`}
-                            className="rounded-lg bg-[#09090b] px-3 py-1.5 text-xs font-bold text-white shadow-2xs hover:bg-zinc-800 transition"
-                          >
-                            Ver respuesta →
-                          </Link>
-                        ) : a.origen !== "cronograma" ? (
-                          <button
-                            type="button"
-                            onClick={() => ejecutarQuitar(a)}
-                            disabled={isPending}
-                            title="Eliminar asignación manual"
-                            className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-400 hover:bg-rose-50 hover:text-rose-600 transition disabled:opacity-50"
-                          >
-                            <IconoBorrar />
-                          </button>
-                        ) : (
-                          <span className="text-xs text-zinc-400 italic">Cronograma</span>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </div>
         )}
       </section>
