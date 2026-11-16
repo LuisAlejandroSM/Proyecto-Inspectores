@@ -345,7 +345,7 @@ function FormularioInterno({ asignacionId, formulario, fotosIniciales }) {
       const resp = valores[c.id];
       return resp && typeof resp === "object" && Object.keys(resp).length >= (c.filas?.length ?? 0);
     }
-    return !estaVacio(valores[c.id]);
+    return !estaVacio(c, valores[c.id]);
   }).length;
   const porcentaje = totalPreguntas > 0 ? Math.round((preguntasRespondidas / totalPreguntas) * 100) : 0;
 

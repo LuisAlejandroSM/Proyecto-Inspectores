@@ -80,6 +80,7 @@ export function campoVacio(tipo) {
 }
 
 export function anchoEfectivo(campo) {
+  if (!campo || !campo.tipo) return "completo";
   return SIEMPRE_COMPLETO.includes(campo.tipo) ? "completo" : ANCHOS[campo.ancho] ? campo.ancho : "completo";
 }
 
@@ -164,11 +165,13 @@ export function normalizarCampos(entrada) {
 
 /** Máximo de imágenes que admite un campo de foto o firma. */
 export function maxArchivos(campo) {
-  return campo.tipo === "firma" ? 1 : campo.maxFotos;
+  if (!campo) return 1;
+  return campo.tipo === "firma" ? 1 : (campo.maxFotos ?? 1);
 }
 
 /** Indica si un valor de respuesta está vacío. */
 export function estaVacio(campo, valor) {
+  if (!campo || !campo.tipo) return valor === null || valor === undefined || String(valor).trim() === "";
   if (TIPOS_CON_ARCHIVO.includes(campo.tipo) || campo.tipo === "opcion_multiple") {
     return !Array.isArray(valor) || valor.length === 0;
   }

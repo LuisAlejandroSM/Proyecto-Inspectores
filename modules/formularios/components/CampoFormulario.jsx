@@ -23,6 +23,8 @@ export default function CampoFormulario({
   onEliminarFoto,
   plano = false,
 }) {
+  if (!campo || !campo.tipo) return null;
+
   if (campo.tipo === "seccion") {
     const contenido = (
       <>
