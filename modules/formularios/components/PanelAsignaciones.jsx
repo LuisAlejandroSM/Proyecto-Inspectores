@@ -124,13 +124,25 @@ function AvatarInspector({ nombre, activo = false, size = "md" }) {
   );
 }
 
-function BadgeOrigen({ origen }) {
+function BadgeOrigen({ origen, semanaMes, programadoTexto }) {
   if (origen === "cronograma") {
     return (
-      <span className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] font-semibold text-zinc-700 shadow-2xs">
-        <IconoCalendario />
-        Cronograma
-      </span>
+      <div className="inline-flex flex-wrap items-center gap-1.5">
+        <span className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] font-semibold text-zinc-700 shadow-2xs">
+          <IconoCalendario />
+          Cronograma
+        </span>
+        {semanaMes && (
+          <span className="rounded-md border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-900 shadow-2xs">
+            {semanaMes}
+          </span>
+        )}
+        {programadoTexto && (
+          <span className="text-[11px] text-zinc-500 font-medium">
+            ({programadoTexto})
+          </span>
+        )}
+      </div>
     );
   }
   return (
@@ -722,7 +734,11 @@ export default function PanelAsignaciones({
                                 <tr key={a.id} className="hover:bg-zinc-50/70 transition">
                                   <td className="py-2.5 px-3">
                                     <div className="flex flex-col gap-0.5">
-                                      <BadgeOrigen origen={a.origen} />
+                                      <BadgeOrigen
+                                        origen={a.origen}
+                                        semanaMes={a.semanaMes}
+                                        programadoTexto={a.programadoTexto}
+                                      />
                                       {a.nota && (
                                         <span className="max-w-xs truncate text-[11px] italic text-zinc-500" title={a.nota}>
                                           &quot;{a.nota}&quot;

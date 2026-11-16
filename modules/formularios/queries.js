@@ -58,11 +58,14 @@ export async function listarAsignacionesDeFormulario(formularioId) {
       nota: asignacionesFormulario.nota,
       estado: asignacionesFormulario.estado,
       origen: asignacionesFormulario.origen,
+      semanaMes: registrosCronograma.semanaMes,
+      fechaCronograma: registrosCronograma.fecha,
       creadoEn: asignacionesFormulario.creadoEn,
       completadaEn: asignacionesFormulario.completadaEn,
     })
     .from(asignacionesFormulario)
     .innerJoin(usuarios, eq(usuarios.id, asignacionesFormulario.usuarioId))
+    .leftJoin(registrosCronograma, eq(registrosCronograma.id, asignacionesFormulario.registroId))
     .where(eq(asignacionesFormulario.formularioId, formularioId))
     .orderBy(asc(asignacionesFormulario.estado), desc(asignacionesFormulario.creadoEn));
 }
