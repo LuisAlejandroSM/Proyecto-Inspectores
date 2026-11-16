@@ -85,6 +85,36 @@ export function semanaDelMes(dia) {
   return "Semana 5";
 }
 
+/**
+ * Determina si la semana planificada de un día del cronograma ya concluyó respecto a la fecha actual.
+ * Cada mes se organiza en 5 semanas estándar (Días 1-7, 8-14, 15-21, 22-28, 29-fin).
+ * Si la semana ya pasó y no se ejecutó, no se debe permitir marcar "1" retroactivamente.
+ */
+export function esSemanaVencida(dia, mes, anio, fechaReferencia = new Date()) {
+  const anioActual = fechaReferencia.getFullYear();
+  const mesActual = fechaReferencia.getMonth() + 1;
+  const diaActual = fechaReferencia.getDate();
+
+  const numMes = typeof mes === "number" ? mes : numeroMes(mes);
+  const anioNum = Number(anio);
+
+  if (anioNum < anioActual) return true;
+  if (anioNum > anioActual) return false;
+
+  if (numMes < mesActual) return true;
+  if (numMes > mesActual) return false;
+
+  // Mismo mes y mismo año: verificar si la semana del día ya concluyó
+  let finDeSemanaDia = 7;
+  if (dia <= 7) finDeSemanaDia = 7;
+  else if (dia <= 14) finDeSemanaDia = 14;
+  else if (dia <= 21) finDeSemanaDia = 21;
+  else if (dia <= 28) finDeSemanaDia = 28;
+  else finDeSemanaDia = diasEnMes(mes, anioNum);
+
+  return diaActual > finDeSemanaDia;
+}
+
 // Efectividad igual que el Excel: IF(P > 0, E / P, 1).
 export function efectividad(totalP, totalE) {
   return totalP > 0 ? totalE / totalP : 1;

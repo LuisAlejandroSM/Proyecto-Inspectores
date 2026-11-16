@@ -10,7 +10,7 @@ import { autorizarAccion } from "@/modules/auth/dal";
 import { obtenerUsuarioPorId } from "@/modules/usuarios/queries";
 import { sincronizarSinInterrumpir } from "@/modules/formularios/sincronizacion";
 import { notificarInspeccionNoEjecutada, resolverNotificacionInspeccion } from "@/modules/notificaciones/actions";
-import { MESES, construirFecha, diasEnMes, semanaDelMes } from "./constants";
+import { MESES, construirFecha, diasEnMes, esSemanaVencida, semanaDelMes } from "./constants";
 import { planificarDias } from "./planificacion";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -301,6 +301,24 @@ export async function registrarEjecucion(entrada) {
   const noEjecutado = entrada?.noEjecutado === true ? 1 : 0;
   const ejecutado = noEjecutado ? 0 : enteroNoNegativo(entrada?.ejecutado);
   const observacion = String(entrada?.observacion ?? "").trim().slice(0, MAX_OBSERVACION) || null;
+
+  // Si la semana ya concluyó y el usuario no es admin:
+  // Se prohíbe falsificar ejecución (1). Solo se permite registrar No ejecutada (N) con motivo obligatorio.
+  const semanaVencida = esSemanaVencida(dia, mes, anioNum);
+  if (!usuario.esAdmin && semanaVencida) {
+    if (ejecutado > 0) {
+      return {
+        success: false,
+        error: "El plazo de esa semana ya concluyó. No se puede marcar como realizada retroactivamente.",
+      };
+    }
+    if (!observacion || observacion.length < 5) {
+      return {
+        success: false,
+        error: "Debe indicar el motivo por el cual no se ejecutó la inspección (mínimo 5 caracteres).",
+      };
+    }
+  }
 
   try {
     const actualizadas = await db

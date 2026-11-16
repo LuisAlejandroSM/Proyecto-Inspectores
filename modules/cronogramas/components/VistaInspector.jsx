@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
-import { ANIOS, DIAS_SEMANA, MESES, diaDeLaSemana } from "../constants";
+import { ANIOS, DIAS_SEMANA, MESES, diaDeLaSemana, esSemanaVencida } from "../constants";
 import FormularioEjecucion from "./FormularioEjecucion";
 import MatrizMes from "./MatrizMes";
 
@@ -67,15 +67,34 @@ function PanelRegistro({ item, mes, anio, onCerrar, onGuardado }) {
         {item.formulario && (
           <div className="mb-4 flex items-center justify-between gap-3 rounded-2xl border border-amber-200 bg-amber-500/10 p-4">
             <div className="min-w-0 text-sm">
-              <p className="font-bold text-zinc-950">{item.formulario.estado === "completada" ? "Formulario enviado ✓" : "Esta inspección tiene formulario digital"}</p>
+              <p className="font-bold text-zinc-950">
+                {item.formulario.estado === "completada"
+                  ? "Formulario enviado ✓"
+                  : esSemanaVencida(item.dia, mes, anio)
+                  ? "Formulario digital fuera de plazo"
+                  : "Esta inspección tiene formulario digital"}
+              </p>
               <p className="truncate text-xs text-zinc-600 mt-0.5">{item.formulario.titulo}</p>
             </div>
-            <Link
-              href={`/mis-formularios/${item.formulario.asignacionId}`}
-              className="shrink-0 rounded-xl bg-[#f5b800] hover:bg-[#e0a800] px-3.5 py-2 text-xs font-bold text-[#09090b] shadow-xs active:scale-[0.98] transition"
-            >
-              {item.formulario.estado === "completada" ? "Ver respuesta" : "Llenar formulario"}
-            </Link>
+            {item.formulario.estado === "completada" ? (
+              <Link
+                href={`/mis-formularios/${item.formulario.asignacionId}`}
+                className="shrink-0 rounded-xl bg-[#09090b] hover:bg-zinc-800 px-3.5 py-2 text-xs font-bold text-white shadow-xs transition"
+              >
+                Ver respuesta
+              </Link>
+            ) : esSemanaVencida(item.dia, mes, anio) ? (
+              <span className="shrink-0 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-bold text-rose-700 shadow-2xs">
+                Cerrado
+              </span>
+            ) : (
+              <Link
+                href={`/mis-formularios/${item.formulario.asignacionId}`}
+                className="shrink-0 rounded-xl bg-[#f5b800] hover:bg-[#e0a800] px-3.5 py-2 text-xs font-bold text-[#09090b] shadow-xs active:scale-[0.98] transition"
+              >
+                Llenar formulario
+              </Link>
+            )}
           </div>
         )}
         <FormularioEjecucion

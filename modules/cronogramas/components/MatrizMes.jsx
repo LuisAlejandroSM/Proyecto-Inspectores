@@ -9,6 +9,7 @@ import {
   diaDeLaSemana,
   diasEnMes,
   efectividad,
+  esSemanaVencida,
   semanaDelMes,
 } from "../constants";
 import BotonEliminarInspeccion from "@/modules/plantillas/components/BotonEliminarInspeccion";
@@ -538,10 +539,18 @@ export default function MatrizMes({
                                       ? "border-rose-300 bg-rose-50 text-rose-700"
                                       : texto
                                         ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                                        : "border-amber-400 bg-amber-100 text-amber-900 ring-2 ring-amber-400/30"
+                                        : esSemanaVencida(c.dia, mes, anio)
+                                          ? "border-rose-300 bg-rose-50 text-rose-800 font-extrabold"
+                                          : "border-amber-400 bg-amber-100 text-amber-900 ring-2 ring-amber-400/30"
                                   }`}
                                 >
-                                  {texto === "N" ? "No ejec (N)" : texto ? `Ejecutada (${texto})` : "Registrar ?"}
+                                  {texto === "N"
+                                    ? "No ejec (N)"
+                                    : texto
+                                      ? `Ejecutada (${texto})`
+                                      : esSemanaVencida(c.dia, mes, anio)
+                                        ? "Vencida (Reportar N)"
+                                        : "Registrar ?"}
                                 </button>
                               ) : (
                                 <span
@@ -812,8 +821,15 @@ export default function MatrizMes({
                                   ? "border-rose-300 bg-rose-50 text-rose-700"
                                   : texto
                                     ? "border-emerald-300 bg-emerald-50 text-emerald-800"
-                                    : "border-amber-400 bg-amber-100 text-amber-800"
+                                    : esSemanaVencida(c.dia, mes, anio)
+                                      ? "border-rose-300 bg-rose-50 text-rose-800 font-extrabold"
+                                      : "border-amber-400 bg-amber-100 text-amber-800"
                               }`}
+                              title={
+                                !texto && esSemanaVencida(c.dia, mes, anio)
+                                  ? "Semana vencida: haga clic para justificar por qué no se ejecutó (N)"
+                                  : undefined
+                              }
                             >
                               {texto || "?"}
                             </button>
