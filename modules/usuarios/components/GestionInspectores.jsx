@@ -13,7 +13,7 @@ const VISTA_POR_ROL = {
 };
 const ROLES_FORM = [...ROLES_OPERATIVOS, ROL_ADMINISTRACION, ROL_SUPERVISOR_SIHO];
 
-const FORM_VACIO = { nombre: "", usuario: "", cargo: "" };
+const FORM_VACIO = { nombre: "", usuario: "" };
 
 const CLASE_CAMPO =
   "mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm font-medium text-zinc-900 shadow-2xs focus:border-[#f5b800] focus:ring-4 focus:ring-[#f5b800]/20 transition outline-none";
@@ -706,7 +706,6 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
       (i.nombre && i.nombre.toLocaleLowerCase("es").includes(q)) ||
       (i.alias && i.alias.toLocaleLowerCase("es").includes(q)) ||
       (i.correo && i.correo.toLocaleLowerCase("es").includes(q)) ||
-      (i.cargo && i.cargo.toLocaleLowerCase("es").includes(q)) ||
       (i.rol && i.rol.toLocaleLowerCase("es").includes(q))
     );
   });
@@ -743,7 +742,7 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
             </p>
           </div>
 
-          <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 p-5 sm:grid-cols-3">
             <label className={CLASE_ETIQUETA}>
               Nombre y apellido *
               <input
@@ -777,17 +776,6 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
                 placeholder="Ej. cperez"
                 value={form.usuario}
                 onChange={(e) => setForm({ ...form, usuario: e.target.value })}
-                className={CLASE_CAMPO}
-              />
-            </label>
-
-            <label className={CLASE_ETIQUETA}>
-              Cargo
-              <input
-                maxLength={100}
-                placeholder="Ej. Supervisor SIHO"
-                value={form.cargo}
-                onChange={(e) => setForm({ ...form, cargo: e.target.value })}
                 className={CLASE_CAMPO}
               />
             </label>
@@ -830,7 +818,7 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
               type="search"
               value={busquedaInspector}
               onChange={(e) => setBusquedaInspector(e.target.value)}
-              placeholder="Buscar inspector por nombre, usuario o cargo..."
+              placeholder="Buscar inspector por nombre, usuario o rol..."
               className="w-full rounded-xl border border-zinc-200 bg-white py-1.5 pl-9 pr-3 text-xs font-medium text-zinc-900 shadow-2xs placeholder:text-zinc-400 outline-none focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition"
             />
           </div>
@@ -890,7 +878,6 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
                         {u.activo && !u.tieneAcceso && <Etiqueta tono="ambar">Sin contraseña</Etiqueta>}
                         {u.activo && u.tieneAcceso && u.debeCambiarClave && <Etiqueta tono="ambar">Clave temporal</Etiqueta>}
                         {u.bloqueado && <Etiqueta tono="rojo">Bloqueado</Etiqueta>}
-                        {u.cargo && <span className="text-[11px] text-zinc-500 font-medium">· Cargo: {u.cargo}</span>}
                       </div>
 
                       {/* Botón desplegable de inspecciones asignadas */}
@@ -977,7 +964,6 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
                     <th className="px-4 py-3.5">Inspector</th>
                     <th className="px-3 py-3.5">Rol</th>
                     <th className="px-3 py-3.5">Inspecciones</th>
-                    <th className="px-3 py-3.5">Cargo</th>
                     <th className="px-3 py-3.5">Usuario</th>
                     <th className="px-3 py-3.5">Último acceso</th>
                     <th className="px-5 py-3.5 text-right">Acciones</th>
@@ -1053,7 +1039,6 @@ export default function GestionInspectores({ inspectores, rolInicial, usuarioAct
                             </div>
                           </td>
 
-                          <td className="px-3 py-3.5 text-xs text-zinc-600 font-medium">{u.cargo || "—"}</td>
                           <td className="px-3 py-3.5 font-mono text-xs text-zinc-600">{u.alias || u.correo || "—"}</td>
                           <td className="px-3 py-3.5 text-xs text-zinc-400">{u.ultimoAcceso ?? "Nunca"}</td>
 

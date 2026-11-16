@@ -257,7 +257,7 @@ export default function PanelAsignaciones({
       (i) =>
         i.nombre.toLocaleLowerCase("es").includes(q) ||
         (i.alias && i.alias.toLocaleLowerCase("es").includes(q)) ||
-        (i.cargo && i.cargo.toLocaleLowerCase("es").includes(q))
+        (i.rol && i.rol.toLocaleLowerCase("es").includes(q))
     );
   }, [inspectores, busquedaInspector]);
 
@@ -330,9 +330,8 @@ export default function PanelAsignaciones({
       if (q) {
         const coincideNombre = a.inspector.toLocaleLowerCase("es").includes(q);
         const coincideAlias = a.alias && a.alias.toLocaleLowerCase("es").includes(q);
-        const coincideCargo = a.cargo && a.cargo.toLocaleLowerCase("es").includes(q);
         const coincideNota = a.nota && a.nota.toLocaleLowerCase("es").includes(q);
-        if (!coincideNombre && !coincideAlias && !coincideCargo && !coincideNota) return false;
+        if (!coincideNombre && !coincideAlias && !coincideNota) return false;
       }
 
       // Filtro de estado / origen
@@ -354,7 +353,6 @@ export default function PanelAsignaciones({
           usuarioId: a.usuarioId,
           inspector: a.inspector,
           alias: a.alias,
-          cargo: a.cargo,
           rol: a.rol,
           asignaciones: [],
           totalCompletadas: 0,
@@ -675,7 +673,7 @@ export default function PanelAsignaciones({
                             )}
                           </div>
                           <p className="text-xs text-zinc-500">
-                            {grupo.cargo || grupo.rol} ·{" "}
+                            {grupo.rol} ·{" "}
                             <span className="font-medium text-zinc-700">
                               {grupo.asignaciones.length} asignación{grupo.asignaciones.length !== 1 ? "es" : ""}
                             </span>
@@ -872,7 +870,7 @@ export default function PanelAsignaciones({
                       type="search"
                       value={busquedaInspector}
                       onChange={(e) => setBusquedaInspector(e.target.value)}
-                      placeholder="Buscar por nombre, usuario o cargo…"
+                      placeholder="Buscar por nombre, usuario o rol…"
                       className="w-full rounded-xl border border-zinc-200 bg-zinc-50/50 py-2 pl-9 pr-3 text-xs font-medium text-zinc-900 shadow-2xs outline-none focus:bg-white focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition"
                     />
                   </div>
@@ -904,7 +902,7 @@ export default function PanelAsignaciones({
                             <div className="min-w-0 flex-1">
                               <p className="truncate text-xs font-bold text-zinc-950">{i.nombre}</p>
                               <p className="truncate text-[11px] font-mono text-zinc-500">
-                                {i.alias ? `@${i.alias}` : i.cargo || i.rol}
+                                {i.alias ? `@${i.alias}` : i.rol}
                               </p>
                             </div>
                             {tienePendiente && (

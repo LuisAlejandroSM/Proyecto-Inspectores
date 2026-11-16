@@ -16,7 +16,7 @@ import {
   restablecerClave,
 } from "../actions";
 
-const FORM_VACIO = { nombre: "", usuario: "", cargo: "" };
+const FORM_VACIO = { nombre: "", usuario: "" };
 
 const CLASE_CAMPO =
   "mt-1.5 w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2 text-sm font-medium text-slate-800 shadow-2xs focus:bg-white focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition outline-none";
@@ -275,8 +275,7 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
       const coincideUsuario = (u.alias || u.correo || "")
         .toLowerCase()
         .includes(textoBusqueda);
-      const coincideCargo = (u.cargo || "").toLowerCase().includes(textoBusqueda);
-      if (!coincideNombre && !coincideUsuario && !coincideCargo) return false;
+      if (!coincideNombre && !coincideUsuario) return false;
     }
 
     if (filtro === "supervisores") return u.esAdmin || u.esSuperAdmin;
@@ -372,7 +371,7 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
             </p>
           </div>
 
-          <div className="grid gap-4 p-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 p-5 sm:grid-cols-3">
             <label className={CLASE_ETIQUETA}>
               Nombre y apellido *
               <input
@@ -419,17 +418,6 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
                 placeholder="Ej. cperez"
                 value={form.usuario}
                 onChange={(e) => setForm({ ...form, usuario: e.target.value })}
-                className={CLASE_CAMPO}
-              />
-            </label>
-
-            <label className={CLASE_ETIQUETA}>
-              Cargo formal
-              <input
-                maxLength={100}
-                placeholder="Ej. Inspector SST"
-                value={form.cargo}
-                onChange={(e) => setForm({ ...form, cargo: e.target.value })}
                 className={CLASE_CAMPO}
               />
             </label>
@@ -508,7 +496,6 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
                 <th className="px-5 py-3">Usuario</th>
                 <th className="px-4 py-3">Nivel / Rol</th>
                 <th className="px-4 py-3">Alias / Acceso</th>
-                <th className="px-4 py-3">Cargo</th>
                 <th className="px-4 py-3">Último acceso</th>
                 <th className="px-5 py-3 text-right">Acciones</th>
               </tr>
@@ -568,10 +555,6 @@ export default function GestionUsuariosSistema({ usuarios, usuarioActual }) {
 
                     <td className="px-4 py-3 font-mono text-xs text-slate-600">
                       {u.alias || u.correo || "—"}
-                    </td>
-
-                    <td className="px-4 py-3 text-xs text-slate-600">
-                      {u.cargo || "—"}
                     </td>
 
                     <td className="px-4 py-3 text-xs text-slate-500">
