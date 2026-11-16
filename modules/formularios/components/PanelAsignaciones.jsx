@@ -141,20 +141,12 @@ function BadgeOrigen({ origen }) {
   );
 }
 
-function BadgeEstado({ estado, vencida }) {
+function BadgeEstado({ estado }) {
   if (estado === "completada") {
     return (
       <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 shadow-2xs">
         <IconoCheck />
         Completada
-      </span>
-    );
-  }
-  if (vencida) {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-md border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-[11px] font-bold text-rose-700 shadow-2xs">
-        <span className="h-1.5 w-1.5 rounded-full bg-rose-600 animate-pulse" />
-        Vencida
       </span>
     );
   }
@@ -206,18 +198,16 @@ export default function PanelAsignaciones({
   const [drawerAbierto, setDrawerAbierto] = useState(false);
   const [seleccion, setSeleccion] = useState(() => new Set());
   const [busquedaInspector, setBusquedaInspector] = useState("");
-  const [fechaLimite, setFechaLimite] = useState("");
   const [nota, setNota] = useState("");
   const [mensaje, setMensaje] = useState({ tipo: "idle", texto: "" });
 
   // Estados de la lista / seguimiento por inspector
-  const [filtroEstado, setFiltroEstado] = useState("todos"); // todos | pendientes | completadas | vencidas | manuales | cronograma
+  const [filtroEstado, setFiltroEstado] = useState("todos"); // todos | pendientes | completadas | manuales | cronograma
   const [busquedaTabla, setBusquedaTabla] = useState("");
   const [gruposColapsados, setGruposColapsados] = useState(() => new Set());
 
   // Métricas generales
   const completadas = asignaciones.filter((a) => a.estado === "completada").length;
-  const vencidas = asignaciones.filter((a) => a.vencida).length;
   const pendientes = asignaciones.length - completadas;
   const manuales = asignaciones.filter((a) => a.origen !== "cronograma").length;
   const cronogramas = asignaciones.filter((a) => a.origen === "cronograma").length;
@@ -233,7 +223,6 @@ export default function PanelAsignaciones({
   const cerrarDrawer = useCallback(() => {
     setDrawerAbierto(false);
     setSeleccion(new Set());
-    setFechaLimite("");
     setNota("");
     setBusquedaInspector("");
   }, []);
@@ -280,15 +269,7 @@ export default function PanelAsignaciones({
     });
   };
 
-  // Atajos rápidos para fecha límite en el drawer
-  const aplicarAtajoFecha = (dias) => {
-    const f = new Date();
-    f.setDate(f.getDate() + dias);
-    const dos = (n) => String(n).padStart(2, "0");
-    setFechaLimite(`${f.getFullYear()}-${dos(f.getMonth() + 1)}-${dos(f.getDate())}`);
-  };
-
-  // Ejecución de asignación
+  // Ejecución de asignación manual
   const ejecutarAsignar = () => {
     if (seleccion.size === 0) return;
     startTransition(async () => {
@@ -296,7 +277,6 @@ export default function PanelAsignaciones({
         const res = await asignarFormulario({
           formularioId,
           usuarioIds: [...seleccion],
-          fechaLimite: fechaLimite || null,
           nota,
         });
         if (res?.success) {
@@ -346,7 +326,6 @@ export default function PanelAsignaciones({
       // Filtro de estado / origen
       if (filtroEstado === "pendientes") return a.estado === "pendiente";
       if (filtroEstado === "completadas") return a.estado === "completada";
-      if (filtroEstado === "vencidas") return a.vencida;
       if (filtroEstado === "manuales") return a.origen !== "cronograma";
       if (filtroEstado === "cronograma") return a.origen === "cronograma";
       return true;
@@ -368,16 +347,12 @@ export default function PanelAsignaciones({
           asignaciones: [],
           totalCompletadas: 0,
           totalPendientes: 0,
-          totalVencidas: 0,
         });
       }
       const g = mapa.get(key);
       g.asignaciones.push(a);
       if (a.estado === "completada") g.totalCompletadas += 1;
-      else {
-        g.totalPendientes += 1;
-        if (a.vencida) g.totalVencidas += 1;
-      }
+      else g.totalPendientes += 1;
     }
 
     // Inicializar expandidos por defecto si la lista es corta
@@ -496,22 +471,22 @@ export default function PanelAsignaciones({
             </div>
           </div>
 
-          <div className={`rounded-xl border p-3 sm:p-3.5 ${vencidas > 0 ? "border-rose-200 bg-rose-50/50" : "border-zinc-200/80 bg-zinc-50/50"}`}>
-            <span className={`text-[10px] font-bold uppercase tracking-wider ${vencidas > 0 ? "text-rose-700" : "text-zinc-400"}`}>
-              Vencidas
+          <div className="rounded-xl border border-zinc-200/80 bg-zinc-50/50 p-3 sm:p-3.5">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+              Inspectores
             </span>
             <div className="mt-1 flex items-baseline gap-2">
-              <span className={`text-2xl font-black tabular-nums ${vencidas > 0 ? "text-rose-700" : "text-zinc-950"}`}>
-                {vencidas}
+              <span className="text-2xl font-black tabular-nums text-zinc-950">
+                {gruposInspectores.length}
               </span>
-              <span className="text-xs text-zinc-500 font-medium">{vencidas === 1 ? "vencida" : "vencidas"}</span>
+              <span className="text-xs text-zinc-500 font-medium">asignados</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* -----------------------------------------------------------------
-       * BARRA DE HERRAMIENTAS: BÚSQUEDA, FILTROS RÁPIDOS Y CONMUTADOR DE VISTA
+       * BARRA DE HERRAMIENTAS: BÚSQUEDA Y FILTROS RÁPIDOS
        * ----------------------------------------------------------------- */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         {/* Pills de Filtrado rápido */}
@@ -549,19 +524,6 @@ export default function PanelAsignaciones({
           >
             Completadas ({completadas})
           </button>
-          {vencidas > 0 && (
-            <button
-              type="button"
-              onClick={() => setFiltroEstado("vencidas")}
-              className={`rounded-xl px-3 py-1.5 text-xs font-bold transition shadow-2xs ${
-                filtroEstado === "vencidas"
-                  ? "bg-rose-700 text-white"
-                  : "border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
-              }`}
-            >
-              Vencidas ({vencidas})
-            </button>
-          )}
           <span className="hidden sm:inline-block h-4 w-px bg-zinc-200 mx-1" />
           <button
             type="button"
@@ -722,11 +684,6 @@ export default function PanelAsignaciones({
                               {grupo.totalPendientes} pendiente{grupo.totalPendientes !== 1 ? "s" : ""}
                             </span>
                           )}
-                          {grupo.totalVencidas > 0 && (
-                            <span className="rounded-md border border-rose-200 bg-rose-50 px-2 py-0.5 font-bold text-rose-700">
-                              {grupo.totalVencidas} vencida{grupo.totalVencidas !== 1 ? "s" : ""}
-                            </span>
-                          )}
                         </div>
 
                         {/* Barra de progreso rápida */}
@@ -756,7 +713,6 @@ export default function PanelAsignaciones({
                                 <th className="py-2.5 px-3">Origen</th>
                                 <th className="py-2.5 px-3">Progreso</th>
                                 <th className="py-2.5 px-3">Fecha Asignada</th>
-                                <th className="py-2.5 px-3">Fecha Límite</th>
                                 <th className="py-2.5 px-3">Estado</th>
                                 <th className="py-2.5 px-3 text-right">Acciones</th>
                               </tr>
@@ -784,21 +740,7 @@ export default function PanelAsignaciones({
                                     {a.asignadoTexto}
                                   </td>
                                   <td className="py-2.5 px-3 whitespace-nowrap">
-                                    {a.limiteTexto ? (
-                                      <span
-                                        className={`font-semibold ${
-                                          a.vencida ? "text-rose-600 font-bold" : "text-zinc-700"
-                                        }`}
-                                      >
-                                        {a.limiteTexto}
-                                        {a.vencida && <span className="ml-1 text-[10px] text-rose-600 font-bold">⚠️ Vencida</span>}
-                                      </span>
-                                    ) : (
-                                      <span className="text-zinc-400">Sin límite</span>
-                                    )}
-                                  </td>
-                                  <td className="py-2.5 px-3 whitespace-nowrap">
-                                    <BadgeEstado estado={a.estado} vencida={a.vencida} />
+                                    <BadgeEstado estado={a.estado} />
                                   </td>
                                   <td className="py-2.5 px-3 text-right whitespace-nowrap">
                                     <div className="inline-flex items-center gap-1.5 justify-end">
@@ -970,75 +912,24 @@ export default function PanelAsignaciones({
                   </div>
                 </div>
 
-                {/* Paso 2: Detalles opcionales (Fecha y nota) */}
-                <div className="space-y-3 rounded-2xl border border-zinc-200 bg-zinc-50/60 p-4">
-                  <span className="block text-xs font-bold uppercase tracking-wider text-zinc-500">
-                    2. Configuración (Opcional)
-                  </span>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-zinc-700 mb-1">
-                      Fecha límite de entrega
+                {/* Paso 2: Nota o instrucción opcional */}
+                <div className="space-y-2 rounded-2xl border border-zinc-200 bg-zinc-50/60 p-4">
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-zinc-600">
+                      2. Nota o instrucción especial (Opcional)
                     </label>
-                    <input
-                      type="date"
-                      value={fechaLimite}
-                      onChange={(e) => setFechaLimite(e.target.value)}
-                      className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-medium text-zinc-900 shadow-2xs outline-none focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition"
-                    />
-                    {/* Atajos de fecha */}
-                    <div className="mt-1.5 flex flex-wrap gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => aplicarAtajoFecha(0)}
-                        className="rounded-lg border border-zinc-200 bg-white px-2 py-0.5 text-[10px] font-bold text-zinc-600 hover:bg-zinc-100 transition shadow-2xs"
-                      >
-                        Hoy
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => aplicarAtajoFecha(3)}
-                        className="rounded-lg border border-zinc-200 bg-white px-2 py-0.5 text-[10px] font-bold text-zinc-600 hover:bg-zinc-100 transition shadow-2xs"
-                      >
-                        +3 días
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => aplicarAtajoFecha(7)}
-                        className="rounded-lg border border-zinc-200 bg-white px-2 py-0.5 text-[10px] font-bold text-zinc-600 hover:bg-zinc-100 transition shadow-2xs"
-                      >
-                        +1 semana
-                      </button>
-                      {fechaLimite && (
-                        <button
-                          type="button"
-                          onClick={() => setFechaLimite("")}
-                          className="rounded-lg border border-zinc-200 bg-white px-2 py-0.5 text-[10px] font-bold text-rose-600 hover:bg-rose-50 transition shadow-2xs"
-                        >
-                          Limpiar fecha
-                        </button>
-                      )}
-                    </div>
+                    <span className="text-[10px] text-zinc-400 font-mono">
+                      {nota.length}/300
+                    </span>
                   </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="block text-xs font-semibold text-zinc-700">
-                        Nota o instrucción especial
-                      </label>
-                      <span className="text-[10px] text-zinc-400 font-mono">
-                        {nota.length}/300
-                      </span>
-                    </div>
-                    <textarea
-                      rows={3}
-                      maxLength={300}
-                      value={nota}
-                      onChange={(e) => setNota(e.target.value)}
-                      placeholder="Ej. Revisión extraordinaria requerida tras el mantenimiento preventivo..."
-                      className="w-full rounded-xl border border-zinc-200 bg-white p-3 text-xs font-medium text-zinc-900 shadow-2xs outline-none focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition resize-none"
-                    />
-                  </div>
+                  <textarea
+                    rows={3}
+                    maxLength={300}
+                    value={nota}
+                    onChange={(e) => setNota(e.target.value)}
+                    placeholder="Ej. Revisión extraordinaria requerida tras el mantenimiento preventivo..."
+                    className="w-full rounded-xl border border-zinc-200 bg-white p-3 text-xs font-medium text-zinc-900 shadow-2xs outline-none focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition resize-none"
+                  />
                 </div>
               </div>
 
