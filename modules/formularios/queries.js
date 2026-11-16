@@ -210,3 +210,31 @@ export async function listarFormatosVinculados() {
     .where(sql`${formularios.plantillaId} is not null`);
   return filas;
 }
+
+/**
+ * Todas las asignaciones de formularios para el directorio de inspectores,
+ * incluyendo el formulario, preguntas, origen y semana del cronograma si aplica.
+ */
+export async function obtenerTodasAsignacionesInspectores() {
+  return db
+    .select({
+      id: asignacionesFormulario.id,
+      usuarioId: asignacionesFormulario.usuarioId,
+      formularioId: formularios.id,
+      titulo: formularios.titulo,
+      codigo: formularios.codigo,
+      campos: formularios.campos,
+      origen: asignacionesFormulario.origen,
+      estado: asignacionesFormulario.estado,
+      semanaMes: registrosCronograma.semanaMes,
+      fechaCronograma: registrosCronograma.fecha,
+      creadoEn: asignacionesFormulario.creadoEn,
+      completadaEn: asignacionesFormulario.completadaEn,
+      nota: asignacionesFormulario.nota,
+    })
+    .from(asignacionesFormulario)
+    .innerJoin(formularios, eq(formularios.id, asignacionesFormulario.formularioId))
+    .leftJoin(registrosCronograma, eq(registrosCronograma.id, asignacionesFormulario.registroId))
+    .where(or(eq(formularios.activo, true), eq(asignacionesFormulario.estado, "completada")))
+    .orderBy(asc(asignacionesFormulario.estado), desc(asignacionesFormulario.creadoEn));
+}
