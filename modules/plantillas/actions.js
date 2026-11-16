@@ -70,7 +70,14 @@ export async function crearPlantilla(entrada) {
       });
 
       revalidatePath("/");
-      return { success: true, id: creada.id, numero: creada.numero };
+      return {
+        success: true,
+        id: creada.id,
+        numero: creada.numero,
+        elementoNombre,
+        codigoFormato,
+        rol,
+      };
     } catch (error) {
       const codigo = error?.cause?.code ?? error?.code;
       if (codigo === "23505" && intento === 0) continue;

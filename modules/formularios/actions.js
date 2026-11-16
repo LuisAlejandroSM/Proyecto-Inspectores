@@ -380,3 +380,64 @@ export async function enviarRespuesta(entrada) {
     return { success: false, error: "No se pudo enviar. Intente de nuevo." };
   }
 }
+
+/**
+ * Vincula de forma rápida un formulario existente a una plantilla de inspección del cronograma.
+ * Al vincularse, sincroniza automáticamente las asignaciones del cronograma vigentes.
+ */
+export async function vincularFormularioAPlantilla(entrada) {
+  const auth = await autorizarAccion({ soloAdmin: true });
+  if (auth.error) return { success: false, error: auth.error };
+
+  const formularioId = String(entrada?.formularioId ?? "");
+  const plantillaId = String(entrada?.plantillaId ?? "");
+
+  if (!UUID_RE.test(formularioId) || !UUID_RE.test(plantillaId)) {
+    return { success: false, error: "Identificadores inválidos." };
+  }
+
+  // Verificar que la plantilla exista
+  const [plantilla] = await db
+    .select()
+    .from(plantillasInspeccion)
+    .where(eq(plantillasInspeccion.id, plantillaId))
+    .limit(1);
+
+  if (!plantilla) {
+    return { success: false, error: "Inspección del cronograma no encontrada." };
+  }
+
+  // Verificar que no haya otro formulario ya vinculado a esta plantilla
+  const [yaVinculado] = await db
+    .select({ id: formularios.id, titulo: formularios.titulo })
+    .from(formularios)
+    .where(and(eq(formularios.plantillaId, plantillaId), sql`${formularios.id} != ${formularioId}`))
+    .limit(1);
+
+  if (yaVinculado) {
+    return { success: false, error: `Esta inspección ya está vinculada a «${yaVinculado.titulo}».` };
+  }
+
+  try {
+    await db
+      .update(formularios)
+      .set({
+        plantillaId,
+        rol: plantilla.rol,
+        actualizadoEn: new Date(),
+      })
+      .where(eq(formularios.id, formularioId));
+
+    // Sincronizar asignaciones con el cronograma
+    await sincronizarSinInterrumpir({ formularioId, asignadoPor: auth.usuario.id });
+    revalidar(formularioId);
+    revalidatePath("/formularios");
+    revalidatePath("/");
+    revalidatePath("/mi-cronograma");
+
+    return { success: true };
+  } catch (error) {
+    console.error("[formularios] Error vinculando formulario a plantilla:", error);
+    return { success: false, error: "No se pudo vincular el formulario." };
+  }
+}

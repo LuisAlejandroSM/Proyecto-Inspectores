@@ -399,18 +399,18 @@ function FilaAjuste({ etiqueta, ayuda, children }) {
  *           formatos: { id: string, nombre: string, codigo: string, rol: string, periodicidad: string,
  *           vinculadoA: { id: string, titulo: string } | null }[] }} props
  */
-export default function EditorFormulario({ formulario, formatos = [] }) {
+export default function EditorFormulario({ formulario, formatos = [], valoresIniciales = null }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [titulo, setTitulo] = useState(formulario?.titulo ?? "");
+  const [titulo, setTitulo] = useState(formulario?.titulo ?? (valoresIniciales?.titulo ?? ""));
   const [descripcion, setDescripcion] = useState(formulario?.descripcion ?? "");
-  const [codigo, setCodigo] = useState(formulario?.codigo ?? "");
+  const [codigo, setCodigo] = useState(formulario?.codigo ?? (valoresIniciales?.codigo ?? ""));
   const [emision, setEmision] = useState(formulario?.emision ?? "");
   const [revision, setRevision] = useState(formulario?.revision ?? "");
   // Rol al que va dirigido: decide a quién se puede asignar.
-  const [rol, setRol] = useState(formulario?.rol ?? "");
+  const [rol, setRol] = useState(formulario?.rol ?? (valoresIniciales?.rol ?? ""));
   // Formato del cronograma vinculado: cada "P" de ese formato genera una asignación de este formulario.
-  const [plantillaId, setPlantillaId] = useState(formulario?.plantillaId ?? "");
+  const [plantillaId, setPlantillaId] = useState(formulario?.plantillaId ?? (valoresIniciales?.plantillaId ?? ""));
   // Un formulario nuevo empieza con una pregunta, como en Google Forms.
   const [campos, setCampos] = useState(() => (formulario?.campos?.length ? formulario.campos : [campoVacio("opcion_unica")]));
   const [activoId, setActivoId] = useState(() => (formulario?.id ? null : campos[0]?.id ?? null));
@@ -584,6 +584,27 @@ export default function EditorFormulario({ formulario, formatos = [] }) {
           </button>
         </div>
       </div>
+
+      {formatoElegido && !formulario?.id && (
+        <div className="mx-auto max-w-3xl flex items-center justify-between gap-3 rounded-2xl border border-amber-300 bg-amber-500/10 p-4 text-xs shadow-2xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-400/20 text-amber-900 font-black text-sm">
+              ✓
+            </span>
+            <div className="min-w-0">
+              <p className="font-bold text-zinc-950 truncate">
+                Vinculado a inspección del cronograma: {formatoElegido.nombre}
+              </p>
+              <p className="text-zinc-600 truncate mt-0.5">
+                {formatoElegido.codigo} · {formatoElegido.rol} · {formatoElegido.periodicidad}
+              </p>
+            </div>
+          </div>
+          <span className="shrink-0 rounded-lg bg-amber-100 border border-amber-300 px-2.5 py-1 font-bold text-amber-900">
+            Auto-sincronizado
+          </span>
+        </div>
+      )}
 
       {vistaPrevia ? (
         <div className="mx-auto max-w-3xl space-y-3">

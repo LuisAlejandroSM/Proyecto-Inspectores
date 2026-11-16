@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition } from "react";
 import { crearPlantilla } from "../actions";
 import { PERIODICIDADES } from "../constants";
@@ -20,11 +21,13 @@ export default function NuevaInspeccion({ rol, etiquetaRol }) {
   const [form, setForm] = useState(FORM_VACIO);
   const [error, setError] = useState("");
   const [aviso, setAviso] = useState("");
+  const [recienteCreada, setRecienteCreada] = useState(null);
 
   const abrir = () => {
     setForm(FORM_VACIO);
     setError("");
     setAviso("");
+    setRecienteCreada(null);
     setAbierto(true);
   };
 
@@ -35,9 +38,13 @@ export default function NuevaInspeccion({ rol, etiquetaRol }) {
       try {
         const res = await crearPlantilla(datos);
         if (res?.success) {
-          setAviso(
-            `Inspección N° ${res.numero} agregada a ${etiquetaRol}. Asígnela a cada inspector desde "Generar / Regenerar plan".`
-          );
+          setRecienteCreada({
+            id: res.id,
+            numero: res.numero,
+            elementoNombre: res.elementoNombre || form.elementoNombre,
+            codigoFormato: res.codigoFormato || form.codigoFormato,
+            rol,
+          });
           setAbierto(false);
         } else {
           setError(res?.error ?? "No se pudo guardar.");
@@ -63,6 +70,59 @@ export default function NuevaInspeccion({ rol, etiquetaRol }) {
         >
           + Agregar inspección
         </button>
+
+        {/* Modal de detección y creación guiada de formulario digital */}
+        {recienteCreada && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+            <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl space-y-4 animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-700 text-xl font-black">
+                📋
+              </div>
+              <div>
+                <h3 className="text-base font-black text-zinc-950">
+                  Inspección agregada al cronograma
+                </h3>
+                <p className="mt-1 text-xs text-zinc-600 leading-relaxed">
+                  Se agregó exitosamente <strong>{recienteCreada.elementoNombre}</strong> ({recienteCreada.codigoFormato || "sin código"}) al catálogo de {etiquetaRol}.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-amber-500/10 border border-amber-300 p-3.5 text-xs text-amber-950 space-y-1">
+                <p className="font-bold flex items-center gap-1.5">
+                  <span>⚠️</span> Aún no tiene formulario digital
+                </p>
+                <p className="text-zinc-600 text-[11px] leading-relaxed">
+                  Para que los inspectores puedan responder preguntas, tomar fotos y firmar desde su teléfono, esta inspección necesita un formulario digital.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-2 pt-2">
+                <Link
+                  href={`/formularios/nuevo?plantillaId=${encodeURIComponent(
+                    recienteCreada.id
+                  )}&rol=${encodeURIComponent(rol)}&titulo=${encodeURIComponent(
+                    recienteCreada.elementoNombre
+                  )}&codigo=${encodeURIComponent(recienteCreada.codigoFormato || "")}`}
+                  className="w-full sm:flex-1 rounded-xl bg-[#f5b800] hover:bg-[#e0a800] px-4 py-2.5 text-center text-xs font-bold text-[#09090b] shadow-xs active:scale-[0.98] transition"
+                >
+                  Crear formulario digital ahora →
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAviso(
+                      `Inspección N° ${recienteCreada.numero} agregada a ${etiquetaRol}. Podrá crear su formulario más tarde desde el módulo de Formularios.`
+                    );
+                    setRecienteCreada(null);
+                  }}
+                  className="w-full sm:w-auto rounded-xl border border-zinc-200 px-3.5 py-2.5 text-xs font-semibold text-zinc-700 hover:bg-zinc-50 transition"
+                >
+                  Hacerlo más tarde
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

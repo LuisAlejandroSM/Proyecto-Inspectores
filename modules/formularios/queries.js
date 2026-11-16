@@ -212,6 +212,52 @@ export async function listarFormatosVinculados() {
 }
 
 /**
+ * Lista todas las inspecciones activas del cronograma que no tienen un formulario digital vinculado,
+ * junto con la lista de formularios huérfanos (sin plantilla) para permitir vinculación rápida.
+ */
+export async function obtenerInspeccionesSinFormulario() {
+  const [todasPlantillas, formulariosVinculados, formulariosHuerfanos] = await Promise.all([
+    db
+      .select({
+        id: plantillasInspeccion.id,
+        elementoNombre: plantillasInspeccion.elementoNombre,
+        codigoFormato: plantillasInspeccion.codigoFormato,
+        periodicidad: plantillasInspeccion.periodicidad,
+        cantidadPlanificada: plantillasInspeccion.cantidadPlanificada,
+        rol: plantillasInspeccion.rol,
+        orden: plantillasInspeccion.orden,
+      })
+      .from(plantillasInspeccion)
+      .where(eq(plantillasInspeccion.activo, true))
+      .orderBy(asc(plantillasInspeccion.orden), asc(plantillasInspeccion.elementoNombre)),
+    db
+      .select({
+        plantillaId: formularios.plantillaId,
+      })
+      .from(formularios)
+      .where(and(eq(formularios.activo, true), sql`${formularios.plantillaId} is not null`)),
+    db
+      .select({
+        id: formularios.id,
+        titulo: formularios.titulo,
+        codigo: formularios.codigo,
+        rol: formularios.rol,
+      })
+      .from(formularios)
+      .where(and(eq(formularios.activo, true), sql`${formularios.plantillaId} is null`))
+      .orderBy(asc(formularios.titulo)),
+  ]);
+
+  const vinculadasIds = new Set(formulariosVinculados.map((f) => f.plantillaId));
+  const pendientes = todasPlantillas.filter((p) => !vinculadasIds.has(p.id));
+
+  return {
+    pendientes,
+    formulariosHuerfanos,
+  };
+}
+
+/**
  * Todas las asignaciones de formularios para el directorio de inspectores,
  * incluyendo el formulario, preguntas, origen y semana del cronograma si aplica.
  */

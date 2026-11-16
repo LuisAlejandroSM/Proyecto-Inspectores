@@ -6,10 +6,11 @@ export const metadata = {
   title: "Nuevo formulario · Sistema de Inspecciones Preventivas",
 };
 
-export default function NuevoFormularioPage() {
+export default async function NuevoFormularioPage({ searchParams }) {
+  const sp = await searchParams;
   return (
     <Suspense fallback={<Cargando />}>
-      <NuevoFormulario />
+      <NuevoFormulario searchParams={sp} />
     </Suspense>
   );
 }
