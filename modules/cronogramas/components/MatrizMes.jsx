@@ -448,13 +448,19 @@ export default function MatrizMes({
                       onClick={() => toggleExpandirTodos(p.id)}
                       className="text-xs font-semibold text-zinc-600 hover:text-zinc-950 underline decoration-[#f5b800] decoration-2 transition"
                     >
-                      {expandidos[p.id] ? "Ocultar días del mes" : "Ver / agregar más días"}
+                      {expandidos[p.id]
+                        ? "Ocultar calendario"
+                        : editable
+                        ? "Ver / agregar más días"
+                        : "Ver calendario del mes"}
                     </button>
                   </div>
 
                   {diasConRegistro.length === 0 ? (
                     <p className="text-xs text-zinc-400 italic py-1">
-                      Sin días programados. Toca "Ver / agregar más días" para planificar fechas.
+                      {editable
+                        ? 'Sin días programados. Toca "Ver / agregar más días" para planificar fechas.'
+                        : "Sin inspecciones programadas para este formato este mes."}
                     </p>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
