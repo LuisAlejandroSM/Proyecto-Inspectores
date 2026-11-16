@@ -28,10 +28,14 @@ async function cargarAsignaciones(id) {
     id: a.id,
     usuarioId: a.usuarioId,
     inspector: a.inspector,
+    alias: a.alias,
+    correo: a.correo,
+    cargo: a.cargo,
     rol: a.rol,
     nota: a.nota,
     estado: a.estado,
     origen: a.origen,
+    fechaLimite: a.fechaLimite,
     vencida: a.estado === "pendiente" && Boolean(a.fechaLimite) && a.fechaLimite < hoy,
     asignadoTexto: textoFechaHora(a.creadoEn),
     limiteTexto: textoFecha(a.fechaLimite),
@@ -84,7 +88,7 @@ export default async function DetalleFormulario({ params, seccion }) {
         activo={formulario.activo}
         rol={formulario.rol}
         formato={formato ? { nombre: formato.nombre, codigo: formato.codigo, periodicidad: formato.periodicidad } : null}
-        inspectores={inspectores.map((i) => ({ id: i.id, nombre: i.nombre, rol: i.rol }))}
+        inspectores={inspectores.map((i) => ({ id: i.id, nombre: i.nombre, alias: i.alias, correo: i.correo, cargo: i.cargo, rol: i.rol }))}
         asignaciones={asignaciones}
         numPreguntas={numPreguntas}
       />
