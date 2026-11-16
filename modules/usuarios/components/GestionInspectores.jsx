@@ -154,39 +154,107 @@ function ClaveTemporal({ datos, onCerrar }) {
 
 /**
  * Subpanel interactivo desplegable para un inspector:
- * Permite buscar rápidamente entre sus inspecciones asignadas y filtrarlas por estado u origen.
+ * Agrupa las inspecciones por formulario único para que no aparezcan repetidas.
+ * Al tocar cada formulario, se despliega el desglose por semanas (Semana 1, 2, 3, 4, etc.).
  */
 function PanelInspeccionesInspector({ inspector }) {
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState("todos"); // todos | pendientes | completadas | cronograma | manuales
+  const [formulariosAbiertos, setFormulariosAbiertos] = useState(() => new Set());
 
   const asignaciones = inspector.asignaciones || [];
   const total = asignaciones.length;
   const completadas = inspector.completadas || 0;
   const pendientes = inspector.pendientes || 0;
-  const cronogramas = asignaciones.filter((a) => a.origen === "cronograma").length;
-  const manuales = asignaciones.filter((a) => a.origen !== "cronograma").length;
 
-  const filtradas = useMemo(() => {
-    return asignaciones.filter((a) => {
-      // Filtro de estado / origen
-      if (filtro === "pendientes" && a.estado !== "pendiente") return false;
-      if (filtro === "completadas" && a.estado !== "completada") return false;
-      if (filtro === "cronograma" && a.origen !== "cronograma") return false;
-      if (filtro === "manuales" && a.origen === "cronograma") return false;
+  // Agrupar asignaciones por formulario único
+  const gruposFormularios = useMemo(() => {
+    const mapa = new Map();
+    for (const a of asignaciones) {
+      if (!mapa.has(a.formularioId)) {
+        mapa.set(a.formularioId, {
+          formularioId: a.formularioId,
+          titulo: a.titulo,
+          codigo: a.codigo,
+          numPreguntas: a.numPreguntas,
+          asignaciones: [],
+          completadas: 0,
+          pendientes: 0,
+          cronogramaCount: 0,
+          manualCount: 0,
+        });
+      }
+      const g = mapa.get(a.formularioId);
+      g.asignaciones.push(a);
+      if (a.estado === "completada") g.completadas += 1;
+      else g.pendientes += 1;
+      if (a.origen === "cronograma") g.cronogramaCount += 1;
+      else g.manualCount += 1;
+    }
 
-      // Filtro de texto
+    return Array.from(mapa.values()).map((g) => {
+      // Ordenar semanas / fechas dentro de cada formulario
+      const ordenadas = [...g.asignaciones].sort((x, y) => {
+        if (x.semanaMes && y.semanaMes) {
+          return x.semanaMes.localeCompare(y.semanaMes, "es", { numeric: true });
+        }
+        if (x.semanaMes) return -1;
+        if (y.semanaMes) return 1;
+        if (x.fechaCronograma && y.fechaCronograma) {
+          return x.fechaCronograma.localeCompare(y.fechaCronograma);
+        }
+        return (x.id || 0) - (y.id || 0);
+      });
+      return {
+        ...g,
+        asignaciones: ordenadas,
+        total: ordenadas.length,
+      };
+    });
+  }, [asignaciones]);
+
+  // Filtrado de grupos según búsqueda y filtro seleccionado
+  const gruposFiltrados = useMemo(() => {
+    return gruposFormularios.filter((g) => {
+      // Filtros rápidos
+      if (filtro === "pendientes" && g.pendientes === 0) return false;
+      if (filtro === "completadas" && g.completadas === 0) return false;
+      if (filtro === "cronograma" && g.cronogramaCount === 0) return false;
+      if (filtro === "manuales" && g.manualCount === 0) return false;
+
+      // Filtro de texto (título, código, semana, nota o fecha)
       if (busqueda.trim()) {
         const q = busqueda.trim().toLocaleLowerCase("es");
-        const matchTitulo = a.titulo && a.titulo.toLocaleLowerCase("es").includes(q);
-        const matchCodigo = a.codigo && a.codigo.toLocaleLowerCase("es").includes(q);
-        const matchSemana = a.semanaMes && a.semanaMes.toLocaleLowerCase("es").includes(q);
-        const matchNota = a.nota && a.nota.toLocaleLowerCase("es").includes(q);
-        if (!matchTitulo && !matchCodigo && !matchSemana && !matchNota) return false;
+        const matchTitulo = g.titulo && g.titulo.toLocaleLowerCase("es").includes(q);
+        const matchCodigo = g.codigo && g.codigo.toLocaleLowerCase("es").includes(q);
+        const matchSemanas = g.asignaciones.some(
+          (a) =>
+            (a.semanaMes && a.semanaMes.toLocaleLowerCase("es").includes(q)) ||
+            (a.nota && a.nota.toLocaleLowerCase("es").includes(q)) ||
+            (a.programadoTexto && a.programadoTexto.toLocaleLowerCase("es").includes(q))
+        );
+        if (!matchTitulo && !matchCodigo && !matchSemanas) return false;
       }
       return true;
     });
-  }, [asignaciones, busqueda, filtro]);
+  }, [gruposFormularios, busqueda, filtro]);
+
+  const alternarFormulario = (formularioId) => {
+    setFormulariosAbiertos((prev) => {
+      const next = new Set(prev);
+      if (next.has(formularioId)) next.delete(formularioId);
+      else next.add(formularioId);
+      return next;
+    });
+  };
+
+  const alternarTodos = () => {
+    if (formulariosAbiertos.size === gruposFiltrados.length) {
+      setFormulariosAbiertos(new Set());
+    } else {
+      setFormulariosAbiertos(new Set(gruposFiltrados.map((g) => g.formularioId)));
+    }
+  };
 
   if (total === 0) {
     return (
@@ -225,7 +293,7 @@ function PanelInspeccionesInspector({ inspector }) {
             type="search"
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            placeholder={`Buscar entre las ${total} inspecciones de ${inspector.nombre} (ej. side boom, Semana 3)...`}
+            placeholder={`Buscar formulario o semana en ${inspector.nombre} (ej. side boom, Semana 2)...`}
             className="w-full rounded-xl border border-zinc-200 bg-white py-1.5 pl-9 pr-3 text-xs font-medium text-zinc-900 shadow-2xs placeholder:text-zinc-400 outline-none focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/20 transition"
           />
         </div>
@@ -241,7 +309,7 @@ function PanelInspeccionesInspector({ inspector }) {
                 : "border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-100"
             }`}
           >
-            Todas ({total})
+            Formularios ({gruposFormularios.length})
           </button>
           <button
             type="button"
@@ -252,7 +320,7 @@ function PanelInspeccionesInspector({ inspector }) {
                 : "border border-amber-200 bg-amber-50 text-amber-800 hover:bg-amber-100"
             }`}
           >
-            Pendientes ({pendientes})
+            Con pendientes ({gruposFormularios.filter((g) => g.pendientes > 0).length})
           </button>
           <button
             type="button"
@@ -263,36 +331,27 @@ function PanelInspeccionesInspector({ inspector }) {
                 : "border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100"
             }`}
           >
-            Completadas ({completadas})
+            Completadas ({gruposFormularios.filter((g) => g.completadas > 0).length})
           </button>
-          <span className="hidden sm:inline-block h-3.5 w-px bg-zinc-200 mx-0.5" />
-          <button
-            type="button"
-            onClick={() => setFiltro("cronograma")}
-            className={`rounded-lg px-2.5 py-1 font-bold transition shadow-2xs ${
-              filtro === "cronograma"
-                ? "bg-zinc-900 text-white"
-                : "border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-100"
-            }`}
-          >
-            Cronograma ({cronogramas})
-          </button>
-          <button
-            type="button"
-            onClick={() => setFiltro("manuales")}
-            className={`rounded-lg px-2.5 py-1 font-bold transition shadow-2xs ${
-              filtro === "manuales"
-                ? "bg-zinc-900 text-white"
-                : "border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-100"
-            }`}
-          >
-            Manuales ({manuales})
-          </button>
+          {gruposFiltrados.length > 1 && (
+            <>
+              <span className="hidden sm:inline-block h-3.5 w-px bg-zinc-200 mx-0.5" />
+              <button
+                type="button"
+                onClick={alternarTodos}
+                className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1 font-bold text-zinc-700 hover:bg-zinc-100 transition shadow-2xs"
+              >
+                {formulariosAbiertos.size === gruposFiltrados.length
+                  ? "Colapsar todos"
+                  : "Expandir todos"}
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Lista o Subtabla de Inspecciones */}
-      {filtradas.length === 0 ? (
+      {/* Lista de Formularios Agrupados (cada formulario aparece solo una vez) */}
+      {gruposFiltrados.length === 0 ? (
         <div className="rounded-xl border border-zinc-200 bg-white p-6 text-center shadow-2xs">
           <p className="text-xs font-bold text-zinc-800">
             No se encontraron inspecciones que coincidan con &quot;{busqueda}&quot;
@@ -309,107 +368,206 @@ function PanelInspeccionesInspector({ inspector }) {
           </button>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-2xs">
-          <table className="w-full text-left text-xs">
-            <thead className="border-b border-zinc-100 bg-zinc-50/80 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
-              <tr>
-                <th className="py-2.5 px-3.5">Inspección / Formulario</th>
-                <th className="py-2.5 px-3">Origen / Programación</th>
-                <th className="py-2.5 px-3">Estado</th>
-                <th className="py-2.5 px-3">Fecha</th>
-                <th className="py-2.5 px-3 text-right">Acción</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100 text-zinc-900">
-              {filtradas.map((a) => (
-                <tr key={a.id} className="hover:bg-zinc-50/70 transition">
-                  <td className="py-2.5 px-3.5">
-                    <div className="flex flex-col">
-                      <span className="font-bold text-zinc-950 text-xs">{a.titulo}</span>
-                      <div className="flex items-center gap-2 text-[11px] text-zinc-500">
-                        {a.codigo && <span className="font-mono text-[10px] text-zinc-400">{a.codigo}</span>}
-                        {a.codigo && <span>·</span>}
-                        <span>{a.numPreguntas} preguntas</span>
+        <div className="space-y-2.5">
+          {gruposFiltrados.map((grupo) => {
+            const estaAbierto =
+              formulariosAbiertos.has(grupo.formularioId) || busqueda.trim().length > 0;
+            const todoCompletado = grupo.pendientes === 0 && grupo.completadas > 0;
+
+            return (
+              <div
+                key={grupo.formularioId}
+                className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xs transition hover:border-zinc-300"
+              >
+                {/* Cabecera del Formulario Único (Click para desplegar/ver sus semanas) */}
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => alternarFormulario(grupo.formularioId)}
+                  onKeyDown={(e) =>
+                    (e.key === "Enter" || e.key === " ") && alternarFormulario(grupo.formularioId)
+                  }
+                  className="w-full text-left p-3.5 sm:px-4 sm:py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 hover:bg-zinc-50/80 transition cursor-pointer select-none"
+                >
+                  {/* Lado izquierdo: Título, Código, Preguntas y mini-píldoras de semanas */}
+                  <div className="flex items-start sm:items-center gap-3 min-w-0">
+                    <span
+                      className={`mt-0.5 sm:mt-0 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-xs font-bold transition ${
+                        todoCompletado
+                          ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                          : "border-amber-200 bg-amber-50 text-amber-800"
+                      }`}
+                    >
+                      <IconoDocumento />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold text-zinc-950 text-xs sm:text-sm">
+                          {grupo.titulo}
+                        </span>
+                        {grupo.codigo && (
+                          <span className="font-mono text-[10px] text-zinc-400 font-semibold">
+                            {grupo.codigo}
+                          </span>
+                        )}
+                        <span className="text-[11px] text-zinc-400">·</span>
+                        <span className="text-[11px] text-zinc-500 font-medium">
+                          {grupo.numPreguntas} preguntas
+                        </span>
+                      </div>
+
+                      {/* Vista previa de las semanas programadas */}
+                      <div className="flex flex-wrap items-center gap-1.5 mt-1.5">
+                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">
+                          Programación:
+                        </span>
+                        {grupo.asignaciones.map((asig) => (
+                          <span
+                            key={asig.id}
+                            className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-bold border ${
+                              asig.estado === "completada"
+                                ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+                                : "border-zinc-200 bg-zinc-50 text-zinc-700"
+                            }`}
+                          >
+                            {asig.estado === "completada" ? (
+                              <span className="text-emerald-600">✓</span>
+                            ) : (
+                              <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                            )}
+                            {asig.semanaMes || (asig.origen === "cronograma" ? "Cronograma" : "Manual")}
+                          </span>
+                        ))}
                       </div>
                     </div>
-                  </td>
+                  </div>
 
-                  <td className="py-2.5 px-3 whitespace-nowrap">
-                    {a.origen === "cronograma" ? (
-                      <div className="inline-flex flex-wrap items-center gap-1.5">
-                        <span className="inline-flex items-center gap-1 rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] font-semibold text-zinc-700 shadow-2xs">
-                          <IconoCalendario />
-                          Cronograma
+                  {/* Lado derecho: Estado global y botón para desplegar semanas */}
+                  <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-100">
+                    <div className="flex items-center gap-2">
+                      {todoCompletado ? (
+                        <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800">
+                          <IconoCheck />
+                          {grupo.total === 1 ? "Completada" : `${grupo.completadas} / ${grupo.total} listas`}
                         </span>
-                        {a.semanaMes && (
-                          <span className="rounded-md border border-amber-300 bg-amber-50 px-1.5 py-0.5 text-[10px] font-bold text-amber-900 shadow-2xs">
-                            {a.semanaMes}
-                          </span>
-                        )}
-                        {a.programadoTexto && (
-                          <span className="text-[11px] text-zinc-500 font-medium">
-                            ({a.programadoTexto})
-                          </span>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex flex-col gap-0.5">
-                        <span className="inline-flex items-center gap-1 w-fit rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold text-amber-800 shadow-2xs">
-                          <IconoMano />
-                          Manual
+                      ) : grupo.completadas > 0 ? (
+                        <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800">
+                          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                          {grupo.completadas} de {grupo.total} listas ({grupo.pendientes} pend.)
                         </span>
-                        {a.nota && (
-                          <span className="text-[10px] text-zinc-500 italic max-w-xs truncate" title={a.nota}>
-                            &quot;{a.nota}&quot;
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </td>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800">
+                          <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                          {grupo.total === 1 ? "Pendiente" : `${grupo.pendientes} pendientes`}
+                        </span>
+                      )}
+                    </div>
 
-                  <td className="py-2.5 px-3 whitespace-nowrap">
-                    {a.estado === "completada" ? (
-                      <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 shadow-2xs">
-                        <IconoCheck />
-                        Completada
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-zinc-600 hover:text-zinc-950">
+                      <span className="hidden sm:inline">
+                        {estaAbierto ? "Ocultar semanas" : `Ver semanas (${grupo.total})`}
                       </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800 shadow-2xs">
-                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-                        Pendiente
+                      <IconoChevron abierto={estaAbierto} />
+                    </span>
+                  </div>
+                </div>
+
+                {/* Desglose desplegable de semanas / asignaciones */}
+                {estaAbierto && (
+                  <div className="border-t border-zinc-100 bg-zinc-50/60 p-3 sm:p-4 space-y-2">
+                    <div className="flex items-center justify-between px-1">
+                      <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                        Detalle por semana ({grupo.asignaciones.length} programada{grupo.asignaciones.length > 1 ? "s" : ""})
                       </span>
-                    )}
-                  </td>
+                      <span className="text-[10px] text-zinc-400 font-medium">
+                        Toque para abrir el formulario o revisar la respuesta
+                      </span>
+                    </div>
 
-                  <td className="py-2.5 px-3 whitespace-nowrap text-zinc-500 text-[11px]">
-                    {a.estado === "completada"
-                      ? a.completadaEnTexto || "Completada"
-                      : a.creadoEnTexto
-                      ? `Asignada ${a.creadoEnTexto}`
-                      : "—"}
-                  </td>
+                    <div className="divide-y divide-zinc-200/80 rounded-xl border border-zinc-200 bg-white overflow-hidden shadow-2xs">
+                      {grupo.asignaciones.map((asig) => (
+                        <div
+                          key={asig.id}
+                          className="p-3 sm:px-4 sm:py-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 hover:bg-zinc-50/70 transition"
+                        >
+                          {/* Identificación de la semana / origen */}
+                          <div className="flex flex-wrap items-center gap-2.5 min-w-0">
+                            {asig.origen === "cronograma" ? (
+                              <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-950 shadow-2xs shrink-0">
+                                <IconoCalendario />
+                                {asig.semanaMes || "Cronograma"}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-900 shadow-2xs shrink-0">
+                                <IconoMano />
+                                Asignación manual
+                              </span>
+                            )}
 
-                  <td className="py-2.5 px-3 text-right whitespace-nowrap">
-                    {a.estado === "completada" ? (
-                      <Link
-                        href={`/formularios/respuesta/${a.id}`}
-                        className="rounded-lg bg-[#09090b] px-3 py-1 text-[11px] font-bold text-white shadow-2xs hover:bg-zinc-800 transition"
-                      >
-                        Ver respuesta →
-                      </Link>
-                    ) : (
-                      <Link
-                        href={`/formularios/${a.formularioId}`}
-                        className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-bold text-zinc-700 shadow-2xs hover:bg-zinc-50 transition"
-                      >
-                        Ver formulario
-                      </Link>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                            <div className="flex flex-wrap items-center gap-2 text-xs">
+                              {asig.programadoTexto ? (
+                                <span className="text-zinc-600 font-medium">
+                                  Programada para: <strong className="text-zinc-900">{asig.programadoTexto}</strong>
+                                </span>
+                              ) : asig.creadoEnTexto ? (
+                                <span className="text-zinc-500">
+                                  Asignada el {asig.creadoEnTexto}
+                                </span>
+                              ) : null}
+
+                              {asig.nota && (
+                                <span className="text-[11px] text-zinc-500 italic truncate max-w-xs sm:max-w-md" title={asig.nota}>
+                                  &quot;{asig.nota}&quot;
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Estado y Botón de acción */}
+                          <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-zinc-100">
+                            {asig.estado === "completada" ? (
+                              <div className="flex items-center gap-2">
+                                <span className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-800 shadow-2xs">
+                                  <IconoCheck />
+                                  Completada
+                                </span>
+                                {asig.completadaEnTexto && (
+                                  <span className="text-[11px] text-zinc-400 font-medium hidden sm:inline">
+                                    {asig.completadaEnTexto}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-800 shadow-2xs">
+                                <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                                Pendiente
+                              </span>
+                            )}
+
+                            {asig.estado === "completada" ? (
+                              <Link
+                                href={`/formularios/respuesta/${asig.id}`}
+                                className="rounded-lg bg-[#09090b] px-3 py-1 text-[11px] font-bold text-white shadow-2xs hover:bg-zinc-800 transition"
+                              >
+                                Ver respuesta →
+                              </Link>
+                            ) : (
+                              <Link
+                                href={`/formularios/${asig.formularioId}`}
+                                className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-bold text-zinc-700 shadow-2xs hover:bg-zinc-50 transition"
+                              >
+                                Ver formulario
+                              </Link>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
