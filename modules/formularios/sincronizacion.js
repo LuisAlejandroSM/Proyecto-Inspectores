@@ -29,6 +29,7 @@ export async function sincronizarAsignacionesCronograma({ formularioId = null, u
       formularioPlantilla: formularios.plantillaId,
       formularioRol: formularios.rol,
       usuarioRol: usuarios.rol,
+      usuarioActivo: usuarios.activo,
       registroPlantilla: registrosCronograma.plantillaId,
       planificado: registrosCronograma.planificado,
       noEjecutado: registrosCronograma.noEjecutado,
@@ -51,6 +52,7 @@ export async function sincronizarAsignacionesCronograma({ formularioId = null, u
       (a) =>
         !a.registroId ||
         !a.formularioActivo ||
+        !a.usuarioActivo ||
         a.formularioPlantilla !== a.registroPlantilla ||
         a.planificado !== 1 ||
         a.noEjecutado > 0 ||

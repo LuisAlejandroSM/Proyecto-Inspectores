@@ -1,12 +1,14 @@
 "use server";
 
-import { and, eq, ne, sql } from "drizzle-orm";
+import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { ROL_ADMINISTRACION, ROL_SUPERVISOR_SIHO, ROLES_OPERATIVOS } from "@/db/roles";
-import { usuarios } from "@/db/schema";
+import { archivosFormulario, asignacionesFormulario, usuarios } from "@/db/schema";
 import { generarClaveTemporal, hashearClave } from "@/modules/auth/clave";
 import { autorizarAccion } from "@/modules/auth/dal";
+import { borrarArchivo } from "@/modules/formularios/almacenamiento";
+import { sincronizarSinInterrumpir } from "@/modules/formularios/sincronizacion";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const CORREO_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -136,7 +138,50 @@ export async function cambiarEstadoInspector(entrada) {
     }
 
     await db.update(usuarios).set({ activo }).where(eq(usuarios.id, id));
+
+    if (!activo) {
+      // Opción A: Cancelar únicamente asignaciones PENDIENTES del inspector desactivado.
+      // Las COMPLETADAS (respuestas, fotos, historial y trazabilidad) NUNCA se tocan.
+      const pendientes = await db
+        .select({ id: asignacionesFormulario.id })
+        .from(asignacionesFormulario)
+        .where(
+          and(
+            eq(asignacionesFormulario.usuarioId, id),
+            eq(asignacionesFormulario.estado, "pendiente")
+          )
+        );
+
+      if (pendientes.length > 0) {
+        const idsPendientes = pendientes.map((p) => p.id);
+
+        // Limpiar archivos o fotos borrador de esas asignaciones pendientes
+        const fotos = await db
+          .select({ ruta: archivosFormulario.ruta })
+          .from(archivosFormulario)
+          .where(inArray(archivosFormulario.asignacionId, idsPendientes));
+
+        await db
+          .delete(asignacionesFormulario)
+          .where(
+            and(
+              inArray(asignacionesFormulario.id, idsPendientes),
+              eq(asignacionesFormulario.estado, "pendiente")
+            )
+          );
+
+        if (fotos.length > 0) {
+          await Promise.all(fotos.map((f) => borrarArchivo(f.ruta)));
+        }
+      }
+    } else {
+      // Si se reactivó el inspector, sincronizar para regenerar asignaciones planificadas ("P") activas
+      await sincronizarSinInterrumpir({ usuarioId: id });
+    }
+
     revalidar();
+    revalidatePath("/formularios", "layout");
+    revalidatePath("/mis-formularios");
     return { success: true };
   } catch (error) {
     console.error("[usuarios] Error al cambiar estado:", error);
