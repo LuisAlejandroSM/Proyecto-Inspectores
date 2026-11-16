@@ -493,10 +493,10 @@ export default function MatrizMes({
                                   <button
                                     type="button"
                                     onClick={() => togglePlanificado(p.id, c.dia)}
-                                    className={`h-7 px-2.5 rounded-lg text-xs font-bold transition ${
+                                    className={`h-7 px-2.5 rounded-lg text-xs font-bold transition border ${
                                       celda.planificado > 0
-                                        ? "bg-[#09090b] text-[#f5b800]"
-                                        : "bg-zinc-100 text-zinc-400"
+                                        ? "border-amber-300 bg-amber-50 text-amber-900"
+                                        : "border-zinc-200 bg-zinc-100 text-zinc-400"
                                     }`}
                                     title={celda.planificado > 0 ? "Quitar P" : "Planificar P"}
                                   >
@@ -559,7 +559,7 @@ export default function MatrizMes({
                                       ? "border-emerald-200 bg-emerald-50 text-emerald-700"
                                       : celda.noEjecutado
                                         ? "border-rose-200 bg-rose-50 text-rose-700"
-                                        : "border-zinc-200 bg-zinc-50 text-zinc-500"
+                                        : "border-amber-200 bg-amber-50 text-amber-900"
                                   }`}
                                 >
                                   {celda.ejecutado
@@ -610,7 +610,7 @@ export default function MatrizMes({
                                     : noEjec
                                       ? "border-rose-300 bg-rose-50 text-rose-700 font-extrabold"
                                       : plan
-                                        ? "border-zinc-950 bg-[#09090b] text-[#f5b800] shadow-xs"
+                                        ? "border-amber-300 bg-amber-50 text-amber-900 font-extrabold shadow-2xs"
                                         : c.finDeSemana
                                           ? "border-zinc-200/60 bg-zinc-100/50 text-zinc-300"
                                           : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300"
@@ -740,24 +740,24 @@ export default function MatrizMes({
                               aria-label={`Planificar ${p.elementoNombre} día ${c.dia}`}
                               aria-pressed={celda.planificado > 0}
                               onClick={() => togglePlanificado(p.id, c.dia)}
-                              className={`mx-auto flex h-5 w-5 items-center justify-center rounded-lg text-[10px] font-bold transition ${
+                              className={`mx-auto flex h-5 w-6 items-center justify-center rounded border text-[11px] font-bold transition ${
                                 celda.planificado > 0
-                                  ? "bg-[#09090b] text-[#f5b800] shadow-2xs ring-1 ring-black/10"
-                                  : "text-zinc-300 hover:bg-zinc-100 hover:text-zinc-700"
+                                  ? "border-amber-300 bg-amber-50 text-amber-900 shadow-2xs hover:bg-amber-100"
+                                  : "border-transparent text-zinc-300 hover:bg-zinc-100 hover:text-zinc-700"
                               }`}
                             >
-                              {celda.planificado > 0 ? "P" : "·"}
+                              {celda.planificado > 0 ? (celda.planificado > 1 ? celda.planificado : "P") : "·"}
                             </button>
-                          ) : (
-                            <span className={`text-[10px] font-bold ${celda.planificado ? "text-[#09090b]" : "text-zinc-300"}`}>
-                              {celda.planificado > 1 ? celda.planificado : celda.planificado === 1 ? "P" : ""}
+                          ) : celda.planificado > 0 ? (
+                            <span className="mx-auto flex h-5 w-6 items-center justify-center rounded border border-amber-300 bg-amber-50 text-[11px] font-bold text-amber-900">
+                              {celda.planificado > 1 ? celda.planificado : "P"}
                             </span>
-                          )}
+                          ) : null}
                         </td>
                       );
                     })}
 
-                    <td className="border-r border-b border-zinc-200 bg-zinc-50 p-1 text-center font-bold tabular-nums text-zinc-900">
+                    <td className="border-r border-b border-zinc-200 bg-amber-50/50 p-1 text-center font-bold tabular-nums text-amber-900">
                       {totP}
                     </td>
                     <td
@@ -833,21 +833,21 @@ export default function MatrizMes({
                             >
                               {texto || "?"}
                             </button>
-                          ) : (
+                          ) : celda.ejecutado > 0 || celda.noEjecutado > 0 ? (
                             <span
-                              className={`text-[10px] font-bold tabular-nums ${
-                                celda.ejecutado ? "text-emerald-700" : celda.noEjecutado ? "text-rose-600" : ""
+                              className={`mx-auto flex h-5 w-6 items-center justify-center rounded border text-[11px] font-bold tabular-nums ${
+                                celda.ejecutado
+                                  ? "border-emerald-300 bg-emerald-50 text-emerald-800"
+                                  : "border-rose-300 bg-rose-50 text-rose-700"
                               }`}
                             >
                               {celda.ejecutado
                                 ? celda.ejecutado
-                                : celda.noEjecutado
-                                  ? celda.noEjecutado > 1
-                                    ? `N${celda.noEjecutado}`
-                                    : "N"
-                                  : ""}
+                                : celda.noEjecutado > 1
+                                  ? `N${celda.noEjecutado}`
+                                  : "N"}
                             </span>
-                          )}
+                          ) : null}
                         </td>
                       );
                     })}
@@ -869,7 +869,7 @@ export default function MatrizMes({
                 <td colSpan={columnasFijas - 2} />
                 <td colSpan={columnas.length} />
                 <td className="border-r border-zinc-300 p-1 text-center tabular-nums">
-                  <div className="text-zinc-950 font-bold">{totales.globalP}</div>
+                  <div className="text-amber-900 font-bold">{totales.globalP}</div>
                   <div className="text-emerald-700 font-bold">{totales.globalE}</div>
                 </td>
                 <td className={`p-1 text-center text-xs font-black tabular-nums ${colorEfectividad(globalPct, totales.globalP)}`}>
