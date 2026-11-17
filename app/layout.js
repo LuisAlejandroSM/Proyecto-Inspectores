@@ -1,16 +1,20 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import { Suspense } from "react";
 import MenuPrincipal from "@/modules/auth/components/MenuPrincipal";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const fontSans = Plus_Jakarta_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const fontMono = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata = {
@@ -36,11 +40,11 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} ${geistSans.className} h-full antialiased`}
+      className={`${fontSans.variable} ${fontMono.variable} h-full antialiased`}
     >
       {/* Celular: columna (barra superior + contenido). Escritorio: barra lateral + contenido en fila;
           sin sesión, la barra superior ocupa una fila completa gracias al wrap. */}
-      <body className={`${geistSans.className} flex min-h-full flex-col bg-background font-sans md:flex-row md:flex-wrap`}>
+      <body className="flex min-h-full flex-col bg-background font-sans text-slate-900 antialiased selection:bg-[#f5b800]/30 selection:text-slate-900 md:flex-row md:flex-wrap">
         {/* La navegación depende del usuario (lee la sesión): va dentro de Suspense. */}
         <Suspense fallback={null}>
           <MenuPrincipal />
