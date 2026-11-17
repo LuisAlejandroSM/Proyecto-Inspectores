@@ -5,8 +5,8 @@ import { useTransition } from "react";
 import { ANIOS, MESES, VISTAS } from "@/modules/cronogramas/constants";
 
 const CLASE_SELECT =
-  "rounded-lg border border-zinc-200 bg-white px-3 py-2 text-xs font-semibold text-zinc-900 shadow-2xs hover:border-zinc-300 focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/25 transition outline-none";
-const CLASE_LABEL = "flex flex-col gap-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500";
+  "rounded-xl border border-slate-200/90 bg-white px-3.5 py-2 text-xs font-semibold text-slate-800 shadow-2xs hover:border-slate-300 focus:border-[#f5b800] focus:ring-2 focus:ring-[#f5b800]/25 transition outline-none";
+const CLASE_LABEL = "flex flex-col gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500";
 
 /** Filtros del dashboard: barra compacta, estado en la URL. */
 export default function FiltrosDashboard({ mes, anio, rol }) {
@@ -19,7 +19,7 @@ export default function FiltrosDashboard({ mes, anio, rol }) {
   };
 
   return (
-    <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-zinc-200 bg-white p-4 shadow-xs">
+    <div className="flex flex-wrap items-end gap-3.5 rounded-2xl border border-slate-200/80 bg-white p-4 sm:p-4.5 shadow-xs">
       <label className={CLASE_LABEL}>
         Mes
         <select value={mes} onChange={(e) => navegar({ mes: e.target.value })} className={CLASE_SELECT}>

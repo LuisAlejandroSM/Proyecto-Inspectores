@@ -176,22 +176,25 @@ a {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Tokens de color para las gráficas del dashboard (Data Visualization) */
+/* Tokens de color para las gráficas del dashboard (Data Visualization - B2B Executive) */
 .viz-root {
   --viz-surface: #ffffff;
-  --viz-text-primary: #09090b;
-  --viz-text-secondary: #71717a;
-  --viz-muted: #a1a1aa;
-  --viz-grid: #f4f4f5;
-  --viz-axis: #e4e4e7;
-  /* Series operacionales */
-  --viz-plan: #3b82f6;
-  --viz-plan-wash: rgba(59, 130, 246, 0.08);
-  --viz-ejec: #10b981;
-  /* Estados */
-  --viz-good: #10b981;
-  --viz-warning: #f5b800;
-  --viz-critical: #ef4444;
+  --viz-text-primary: #0f172a; /* Slate 900 */
+  --viz-text-secondary: #475569; /* Slate 600 */
+  --viz-muted: #94a3b8; /* Slate 400 */
+  --viz-grid: #f1f5f9; /* Slate 100 */
+  --viz-axis: #e2e8f0; /* Slate 200 */
+  /* Series operacionales B2B */
+  --viz-plan: #6366f1; /* Indigo 500 */
+  --viz-plan-dark: #4f46e5; /* Indigo 600 */
+  --viz-plan-wash: rgba(99, 102, 241, 0.12);
+  --viz-ejec: #10b981; /* Emerald 500 */
+  --viz-ejec-dark: #059669; /* Emerald 600 */
+  --viz-ejec-wash: rgba(16, 185, 129, 0.12);
+  /* Estados semánticos */
+  --viz-good: #10b981; /* Emerald 500 */
+  --viz-warning: #f59e0b; /* Amber 500 */
+  --viz-critical: #f43f5e; /* Rose 500 */
   --viz-good-text: #065f46;
 }
 

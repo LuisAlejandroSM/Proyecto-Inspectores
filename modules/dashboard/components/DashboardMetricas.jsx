@@ -112,7 +112,7 @@ export default async function DashboardMetricas({ searchParams }) {
         </div>
       )}
 
-      {/* Indicadores principales: una fila de 4, todos del mismo alto */}
+      {/* Indicadores principales: una fila de 4, todos del mismo alto con jerarquía homogénea */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <div className="col-span-2 sm:col-span-1">
           <CifraPrincipal
@@ -129,24 +129,30 @@ export default async function DashboardMetricas({ searchParams }) {
           grande
           etiqueta="Inspecciones planificadas"
           valor={formatoNumero(t.planificadas)}
+          pildora={t.planificadas > 0 ? `${(t.planificadas / m.totalDias).toFixed(1)}/día prom.` : null}
           diferencia={hayAnterior ? t.planificadas - prev.planificadas : null}
           referencia={anterior.mes}
           subirEsBueno={null}
+          detalle={`${formatoNumero(t.planificadasALaFecha)} a la fecha · ${formatoNumero(t.restantes)} restantes`}
         />
         <Indicador
           grande
           etiqueta="Inspecciones ejecutadas"
           valor={formatoNumero(t.ejecutadas)}
+          pildora={t.planificadas > 0 ? `${formatoPorcentaje(t.ejecutadas / t.planificadas)} del plan` : null}
           diferencia={hayAnterior ? t.ejecutadasALaFecha - prev.ejecutadasALaFecha : null}
           referencia={refAnterior}
           subirEsBueno
+          detalle={`${formatoNumero(t.noEjecutadas)} no ejecutadas (N) · ${formatoNumero(t.fueraDePlan)} fuera de plan`}
         />
         <div className="col-span-2 sm:col-span-1">
           <Indicador
             grande
             etiqueta="Inspectores con cronograma"
             valor={`${formatoNumero(t.inspectoresConPlan)} de ${formatoNumero(datos.inspectoresActivos)}`}
+            pildora={datos.inspectoresActivos > 0 ? `${formatoPorcentaje(t.inspectoresConPlan / datos.inspectoresActivos)} cobertura` : null}
             nota={`${formatoNumero(t.restantes)} inspecciones programadas por delante`}
+            detalle={`${formatoNumero(datos.inspectoresActivos)} inspectores activos en la cuadrilla`}
           />
         </div>
       </div>
@@ -275,6 +281,14 @@ export default async function DashboardMetricas({ searchParams }) {
             etiquetaEje="Inspecciones planificadas por día de la semana"
             categorias={m.cargaSemanal.map((d) => d.etiqueta)}
             series={[{ etiqueta: "Planificadas", color: COLOR_PLAN, valores: m.cargaSemanal.map((d) => d.p) }]}
+            lineaPromedio={
+              m.cargaSemanal.length > 0 && t.planificadas > 0
+                ? {
+                    valor: Math.round(m.cargaSemanal.reduce((acc, cur) => acc + cur.p, 0) / m.cargaSemanal.length),
+                    etiqueta: `Promedio: ${Math.round(m.cargaSemanal.reduce((acc, cur) => acc + cur.p, 0) / m.cargaSemanal.length)}/día`,
+                  }
+                : null
+            }
           />
         </TarjetaGrafico>
       </div>
