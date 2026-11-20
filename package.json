@@ -3,8 +3,7 @@
   "version": "1.1.0",
   "private": true,
   "scripts": {
-    "predev": "wsl -d Ubuntu -u root -- systemctl start postgresql@18-main",
-    "dev": "next dev",
+    "dev": "node scripts/iniciar-dev.js",
     "db:wsl": "wsl -d Ubuntu -u root -- systemctl start postgresql@18-main",
     "build": "next build",
     "start": "next start -p 8030",
